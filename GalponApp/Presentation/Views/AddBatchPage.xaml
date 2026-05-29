@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:GalponApp.Domain.Models"
+             x:Class="GalponApp.Presentation.Views.AddBatchPage"
+             Title="{Binding Title}"
+             BackgroundColor="#F4F6F4">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Color x:Key="PrimaryGreen">#2E7D32</Color>
+            <Color x:Key="CardBackground">#FFFFFF</Color>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="16">
+            
+            <Border StrokeShape="RoundRectangle 12" StrokeThickness="0" BackgroundColor="{StaticResource CardBackground}">
+                <Border.Shadow>
+                    <Shadow Brush="Black" Offset="0,2" Radius="4" Opacity="0.05" />
+                </Border.Shadow>
+                <VerticalStackLayout Padding="16" Spacing="14">
+                    
+                    <Label Text="Identificación del Lote" FontSize="16" FontAttributes="Bold" TextColor="#2E7D32" />
+                    
+                    <!-- Nombre -->
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Nombre del Lote *" FontSize="12" TextColor="#475569" FontAttributes="Bold" />
+                        <Border StrokeShape="RoundRectangle 6" StrokeThickness="1" Stroke="#CBD5E1" Padding="8,2">
+                            <Entry Placeholder="Ej: Cerdos Galpón B" Text="{Binding Name}" FontSize="14" TextColor="#1E293B" />
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!-- Especie / Categoría -->
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Especie / Categoría *" FontSize="12" TextColor="#475569" FontAttributes="Bold" />
+                        <Border StrokeShape="RoundRectangle 6" StrokeThickness="1" Stroke="#CBD5E1" Padding="8,2">
+                            <Picker ItemsSource="{Binding Categories}" 
+                                    SelectedItem="{Binding SelectedCategory}" 
+                                    ItemDisplayBinding="{Binding Name}" 
+                                    SelectedIndexChanged="Picker_SelectedIndexChanged"
+                                    FontSize="14" 
+                                    TextColor="#1E293B" />
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!-- Raza -->
+                    <Grid ColumnDefinitions="*, *">
+                        <VerticalStackLayout Grid.Column="0" Spacing="4" Margin="0,0,6,0">
+                            <Label Text="Raza *" FontSize="12" TextColor="#475569" FontAttributes="Bold" />
+                            <Border StrokeShape="RoundRectangle 6" StrokeThickness="1" Stroke="#CBD5E1" Padding="8,2">
+                                <Picker ItemsSource="{Binding Breeds}" 
+                                        SelectedItem="{Binding SelectedBreed}" 
+                                        FontSize="14" 
+                                        TextColor="#1E293B" />
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <!-- Propósito -->
+                        <VerticalStackLayout Grid.Column="1" Spacing="4" Margin="6,0,0,0">
+                            <Label Text="Propósito Comercial *" FontSize="12" TextColor="#475569" FontAttributes="Bold" />
+                            <Border StrokeShape="RoundRectangle 6" StrokeThickness="1" Stroke="#CBD5E1" Padding="8,2">
+                                <Picker ItemsSource="{Binding Purposes}" 
+                                        SelectedItem="{Binding SelectedPurpose}" 
+                                        FontSize="14" 
+                                        TextColor="#1E293B" />
+                            </Border>
+                        </VerticalStackLayout>
+                    </Grid>
+
+                </VerticalStackLayout>
+            </Border>
+
+            <Border StrokeShape="RoundRectangle 12" StrokeThickness="0" BackgroundColor="{StaticResource CardBackground}">
+                <Border.Shadow>
+                    <Shadow Brush="Black" Offset="0,2" Radius="4" Opacity="0.05" />
+                </Border.Shadow>
+                <VerticalStackLayout Padding="16" Spacing="14">
+                    
+                    <Label Text="Detalles Físicos y de Ingreso" FontSize="16" FontAttributes="Bold" TextColor="#2E7D32" />
+
+                    <!-- Cantidad Inicial y Peso Promedio Inicial -->
+                    <Grid ColumnDefinitions="*, *">
+                        <VerticalStackLayout Grid.Column="0" Spacing="4" Margin="0,0,6,0">
+                            <Label Text="Cantidad de Animales *" FontSize="12" TextColor="#475569" FontAttributes="Bold" />
+                            <Border StrokeShape="RoundRectangle 6" StrokeThickness="1" Stroke="#CBD5E1" Padding="8,2">
+                                <Entry Keyboard="Numeric" Text="{Binding QuantityString}" FontSize="14" TextColor="#1E293B" />
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Grid.Column="1" Spacing="4" Margin="6,0,0,0">
+                            <Label Text="Peso Inicial Prom. (kg) *" FontSize="12" TextColor="#475569" FontAttributes="Bold" />
+                            <Border StrokeShape="RoundRectangle 6" StrokeThickness="1" Stroke="#CBD5E1" Padding="8,2">
+                                <Entry Keyboard="Numeric" Text="{Binding InitialWeightString}" FontSize="14" TextColor="#1E293B" />
+                            </Border>
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <!-- Género y Estado Sanitario Inicial -->
+                    <Grid ColumnDefinitions="*, *">
+                        <VerticalStackLayout Grid.Column="0" Spacing="4" Margin="0,0,6,0">
+                            <Label Text="Sexo / Género" FontSize="12" TextColor="#475569" FontAttributes="Bold" />
+                            <Border StrokeShape="RoundRectangle 6" StrokeThickness="1" Stroke="#CBD5E1" Padding="8,2">
+                                <Picker ItemsSource="{Binding Genders}" SelectedItem="{Binding SelectedGender}" FontSize="14" TextColor="#1E293B" />
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Grid.Column="1" Spacing="4" Margin="6,0,0,0">
+                            <Label Text="Estado de Salud" FontSize="12" TextColor="#475569" FontAttributes="Bold" />
+                            <Border StrokeShape="RoundRectangle 6" StrokeThickness="1" Stroke="#CBD5E1" Padding="8,2">
+                                <Picker ItemsSource="{Binding SanitaryStatuses}" SelectedItem="{Binding SelectedSanitaryStatus}" FontSize="14" TextColor="#1E293B" />
+                            </Border>
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <!-- Fecha de Nacimiento / Entrada -->
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Fecha de Nacimiento o Entrada *" FontSize="12" TextColor="#475569" FontAttributes="Bold" />
+                        <Border StrokeShape="RoundRectangle 6" StrokeThickness="1" Stroke="#CBD5E1" Padding="8,2">
+                            <DatePicker Date="{Binding BirthDate}" Format="dd/MM/yyyy" FontSize="14" TextColor="#1E293B" />
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!-- Notas Adicionales -->
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Observaciones Adicionales" FontSize="12" TextColor="#475569" FontAttributes="Bold" />
+                        <Border StrokeShape="RoundRectangle 6" StrokeThickness="1" Stroke="#CBD5E1" Padding="8,2" HeightRequest="80">
+                            <Editor Placeholder="Galpón asignado, procedencia de compra, etc..." Text="{Binding Notes}" FontSize="14" TextColor="#1E293B" VerticalOptions="Fill" />
+                        </Border>
+                    </VerticalStackLayout>
+
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Botones de Acción -->
+            <Button Text="💾 Registrar y Autogenerar Calendario" 
+                    Command="{Binding SaveBatchCommand}" 
+                    BackgroundColor="{StaticResource PrimaryGreen}" 
+                    TextColor="White" 
+                    FontSize="16" 
+                    FontAttributes="Bold" 
+                    HeightRequest="50" 
+                    CornerRadius="25" 
+                    Margin="0,8,0,0" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

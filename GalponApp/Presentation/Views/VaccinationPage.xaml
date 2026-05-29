@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:GalponApp.Presentation.ViewModels"
+             xmlns:models="clr-namespace:GalponApp.Domain.Models"
+             x:Class="GalponApp.Presentation.Views.VaccinationPage"
+             Title="{Binding Title}"
+             BackgroundColor="#F4F6F4">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Color x:Key="PrimaryGreen">#2E7D32</Color>
+            <Color x:Key="CardBackground">#FFFFFF</Color>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto, *, Auto" Padding="16" RowSpacing="12">
+
+        <!-- Filtro de Estado (Chips) -->
+        <CollectionView Grid.Row="0" 
+                        ItemsSource="{Binding FilterOptions}" 
+                        SelectedItem="{Binding FilterStatus}" 
+                        SelectionMode="Single"
+                        HeightRequest="42"
+                        SelectionChanged="CollectionView_SelectionChanged">
+            <CollectionView.ItemsLayout>
+                <LinearItemsLayout Orientation="Horizontal" ItemSpacing="8" />
+            </CollectionView.ItemsLayout>
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Border x:Name="ChipBorder" StrokeShape="RoundRectangle 18" StrokeThickness="1.5" HeightRequest="36" Padding="14,0" VerticalOptions="Center">
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup Name="CommonStates">
+                                <VisualState Name="Normal">
+                                    <VisualState.Setters>
+                                        <Setter Property="BackgroundColor" Value="White" />
+                                        <Setter Property="Stroke" Value="#E2E8F0" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState Name="Selected">
+                                    <VisualState.Setters>
+                                        <Setter Property="BackgroundColor" Value="#E0F2FE" />
+                                        <Setter Property="Stroke" Value="#0284C7" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                        <Label x:Name="ChipLabel" Text="{Binding .}" FontSize="13" FontAttributes="Bold" VerticalOptions="Center" />
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <!-- Calendario de Tareas Veterinarias -->
+        <RefreshView Grid.Row="1" Command="{Binding LoadVaccinationsCommand}" IsRefreshing="{Binding IsBusy}">
+            <CollectionView ItemsSource="{Binding Vaccinations}" EmptyView="No se registran vacunas para el filtro seleccionado.">
+                <CollectionView.ItemsLayout>
+                    <LinearItemsLayout Orientation="Vertical" ItemSpacing="12" />
+                </CollectionView.ItemsLayout>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:Vaccination">
+                        <Border StrokeShape="RoundRectangle 12" StrokeThickness="0" BackgroundColor="{StaticResource CardBackground}">
+                            <Border.Shadow>
+                                <Shadow Brush="Black" Offset="0,2" Radius="4" Opacity="0.05" />
+                            </Border.Shadow>
+                            <Grid Padding="14" ColumnDefinitions="Auto, *, Auto" RowDefinitions="Auto, Auto, Auto" ColumnSpacing="12" RowSpacing="2">
+                                
+                                <!-- Botón de Aplicado/Check -->
+                                <Button Grid.Column="0" Grid.Row="0" Grid.RowSpan="3" 
+                                        Text="{Binding AppliedSymbol}" 
+                                        TextColor="{Binding AppliedColor}"
+                                        BackgroundColor="{Binding AppliedBgColor}" 
+                                        WidthRequest="36" 
+                                        HeightRequest="36" 
+                                        CornerRadius="18" 
+                                        Padding="0" 
+                                        FontSize="14" 
+                                        VerticalOptions="Center"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:VaccinationViewModel}}, Path=ToggleVaccinationCommand}"
+                                        CommandParameter="{Binding .}" />
+
+                                <!-- Nombre vacuna e info -->
+                                <Label Grid.Row="0" Grid.Column="1" Text="{Binding Name}" FontSize="15" FontAttributes="Bold" TextColor="#1E293B" />
+                                
+                                <!-- Subtítulo: Lote de animales -->
+                                <HorizontalStackLayout Grid.Row="1" Grid.Column="1" Spacing="6" VerticalOptions="Center">
+                                    <Label Text="📦 Lote:" FontSize="11" TextColor="#64748B" />
+                                    <Label Text="{Binding BatchName}" FontSize="11" FontAttributes="Bold" TextColor="#2E7D32" />
+                                    <Label Text="•" TextColor="#CBD5E1" />
+                                    <Label Text="{Binding Type}" FontSize="11" TextColor="#64748B" />
+                                    <Label Text="•" TextColor="#CBD5E1" />
+                                    <Label Text="{Binding Dose, StringFormat='{0}'}" FontSize="11" TextColor="#64748B" />
+                                    <Label Text="{Binding DoseUnit}" FontSize="11" TextColor="#64748B" />
+                                </HorizontalStackLayout>
+
+                                <!-- Fechas -->
+                                <HorizontalStackLayout Grid.Row="2" Grid.Column="1" Spacing="6" Margin="0,2,0,0">
+                                    <Label Text="📅 Programado:" FontSize="10" TextColor="#64748B" />
+                                    <Label Text="{Binding ScheduledDate, StringFormat='{0:dd/MM/yyyy}'}" FontSize="10" FontAttributes="Bold" TextColor="#1E293B" />
+                                    
+                                    <Label Text="•" TextColor="#CBD5E1" IsVisible="{Binding IsApplied}" />
+                                    <Label Text="Aplicado:" FontSize="10" TextColor="#64748B" IsVisible="{Binding IsApplied}" />
+                                    <Label Text="{Binding AppliedDate, StringFormat='{0:dd/MM/yyyy}'}" FontSize="10" FontAttributes="Bold" TextColor="#2E7D32" IsVisible="{Binding IsApplied}" />
+                                </HorizontalStackLayout>
+
+                                <!-- Badge e ir a lote -->
+                                <VerticalStackLayout Grid.Row="0" Grid.Column="2" Grid.RowSpan="3" VerticalOptions="Center" HorizontalOptions="End" Spacing="6">
+                                    <!-- Badge de Estado -->
+                                    <Border StrokeShape="RoundRectangle 8" StrokeThickness="0" Padding="8,4" HorizontalOptions="End">
+                                        <Border.Triggers>
+                                            <DataTrigger TargetType="Border" Binding="{Binding Status}" Value="Aplicada">
+                                                <Setter Property="BackgroundColor" Value="#D4EDDA" />
+                                            </DataTrigger>
+                                            <DataTrigger TargetType="Border" Binding="{Binding Status}" Value="Pendiente">
+                                                <Setter Property="BackgroundColor" Value="#FFF3CD" />
+                                            </DataTrigger>
+                                            <DataTrigger TargetType="Border" Binding="{Binding Status}" Value="Atrasada">
+                                                <Setter Property="BackgroundColor" Value="#F8D7DA" />
+                                            </DataTrigger>
+                                        </Border.Triggers>
+                                        <Label Text="{Binding Status}" FontSize="9" FontAttributes="Bold" HorizontalOptions="Center">
+                                            <Label.Triggers>
+                                                <DataTrigger TargetType="Label" Binding="{Binding Status}" Value="Aplicada">
+                                                    <Setter Property="TextColor" Value="#155724" />
+                                                </DataTrigger>
+                                                <DataTrigger TargetType="Label" Binding="{Binding Status}" Value="Pendiente">
+                                                    <Setter Property="TextColor" Value="#856404" />
+                                                </DataTrigger>
+                                                <DataTrigger TargetType="Label" Binding="{Binding Status}" Value="Atrasada">
+                                                    <Setter Property="TextColor" Value="#721C24" />
+                                                </DataTrigger>
+                                            </Label.Triggers>
+                                        </Label>
+                                    </Border>
+                                    
+                                    <Button Text="Ver Lote" 
+                                            FontSize="10" 
+                                            HeightRequest="24" 
+                                            Padding="8,0" 
+                                            BackgroundColor="#F1F5F9" 
+                                            TextColor="#2E7D32" 
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:VaccinationViewModel}}, Path=GoToBatchCommand}"
+                                            CommandParameter="{Binding .}" />
+                                </VerticalStackLayout>
+
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+
+    </Grid>
+</ContentPage>

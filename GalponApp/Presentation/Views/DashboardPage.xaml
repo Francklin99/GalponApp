@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:GalponApp.Presentation.ViewModels"
+             xmlns:controls="clr-namespace:GalponApp.Presentation.Controls"
+             x:Class="GalponApp.Presentation.Views.DashboardPage"
+             Title="{Binding Title}"
+             BackgroundColor="#F4F6F4">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Color x:Key="PrimaryGreen">#2E7D32</Color>
+            <Color x:Key="SecondaryBrown">#8D6E63</Color>
+            <Color x:Key="WarningAmber">#FFB300</Color>
+            <Color x:Key="ErrorRed">#D32F2F</Color>
+            <Color x:Key="CardBackground">#FFFFFF</Color>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <ScrollView>
+        <VerticalStackLayout x:Name="MainLayout" Padding="16" Spacing="16">
+            
+            <!-- Cabecera de Bienvenida -->
+            <Grid ColumnDefinitions="*, Auto" VerticalOptions="Center">
+                <VerticalStackLayout Grid.Column="0">
+                    <Label Text="Mi Producción" FontSize="14" TextColor="#64748B" />
+                    <Label Text="GalponApp Inteligente" FontSize="24" FontAttributes="Bold" TextColor="#1E293B" />
+                </VerticalStackLayout>
+                <Button Grid.Column="1" 
+                        Text="🔄" 
+                        FontSize="18" 
+                        HeightRequest="44" 
+                        WidthRequest="44" 
+                        CornerRadius="22" 
+                        BackgroundColor="White" 
+                        TextColor="#2E7D32" 
+                        Command="{Binding LoadStatsCommand}" 
+                        ToolTipProperties.Text="Actualizar Datos" />
+            </Grid>
+
+            <!-- Grid de Tarjetas de Resumen (M3 Style) -->
+            <Grid RowDefinitions="Auto, Auto" ColumnDefinitions="*, *" ColumnSpacing="12" RowSpacing="12">
+                <!-- Total de Animales -->
+                <Border Grid.Row="0" Grid.Column="0" StrokeShape="RoundRectangle 16" StrokeThickness="1" Stroke="#E2E9E5" BackgroundColor="{StaticResource CardBackground}">
+                    <Border.Shadow>
+                        <Shadow Brush="#1B4332" Offset="0,4" Radius="8" Opacity="0.04" />
+                    </Border.Shadow>
+                    <VerticalStackLayout Padding="14" Spacing="4">
+                        <Label Text="🐂 Total Animales" FontSize="12" TextColor="#64748B" FontAttributes="Bold" />
+                        <Label Text="{Binding TotalAnimals}" FontSize="28" FontAttributes="Bold" TextColor="#1E293B" />
+                        <Label Text="En producción activa" FontSize="10" TextColor="#94A3B8" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Lotes Activos -->
+                <Border Grid.Row="0" Grid.Column="1" StrokeShape="RoundRectangle 16" StrokeThickness="1" Stroke="#E2E9E5" BackgroundColor="{StaticResource CardBackground}">
+                    <Border.Shadow>
+                        <Shadow Brush="#1B4332" Offset="0,4" Radius="8" Opacity="0.04" />
+                    </Border.Shadow>
+                    <VerticalStackLayout Padding="14" Spacing="4">
+                        <Label Text="📦 Lotes Activos" FontSize="12" TextColor="#64748B" FontAttributes="Bold" />
+                        <Label Text="{Binding ActiveBatchesCount}" FontSize="28" FontAttributes="Bold" TextColor="#1E293B" />
+                        <Label Text="Galpones / Camadas" FontSize="10" TextColor="#94A3B8" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Vacunas Pendientes -->
+                <Border Grid.Row="1" Grid.Column="0" StrokeShape="RoundRectangle 16" StrokeThickness="1" Stroke="#E2E9E5" BackgroundColor="{StaticResource CardBackground}">
+                    <Border.Shadow>
+                        <Shadow Brush="#1B4332" Offset="0,4" Radius="8" Opacity="0.04" />
+                    </Border.Shadow>
+                    <VerticalStackLayout Padding="14" Spacing="4">
+                        <Label Text="💉 Próximas Vacunas" FontSize="12" TextColor="#64748B" FontAttributes="Bold" />
+                        <Label Text="{Binding UpcomingVaccinationsCount}" FontSize="28" FontAttributes="Bold" TextColor="{StaticResource WarningAmber}" />
+                        <Label Text="Por aplicar o retrasadas" FontSize="10" TextColor="#94A3B8" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Animales Enfermos -->
+                <Border Grid.Row="1" Grid.Column="1" StrokeShape="RoundRectangle 16" StrokeThickness="1" Stroke="#E2E9E5" BackgroundColor="{StaticResource CardBackground}">
+                    <Border.Shadow>
+                        <Shadow Brush="#1B4332" Offset="0,4" Radius="8" Opacity="0.04" />
+                    </Border.Shadow>
+                    <VerticalStackLayout Padding="14" Spacing="4">
+                        <Label Text="🩺 Tratamientos" FontSize="12" TextColor="#64748B" FontAttributes="Bold" />
+                        <Label Text="{Binding SickAnimalsCount}" FontSize="28" FontAttributes="Bold" TextColor="{StaticResource ErrorRed}" />
+                        <Label Text="Bajo observación" FontSize="10" TextColor="#94A3B8" />
+                    </VerticalStackLayout>
+                </Border>
+            </Grid>
+
+            <!-- Sección de Gráficos Circulares de Rendimiento -->
+            <Border StrokeShape="RoundRectangle 12" StrokeThickness="0" BackgroundColor="{StaticResource CardBackground}">
+                <Border.Shadow>
+                    <Shadow Brush="Black" Offset="0,2" Radius="4" Opacity="0.05" />
+                </Border.Shadow>
+                <VerticalStackLayout Padding="16" Spacing="12">
+                    <Label Text="Indicadores de Gestión" FontSize="15" FontAttributes="Bold" TextColor="#1E293B" />
+                    
+                    <Grid ColumnDefinitions="*, *" ColumnSpacing="16" HorizontalOptions="Center">
+                        <!-- Progreso Vacunas -->
+                        <VerticalStackLayout Grid.Column="0" Spacing="6" HorizontalOptions="Center" WidthRequest="120">
+                            <controls:CircularProgressControl 
+                                Progress="{Binding VaccinationProgress}" 
+                                ProgressColor="{StaticResource PrimaryGreen}" 
+                                CenterSubtext="Cobertura" 
+                                StrokeWidth="8"
+                                HeightRequest="80" 
+                                WidthRequest="80" />
+                            <Label Text="Vacunación" FontSize="12" FontAttributes="Bold" HorizontalOptions="Center" TextColor="#475569" />
+                        </VerticalStackLayout>
+
+                        <!-- Progreso Salud -->
+                        <VerticalStackLayout Grid.Column="1" Spacing="6" HorizontalOptions="Center" WidthRequest="120">
+                            <controls:CircularProgressControl 
+                                Progress="{Binding HealthComplianceProgress}" 
+                                ProgressColor="#0EA5E9" 
+                                CenterSubtext="Sanos" 
+                                StrokeWidth="8"
+                                HeightRequest="80" 
+                                WidthRequest="80" />
+                            <Label Text="Índice Salud" FontSize="12" FontAttributes="Bold" HorizontalOptions="Center" TextColor="#475569" />
+                        </VerticalStackLayout>
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Alertas Críticas Recientes -->
+            <Border StrokeShape="RoundRectangle 12" StrokeThickness="0" BackgroundColor="#FEF2F2">
+                <Border.Shadow>
+                    <Shadow Brush="Black" Offset="0,2" Radius="4" Opacity="0.03" />
+                </Border.Shadow>
+                <VerticalStackLayout Padding="16" Spacing="8">
+                    <Label Text="Notificaciones del Día" FontSize="15" FontAttributes="Bold" TextColor="#991B1B" />
+                    
+                    <CollectionView ItemsSource="{Binding CriticalAlerts}">
+                        <CollectionView.ItemsLayout>
+                            <LinearItemsLayout Orientation="Vertical" ItemSpacing="8" />
+                        </CollectionView.ItemsLayout>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Label Text="{Binding .}" FontSize="13" TextColor="#7F1D1D" MaxLines="2" LineBreakMode="TailTruncation" />
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Sección de Alimentación Diaria del Galpón -->
+            <Border StrokeShape="RoundRectangle 12" StrokeThickness="0" BackgroundColor="{StaticResource CardBackground}">
+                <Border.Shadow>
+                    <Shadow Brush="Black" Offset="0,2" Radius="4" Opacity="0.05" />
+                </Border.Shadow>
+                <Grid Padding="16" ColumnDefinitions="*, Auto" RowDefinitions="Auto, Auto" RowSpacing="6">
+                    <VerticalStackLayout Grid.Row="0" Grid.Column="0" Spacing="2">
+                        <Label Text="Consumo de Alimento Proyectado" FontSize="14" FontAttributes="Bold" TextColor="#1E293B" />
+                        <Label Text="Estimación total requerida para hoy" FontSize="11" TextColor="#64748B" />
+                    </VerticalStackLayout>
+                    <Label Grid.Row="0" Grid.Column="1" Text="🌾" FontSize="24" VerticalOptions="Center" />
+                    
+                    <HorizontalStackLayout Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Spacing="20" Margin="0,8,0,0">
+                        <VerticalStackLayout>
+                            <Label Text="Cantidad Total" FontSize="11" TextColor="#64748B" />
+                            <Label Text="{Binding DailyFeedConsumptionKg, StringFormat='{0:F1} kg'}" FontSize="18" FontAttributes="Bold" TextColor="#2E7D32" />
+                        </VerticalStackLayout>
+                        <BoxView WidthRequest="1" HeightRequest="30" Color="#E2E8F0" />
+                        <VerticalStackLayout>
+                            <Label Text="Costo Estimado" FontSize="11" TextColor="#64748B" />
+                            <Label Text="{Binding FeedCostEstimationToday, StringFormat='${0:F2} USD'}" FontSize="18" FontAttributes="Bold" TextColor="#8D6E63" />
+                        </VerticalStackLayout>
+                    </HorizontalStackLayout>
+                </Grid>
+            </Border>
+
+            <!-- Lotes Principales -->
+            <Grid ColumnDefinitions="*, Auto" VerticalOptions="Center" Margin="0,8,0,0">
+                <Label Grid.Column="0" Text="Lotes Recientes" FontSize="16" FontAttributes="Bold" TextColor="#1E293B" />
+            </Grid>
+
+            <CollectionView ItemsSource="{Binding TopBatches}">
+                <CollectionView.ItemsLayout>
+                    <LinearItemsLayout Orientation="Vertical" ItemSpacing="12" />
+                </CollectionView.ItemsLayout>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Border StrokeShape="RoundRectangle 16" StrokeThickness="1" Stroke="#E2E9E5" BackgroundColor="{StaticResource CardBackground}">
+                            <Border.Shadow>
+                                <Shadow Brush="#1B4332" Offset="0,4" Radius="8" Opacity="0.04" />
+                            </Border.Shadow>
+                            <Grid Padding="14" ColumnDefinitions="Auto, *, Auto" ColumnSpacing="12">
+                                <Border Grid.Column="0" WidthRequest="44" HeightRequest="44" StrokeShape="RoundRectangle 22" BackgroundColor="#E8F5E9" StrokeThickness="0" VerticalOptions="Center">
+                                    <Label Text="{Binding CategoryIcon}" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" />
+                                </Border>
+                                <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                    <Label Text="{Binding Name}" FontSize="15" FontAttributes="Bold" TextColor="#1E293B" />
+                                    <Label Text="{Binding CategoryName}" FontSize="11" TextColor="#64748B" />
+                                    <Label FontSize="11" TextColor="#94A3B8">
+                                        <Label.Text>
+                                            <MultiBinding StringFormat="{}{0} {1} | Edad: {2} sem">
+                                                <Binding Path="Quantity" />
+                                                <Binding Path="Breed" />
+                                                <Binding Path="AgeInWeeks" />
+                                            </MultiBinding>
+                                        </Label.Text>
+                                    </Label>
+                                </VerticalStackLayout>
+                                <Label Grid.Column="2" 
+                                       Text="{Binding CurrentWeight, StringFormat='{0:F1} kg'}" 
+                                       FontSize="14" 
+                                       FontAttributes="Bold" 
+                                       TextColor="#2E7D32" 
+                                       VerticalOptions="Center" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

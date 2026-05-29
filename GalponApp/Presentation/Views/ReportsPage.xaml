@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:GalponApp.Presentation.ViewModels"
+             x:Class="GalponApp.Presentation.Views.ReportsPage"
+             Title="{Binding Title}"
+             BackgroundColor="#F4F6F4">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Color x:Key="PrimaryGreen">#2E7D32</Color>
+            <Color x:Key="SecondaryBrown">#8D6E63</Color>
+            <Color x:Key="CardBackground">#FFFFFF</Color>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="16">
+            
+            <!-- Resumen Operativo de la Granja -->
+            <Border StrokeShape="RoundRectangle 12" StrokeThickness="0" BackgroundColor="{StaticResource CardBackground}">
+                <Border.Shadow>
+                    <Shadow Brush="Black" Offset="0,2" Radius="4" Opacity="0.05" />
+                </Border.Shadow>
+                <VerticalStackLayout Padding="16" Spacing="10">
+                    <Label Text="📦 Inventario por Especies" FontSize="15" FontAttributes="Bold" TextColor="#2E7D32" />
+                    
+                    <CollectionView ItemsSource="{Binding SpeciesSummaries}">
+                        <CollectionView.ItemsLayout>
+                            <LinearItemsLayout Orientation="Vertical" ItemSpacing="8" />
+                        </CollectionView.ItemsLayout>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Label Text="{Binding .}" FontSize="13" TextColor="#1E293B" FontAttributes="Bold" />
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Proyección de Consumo Semanal -->
+            <Border StrokeShape="RoundRectangle 12" StrokeThickness="0" BackgroundColor="{StaticResource CardBackground}">
+                <Border.Shadow>
+                    <Shadow Brush="Black" Offset="0,2" Radius="4" Opacity="0.05" />
+                </Border.Shadow>
+                <VerticalStackLayout Padding="16" Spacing="12">
+                    <Label Text="🌾 Logística de Alimentación (7 días)" FontSize="15" FontAttributes="Bold" TextColor="{StaticResource SecondaryBrown}" />
+                    
+                    <Grid ColumnDefinitions="*, *" RowDefinitions="Auto, Auto" ColumnSpacing="16" RowSpacing="4">
+                        <Label Grid.Row="0" Grid.Column="0" Text="Consumo Semanal Requerido" FontSize="11" TextColor="#64748B" />
+                        <Label Grid.Row="1" Grid.Column="0" Text="{Binding WeeklyFeedConsumption, StringFormat='{0:F1} kg'}" FontSize="18" FontAttributes="Bold" TextColor="#2E7D32" />
+
+                        <Label Grid.Row="0" Grid.Column="1" Text="Costo de Alimento Proyectado" FontSize="11" TextColor="#64748B" />
+                        <Label Grid.Row="1" Grid.Column="1" Text="{Binding WeeklyFeedCost, StringFormat='${0:F2} USD'}" FontSize="18" FontAttributes="Bold" TextColor="#8D6E63" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Sección de Exportación de Datos -->
+            <Border StrokeShape="RoundRectangle 12" StrokeThickness="0" BackgroundColor="{StaticResource CardBackground}">
+                <Border.Shadow>
+                    <Shadow Brush="Black" Offset="0,2" Radius="4" Opacity="0.05" />
+                </Border.Shadow>
+                <VerticalStackLayout Padding="16" Spacing="14">
+                    <Label Text="📤 Exportación de Informes" FontSize="15" FontAttributes="Bold" TextColor="#0EA5E9" />
+                    
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="Seleccionar Origen *" FontSize="12" TextColor="#475569" FontAttributes="Bold" />
+                        <Border StrokeShape="RoundRectangle 6" StrokeThickness="1" Stroke="#CBD5E1" Padding="8,2">
+                            <Picker ItemsSource="{Binding Batches}" 
+                                    SelectedItem="{Binding SelectedBatch}" 
+                                    ItemDisplayBinding="{Binding Name}" 
+                                    FontSize="14" 
+                                    TextColor="#1E293B" />
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <Label Text="Los informes generados se guardan localmente en el dispositivo y pueden compartirse inmediatamente por correo electrónico, WhatsApp o guardarse en la memoria." 
+                           FontSize="11" 
+                           TextColor="#64748B" 
+                           LineBreakMode="WordWrap" />
+
+                    <Grid ColumnDefinitions="*, *" ColumnSpacing="10" Margin="0,4,0,0">
+                        <Button Grid.Column="0" 
+                                Text="📊 Guardar Excel" 
+                                Command="{Binding ExportReportCommand}" 
+                                CommandParameter="csv"
+                                BackgroundColor="{StaticResource PrimaryGreen}" 
+                                TextColor="White" 
+                                FontAttributes="Bold" 
+                                HeightRequest="44" 
+                                CornerRadius="8" 
+                                FontSize="13" />
+
+                        <Button Grid.Column="1" 
+                                Text="📄 Guardar PDF/HTML" 
+                                Command="{Binding ExportReportCommand}" 
+                                CommandParameter="html"
+                                BackgroundColor="#0EA5E9" 
+                                TextColor="White" 
+                                FontAttributes="Bold" 
+                                HeightRequest="44" 
+                                CornerRadius="8" 
+                                FontSize="13" />
+                    </Grid>
+
+                </VerticalStackLayout>
+            </Border>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
