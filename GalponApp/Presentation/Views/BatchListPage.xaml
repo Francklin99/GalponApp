@@ -20,8 +20,7 @@
     </ContentPage.Resources>
 
     <Grid x:Name="MainGrid" RowDefinitions="Auto, Auto, *, Auto" Padding="16" RowSpacing="14">
-        
-        <!-- Buscador Moderno con Sombra -->
+
         <Border Grid.Row="0" StrokeShape="RoundRectangle 22" StrokeThickness="1" Stroke="#E2E9E5" BackgroundColor="White" HeightRequest="44">
             <Border.Shadow>
                 <Shadow Brush="#2D6A4F" Offset="0,3" Radius="6" Opacity="0.05" />
@@ -40,7 +39,6 @@
             </Grid>
         </Border>
 
-        <!-- Filtro Horizontal de Categorías (Chips Premium) -->
         <CollectionView Grid.Row="1" 
                         ItemsSource="{Binding Categories}" 
                         SelectedItem="{Binding SelectedCategory}" 
@@ -78,7 +76,6 @@
             </CollectionView.ItemTemplate>
         </CollectionView>
 
-        <!-- Listado de Lotes con Tarjetas Elegantes -->
         <RefreshView Grid.Row="2" Command="{Binding LoadBatchesCommand}" IsRefreshing="{Binding IsBusy}">
             <CollectionView ItemsSource="{Binding Batches}" EmptyView="No se encontraron lotes de crianza.">
                 <CollectionView.ItemsLayout>
@@ -86,108 +83,129 @@
                 </CollectionView.ItemsLayout>
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="models:Batch">
-                        <Border StrokeShape="RoundRectangle 16" StrokeThickness="1" Stroke="#E2E9E5" BackgroundColor="{StaticResource CardBg}">
+
+                        <Border StrokeShape="RoundRectangle 16" StrokeThickness="1" BackgroundColor="{StaticResource CardBg}">
                             <Border.Shadow>
                                 <Shadow Brush="#1B4332" Offset="0,4" Radius="8" Opacity="0.04" />
                             </Border.Shadow>
-                            <Grid Padding="14" ColumnDefinitions="Auto, *, Auto" RowDefinitions="Auto, Auto, Auto" ColumnSpacing="12" RowSpacing="6">
-                                
-                                <!-- Icono Dinámico del Animal -->
-                                <Border Grid.Row="0" Grid.Column="0" Grid.RowSpan="3" WidthRequest="52" HeightRequest="52" StrokeShape="RoundRectangle 26" BackgroundColor="{StaticResource LightMint}" HorizontalOptions="Center" VerticalOptions="Center" StrokeThickness="0">
+
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup x:Name="CommonStates">
+                                    <VisualState x:Name="Normal">
+                                        <VisualState.Setters>
+                                            <Setter Property="BackgroundColor" Value="White" />
+                                            <Setter Property="Stroke" Value="#E2E9E5" />
+                                            <Setter Property="Opacity" Value="1.0" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                    <VisualState x:Name="PointerOver">
+                                        <VisualState.Setters>
+                                            <Setter Property="BackgroundColor" Value="#F8FAF9" />
+                                            <Setter Property="Stroke" Value="{StaticResource LeafGreen}" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
+
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer 
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:BatchListViewModel}}, Path=GoToBatchDetailCommand}"
+                                    CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
+
+                            <Grid Padding="14" 
+      ColumnDefinitions="Auto, *" 
+      RowDefinitions="Auto, Auto" 
+      ColumnSpacing="14" 
+      RowSpacing="8">
+
+                                <Border Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" 
+            WidthRequest="52" HeightRequest="52" 
+            StrokeShape="RoundRectangle 26" 
+            BackgroundColor="{StaticResource LightMint}" 
+            HorizontalOptions="Center" VerticalOptions="Start" 
+            StrokeThickness="0">
                                     <Label Text="{Binding CategoryIcon}" FontSize="24" HorizontalOptions="Center" VerticalOptions="Center" />
                                 </Border>
-                                
-                                <!-- Nombre y Raza -->
-                                <Label Grid.Row="0" Grid.Column="1" Text="{Binding Name}" FontSize="16" FontAttributes="Bold" TextColor="{StaticResource TextDark}" />
-                                
-                                <!-- Detalles del Lote -->
-                                <HorizontalStackLayout Grid.Row="1" Grid.Column="1" Spacing="8" VerticalOptions="Center">
-                                    <Label Text="{Binding CategoryName}" FontSize="11" TextColor="{StaticResource TextMuted}" />
-                                    <Label Text="•" FontSize="11" TextColor="#94A3B8" />
-                                    <Label Text="{Binding Breed}" FontSize="11" TextColor="{StaticResource TextMuted}" />
-                                    <Label Text="•" FontSize="11" TextColor="#94A3B8" />
-                                    <Label Text="{Binding Purpose}" FontSize="11" TextColor="{StaticResource LeafGreen}" FontAttributes="Italic" />
-                                </HorizontalStackLayout>
 
-                                <!-- Chips Informativos (Cantidad, Estado y Edad) con Colores Inteligentes -->
-                                <HorizontalStackLayout Grid.Row="2" Grid.Column="1" Spacing="6" Margin="0,2,0,0">
-                                    <!-- Cantidad -->
-                                    <Border StrokeShape="RoundRectangle 6" StrokeThickness="0" BackgroundColor="#F1F5F9" Padding="8,3">
-                                        <Label Text="{Binding Quantity, StringFormat='{0} cabezas'}" FontSize="10" FontAttributes="Bold" TextColor="#475569" />
-                                    </Border>
-                                    
-                                    <!-- Estado Sanitario Dinámico con Triggers -->
-                                    <Border StrokeShape="RoundRectangle 6" StrokeThickness="0" Padding="8,3" BackgroundColor="#FFF3CD">
-                                        <Border.Triggers>
-                                            <DataTrigger TargetType="Border" Binding="{Binding SanitaryStatus}" Value="Excelente">
-                                                <Setter Property="BackgroundColor" Value="#E2F0D9" />
-                                            </DataTrigger>
-                                            <DataTrigger TargetType="Border" Binding="{Binding SanitaryStatus}" Value="Enfermo">
-                                                <Setter Property="BackgroundColor" Value="#FCE8E6" />
-                                            </DataTrigger>
-                                            <DataTrigger TargetType="Border" Binding="{Binding SanitaryStatus}" Value="Aislado">
-                                                <Setter Property="BackgroundColor" Value="#F3E8FF" />
-                                            </DataTrigger>
-                                        </Border.Triggers>
-                                        <Label Text="{Binding SanitaryStatus}" FontSize="10" FontAttributes="Bold" TextColor="#B45309">
-                                            <Label.Triggers>
-                                                <DataTrigger TargetType="Label" Binding="{Binding SanitaryStatus}" Value="Excelente">
-                                                     <Setter Property="TextColor" Value="#2E7D32" />
-                                                </DataTrigger>
-                                                <DataTrigger TargetType="Label" Binding="{Binding SanitaryStatus}" Value="Enfermo">
-                                                     <Setter Property="TextColor" Value="#C53929" />
-                                                </DataTrigger>
-                                                <DataTrigger TargetType="Label" Binding="{Binding SanitaryStatus}" Value="Aislado">
-                                                     <Setter Property="TextColor" Value="#7E22CE" />
-                                                </DataTrigger>
-                                            </Label.Triggers>
-                                        </Label>
-                                    </Border>
-                                    
-                                    <!-- Edad -->
-                                    <Border StrokeShape="RoundRectangle 6" StrokeThickness="0" BackgroundColor="#E0F2FE" Padding="8,3">
-                                        <Label Text="{Binding AgeInWeeks, StringFormat='{0} semanas'}" FontSize="10" FontAttributes="Bold" TextColor="#0369A1" />
-                                    </Border>
-                                </HorizontalStackLayout>
+                                <Grid Grid.Row="0" Grid.Column="1" ColumnDefinitions="*, Auto" ColumnSpacing="10" VerticalOptions="Start">
+                                    <Label Grid.Column="0" Text="{Binding Name}" FontSize="15" FontAttributes="Bold" TextColor="{StaticResource TextDark}" LineBreakMode="WordWrap" />
 
-                                <!-- Peso Actual y Botón Ficha -->
-                                <VerticalStackLayout Grid.Row="0" Grid.Column="2" Grid.RowSpan="3" VerticalOptions="Center" HorizontalOptions="End" Spacing="6">
-                                    <Label Text="{Binding CurrentWeight, StringFormat='{0:F1} kg'}" FontSize="16" FontAttributes="Bold" TextColor="{StaticResource EmeraldMint}" HorizontalOptions="End" />
-                                    <Button Text="Ver Ficha" 
-                                            FontSize="10.5" 
-                                            FontAttributes="Bold"
-                                            HeightRequest="28" 
-                                            Padding="12,0" 
-                                            BackgroundColor="{StaticResource EmeraldMint}" 
-                                            TextColor="White" 
-                                            CornerRadius="14"
-                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:BatchListViewModel}}, Path=GoToBatchDetailCommand}"
-                                            CommandParameter="{Binding .}" />
+                                    <VerticalStackLayout Grid.Column="1" HorizontalOptions="End" VerticalOptions="Start">
+                                        <Label Text="Peso Promedio" FontSize="9" TextColor="{StaticResource TextMuted}" HorizontalOptions="End" />
+                                        <Label Text="{Binding CurrentWeight, StringFormat='{0:F1} kg'}" FontSize="16" FontAttributes="Bold" TextColor="{StaticResource EmeraldMint}" HorizontalOptions="End" />
+                                    </VerticalStackLayout>
+                                </Grid>
+
+                                <VerticalStackLayout Grid.Row="1" Grid.Column="1" Spacing="8">
+                                    <FlexLayout Wrap="Wrap" Direction="Row" AlignItems="Center">
+                                        <Label Text="{Binding CategoryName}" FontSize="11" TextColor="{StaticResource TextMuted}" />
+                                        <Label Text=" • " FontSize="11" TextColor="#94A3B8" Margin="4,0" />
+                                        <Label Text="{Binding Breed}" FontSize="11" TextColor="{StaticResource TextMuted}" />
+                                        <Label Text=" • " FontSize="11" TextColor="#94A3B8" Margin="4,0" />
+                                        <Label Text="{Binding Purpose}" FontSize="11" TextColor="{StaticResource LeafGreen}" FontAttributes="Italic" />
+                                    </FlexLayout>
+
+                                    <FlexLayout Wrap="Wrap" Direction="Row" AlignContent="Start" JustifyContent="Start">
+                                        <Border StrokeShape="RoundRectangle 6" StrokeThickness="0" BackgroundColor="#F1F5F9" Padding="8,3" Margin="0,0,6,4">
+                                            <Label Text="{Binding Quantity, StringFormat='{0} cabezas'}" FontSize="10" FontAttributes="Bold" TextColor="#475569" />
+                                        </Border>
+
+                                        <Border StrokeShape="RoundRectangle 6" StrokeThickness="0" Padding="8,3" BackgroundColor="#FFF3CD" Margin="0,0,6,4">
+                                            <Border.Triggers>
+                                                <DataTrigger TargetType="Border" Binding="{Binding SanitaryStatus}" Value="Excelente">
+                                                    <Setter Property="BackgroundColor" Value="#E2F0D9" />
+                                                </DataTrigger>
+                                                <DataTrigger TargetType="Border" Binding="{Binding SanitaryStatus}" Value="Enfermo">
+                                                    <Setter Property="BackgroundColor" Value="#FCE8E6" />
+                                                </DataTrigger>
+                                                <DataTrigger TargetType="Border" Binding="{Binding SanitaryStatus}" Value="Aislado">
+                                                    <Setter Property="BackgroundColor" Value="#F3E8FF" />
+                                                </DataTrigger>
+                                            </Border.Triggers>
+                                            <Label Text="{Binding SanitaryStatus}" FontSize="10" FontAttributes="Bold" TextColor="#B45309">
+                                                <Label.Triggers>
+                                                    <DataTrigger TargetType="Label" Binding="{Binding SanitaryStatus}" Value="Excelente">
+                                                        <Setter Property="TextColor" Value="#2E7D32" />
+                                                    </DataTrigger>
+                                                    <DataTrigger TargetType="Label" Binding="{Binding SanitaryStatus}" Value="Enfermo">
+                                                        <Setter Property="TextColor" Value="#C53929" />
+                                                    </DataTrigger>
+                                                    <DataTrigger TargetType="Label" Binding="{Binding SanitaryStatus}" Value="Aislado">
+                                                        <Setter Property="TextColor" Value="#7E22CE" />
+                                                    </DataTrigger>
+                                                </Label.Triggers>
+                                            </Label>
+                                        </Border>
+
+                                        <Border StrokeShape="RoundRectangle 6" StrokeThickness="0" BackgroundColor="#E0F2FE" Padding="8,3" Margin="0,0,0,4">
+                                            <Label Text="{Binding AgeInWeeks, StringFormat='{0} semanas'}" FontSize="10" FontAttributes="Bold" TextColor="#0369A1" />
+                                        </Border>
+                                    </FlexLayout>
                                 </VerticalStackLayout>
-                                
-                             </Grid>
-                         </Border>
-                     </DataTemplate>
-                 </CollectionView.ItemTemplate>
-             </CollectionView>
-         </RefreshView>
 
-         <!-- Botón Flotante Registrador Pill Shape -->
-         <Button Grid.Row="3" 
-                 x:Name="AddBatchButton"
-                 Text="➕ Registrar Nuevo Lote" 
-                 Command="{Binding GoToAddBatchCommand}" 
-                 BackgroundColor="{StaticResource FarmGreen}" 
-                 TextColor="White" 
-                 FontSize="15" 
-                 FontAttributes="Bold" 
-                 HeightRequest="50" 
-                 CornerRadius="25" 
-                 Margin="0,8,0,0">
-             <Button.Shadow>
-                 <Shadow Brush="#1B4332" Offset="0,4" Radius="8" Opacity="0.16" />
-             </Button.Shadow>
-         </Button>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
 
-     </Grid>
- </ContentPage>
+        <Button Grid.Row="3" 
+                x:Name="AddBatchButton"
+                Text="➕ Registrar Nuevo Lote" 
+                Command="{Binding GoToAddBatchCommand}" 
+                BackgroundColor="{StaticResource FarmGreen}" 
+                TextColor="White" 
+                FontSize="15" 
+                FontAttributes="Bold" 
+                HeightRequest="50" 
+                CornerRadius="25" 
+                Margin="0,8,0,0">
+            <Button.Shadow>
+                <Shadow Brush="#1B4332" Offset="0,4" Radius="8" Opacity="0.16" />
+            </Button.Shadow>
+        </Button>
+
+    </Grid>
+</ContentPage>
