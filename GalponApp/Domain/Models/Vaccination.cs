@@ -1,8 +1,10 @@
 using System;
+using System.Text.Json.Serialization;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace GalponApp.Domain.Models
 {
-    public class Vaccination
+    public partial class Vaccination : ObservableObject
     {
         public string Id { get; set; } = string.Empty;
         public string BatchId { get; set; } = string.Empty;
@@ -17,6 +19,24 @@ namespace GalponApp.Domain.Models
         public string Status { get; set; } = "Pendiente"; // Pendiente, Aplicada, Atrasada
         public string Notes { get; set; } = string.Empty;
         public string Alternatives { get; set; } = string.Empty; // e.g. "Marca A / Marca B"
+
+        [ObservableProperty]
+        [JsonIgnore]
+        private string customMedicationName = string.Empty;
+
+        [ObservableProperty]
+        [JsonIgnore]
+        private string customDoseAmount = string.Empty;
+
+        // We store these in JSON so they persist across sessions
+        public string SavedCustomMedicationName { get; set; } = string.Empty;
+        public string SavedCustomDoseAmount { get; set; } = string.Empty;
+
+        [ObservableProperty]
+        [JsonIgnore]
+        private bool showCustomFields = false;
+
+        public int DayNumber { get; set; }
 
         public bool IsApplied => AppliedDate.HasValue;
         public string AppliedSymbol => IsApplied ? "✓" : "⏰";

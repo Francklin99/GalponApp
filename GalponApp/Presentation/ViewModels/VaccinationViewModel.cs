@@ -92,16 +92,32 @@ namespace GalponApp.Presentation.ViewModels
                 if (revert)
                 {
                     vac.AppliedDate = null;
+                    vac.CustomMedicationName = string.Empty;
+                    vac.CustomDoseAmount = string.Empty;
+                    vac.ShowCustomFields = false;
                     await _storageService.SaveVaccinationAsync(vac);
                     await LoadVaccinationsAsync();
                 }
             }
             else
             {
-                bool apply = await Shell.Current.DisplayAlertAsync("Aplicar Dosis", $"¿Confirmas la aplicación de '{vac.Name}' en el lote '{vac.BatchName}'?", "Confirmar", "Cancelar");
+                string message = $"¿Confirmas la aplicación de '{vac.Name}' en el lote '{vac.BatchName}'?";
+                if (!string.IsNullOrWhiteSpace(vac.CustomMedicationName))
+                {
+                    message = $"¿Confirmas la aplicación de '{vac.CustomMedicationName}' (dosis: {vac.CustomDoseAmount}) en el lote '{vac.BatchName}'?";
+                }
+
+                bool apply = await Shell.Current.DisplayAlertAsync("Aplicar Dosis", message, "Confirmar", "Cancelar");
                 if (apply)
                 {
                     vac.AppliedDate = DateTime.Now;
+                    vac.ShowCustomFields = false;
+                    if (!string.IsNullOrWhiteSpace(vac.CustomMedicationName))
+                    {
+                        vac.Notes = string.IsNullOrWhiteSpace(vac.Notes)
+                            ? $"Aplicada vacuna alternativa: {vac.CustomMedicationName} - Dosis: {vac.CustomDoseAmount}."
+                            : $"Aplicada vacuna alternativa: {vac.CustomMedicationName} - Dosis: {vac.CustomDoseAmount}. {vac.Notes}";
+                    }
                     await _storageService.SaveVaccinationAsync(vac);
                     await LoadVaccinationsAsync();
                 }

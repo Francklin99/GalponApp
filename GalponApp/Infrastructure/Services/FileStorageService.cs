@@ -16,6 +16,7 @@ namespace GalponApp.Infrastructure.Services
         private readonly string _weightLogsPath = Path.Combine(FileSystem.AppDataDirectory, "weight_logs.json");
         private readonly string _categoriesPath = Path.Combine(FileSystem.AppDataDirectory, "categories.json");
         private readonly string _feedingConfigPath = Path.Combine(FileSystem.AppDataDirectory, "feeding_configs.json");
+        private readonly string _animalsPath = Path.Combine(FileSystem.AppDataDirectory, "animals.json");
 
         private readonly JsonSerializerOptions _jsonOptions = new() { WriteIndented = true };
 
@@ -140,6 +141,10 @@ namespace GalponApp.Infrastructure.Services
                 var weights = await GetWeightLogsAsync();
                 weights.RemoveAll(w => w.BatchId == batchId);
                 await SaveListAsync(_weightLogsPath, weights);
+
+                var animals = await GetAnimalsAsync();
+                animals.RemoveAll(a => a.BatchId == batchId);
+                await SaveListAsync(_animalsPath, animals);
             }
         }
         #endregion
@@ -615,6 +620,239 @@ namespace GalponApp.Infrastructure.Services
                 }
             };
             await SaveListAsync(_sanitaryPath, sanitaryRecords);
+        }
+        #endregion
+
+        #region Animals
+        public async Task<List<Animal>> GetAnimalsAsync()
+        {
+            await InitializeAsync();
+            return await LoadListAsync<Animal>(_animalsPath);
+        }
+
+        public async Task<List<Animal>> GetAnimalsForBatchAsync(string batchId, int quantity, double currentWeight)
+        {
+            var list = await GetAnimalsAsync();
+            var batchAnimals = list.Where(a => a.BatchId == batchId).ToList();
+
+            if (batchAnimals.Count == 0 && quantity > 0)
+            {
+                // Auto-generate animals
+                var random = new Random(batchId.GetHashCode()); // Seed with hash code to keep it deterministic for a given batch ID
+                for (int i = 1; i <= quantity; i++)
+                {
+                    // Generate a spread of weights around currentWeight (e.g. ±10%)
+                    double weightSpread = currentWeight * 0.1;
+                    double randomOffset = (random.NextDouble() - 0.5) * 2 * weightSpread;
+                    double weight = Math.Max(0.1, currentWeight + randomOffset);
+
+                    var animal = new Animal
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        BatchId = batchId,
+                        Name = $"Animal #{i:D3}",
+                        Weight = weight,
+                        Status = "Saludable"
+                    };
+                    batchAnimals.Add(animal);
+                    list.Add(animal);
+                }
+                await SaveListAsync(_animalsPath, list);
+            }
+            return batchAnimals.OrderBy(a => a.Name).ToList();
+        }
+
+        public async Task SaveAnimalAsync(Animal animal)
+        {
+            var list = await GetAnimalsAsync();
+            var index = list.FindIndex(a => a.Id == animal.Id);
+            if (index >= 0)
+            {
+                list[index] = animal;
+            }
+            else
+            {
+                list.Add(animal);
+            }
+            await SaveListAsync(_animalsPath, list);
+        }
+        #endregion
+
+        #region Vaccinations Auto-Generation
+        public async Task AutoGenerateVaccinationsAsync(Batch batch)
+        {
+            var vacs = new List<Vaccination>();
+            DateTime birth = batch.BirthDate;
+            string categoryId = batch.CategoryId?.ToLower()?.Trim() ?? string.Empty;
+            string purpose = batch.Purpose?.Trim() ?? string.Empty;
+
+            if (categoryId == "porcinos")
+            {
+                // Auto-generate vaccination scheme for pigs
+                vacs.Add(new Vaccination
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    BatchId = batch.Id,
+                    BatchName = batch.Name,
+                    Name = "Vacuna contra la Peste Porcina Clásica (Cólera Porcino)",
+                    Type = "Vacuna",
+                    Description = "Inmunización obligatoria oficial contra el Cólera Porcino (Cepa China). Vía Intramuscular (IM).",
+                    Dose = 2.0,
+                    DoseUnit = "ml",
+                    ScheduledDate = birth.AddDays(45),
+                    Status = "Pendiente",
+                    Alternatives = "Pest-Vac / Cólera Porcino"
+                });
+                vacs.Add(new Vaccination
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    BatchId = batch.Id,
+                    BatchName = batch.Name,
+                    Name = "Vacuna contra Mycoplasma hyopneumoniae",
+                    Type = "Vacuna",
+                    Description = "Prevención de la neumonía enzoótica (Dosis 1). Vía Intramuscular (IM).",
+                    Dose = 2.0,
+                    DoseUnit = "ml",
+                    ScheduledDate = birth.AddDays(21),
+                    Status = "Pendiente",
+                    Alternatives = "RespiSure / M+Pac"
+                });
+                vacs.Add(new Vaccination
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    BatchId = batch.Id,
+                    BatchName = batch.Name,
+                    Name = "Refuerzo contra Mycoplasma hyopneumoniae",
+                    Type = "Refuerzo",
+                    Description = "Segunda dosis para inmunidad protectora pulmonar. Vía Intramuscular (IM).",
+                    Dose = 2.0,
+                    DoseUnit = "ml",
+                    ScheduledDate = birth.AddDays(42),
+                    Status = "Pendiente",
+                    Alternatives = "RespiSure / M+Pac"
+                });
+                vacs.Add(new Vaccination
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    BatchId = batch.Id,
+                    BatchName = batch.Name,
+                    Name = "Desparasitante (Ivermectina 1%)",
+                    Type = "Desparasitación",
+                    Description = "Control de parásitos gastrointestinales, pulmonares, sarna y piojos. Vía Subcutánea (SC).",
+                    Dose = 1.0,
+                    DoseUnit = "ml/33kg",
+                    ScheduledDate = birth.AddDays(60),
+                    Status = "Pendiente",
+                    Alternatives = "Dectomax / Ivomec"
+                });
+            }
+            else if (categoryId == "avicolas_engorde" || categoryId == "avicolas_postura")
+            {
+                // Avian scheme
+                vacs.Add(new Vaccination
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    BatchId = batch.Id,
+                    BatchName = batch.Name,
+                    Name = "Vacuna contra Newcastle + Bronquitis",
+                    Type = "Vacuna",
+                    Description = "Dosis inicial protectora ocular/agua contra Newcastle y Bronquitis.",
+                    Dose = 0.03,
+                    DoseUnit = "ml",
+                    ScheduledDate = birth.AddDays(7),
+                    Status = "Pendiente",
+                    Alternatives = "Nobilis / Poulvac"
+                });
+                vacs.Add(new Vaccination
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    BatchId = batch.Id,
+                    BatchName = batch.Name,
+                    Name = "Vacuna contra Viruela Aviar",
+                    Type = "Vacuna",
+                    Description = "Prevención de la Viruela Aviar. Vía Punción alar.",
+                    Dose = 1.0,
+                    DoseUnit = "dosis/ave",
+                    ScheduledDate = birth.AddDays(35),
+                    Status = "Pendiente",
+                    Alternatives = "Poulvac Fowl Pox"
+                });
+                vacs.Add(new Vaccination
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    BatchId = batch.Id,
+                    BatchName = batch.Name,
+                    Name = "Multivitamínico AD3E + Calcio",
+                    Type = "Vitamina",
+                    Description = "Soporte vitamínico para el inicio del ciclo de puesta activa.",
+                    Dose = 2.0,
+                    DoseUnit = "g/L",
+                    ScheduledDate = birth.AddDays(14),
+                    Status = "Pendiente",
+                    Alternatives = "Vitapoli / Promotor-L"
+                });
+            }
+            else if (categoryId == "bovinos_leche" || categoryId == "bovinos_carne")
+            {
+                // Bovine scheme
+                vacs.Add(new Vaccination
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    BatchId = batch.Id,
+                    BatchName = batch.Name,
+                    Name = "Vacuna contra la Fiebre Aftosa",
+                    Type = "Vacuna",
+                    Description = "Campaña obligatoria de vacunación contra la fiebre aftosa. Vía Subcutánea (SC) o Intramuscular (IM).",
+                    Dose = 2.0,
+                    DoseUnit = "ml",
+                    ScheduledDate = birth.AddDays(15),
+                    Status = "Pendiente",
+                    Alternatives = "Aftogen / Aftosan"
+                });
+                vacs.Add(new Vaccination
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    BatchId = batch.Id,
+                    BatchName = batch.Name,
+                    Name = "Refuerzo Triple Clostridial",
+                    Type = "Refuerzo",
+                    Description = "Prevención de carbón sintomático, edema maligno y enterotoxemia. Vía Subcutánea (SC) en la tabla del cuello.",
+                    Dose = 5.0,
+                    DoseUnit = "ml",
+                    ScheduledDate = birth.AddDays(45),
+                    Status = "Pendiente",
+                    Alternatives = "Covexin 8 / Tasvax"
+                });
+            }
+            else
+            {
+                // Generic scheme
+                vacs.Add(new Vaccination
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    BatchId = batch.Id,
+                    BatchName = batch.Name,
+                    Name = "Desparasitante de Amplio Espectro",
+                    Type = "Desparasitación",
+                    Description = "Tratamiento preventivo básico contra parásitos internos. Vía Oral.",
+                    Dose = 1.0,
+                    DoseUnit = "ml/10kg",
+                    ScheduledDate = birth.AddDays(30),
+                    Status = "Pendiente",
+                    Alternatives = "Panacur / Albendazol"
+                });
+            }
+
+            foreach (var v in vacs)
+            {
+                if (v.ScheduledDate < DateTime.Today)
+                {
+                    v.Status = "Aplicada";
+                    v.AppliedDate = v.ScheduledDate;
+                    v.Notes = "Aplicada automáticamente según calendario histórico.";
+                }
+                await SaveVaccinationAsync(v);
+            }
         }
         #endregion
     }

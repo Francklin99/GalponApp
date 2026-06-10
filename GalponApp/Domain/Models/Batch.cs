@@ -6,9 +6,28 @@ namespace GalponApp.Domain.Models
     {
         public string Id { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
-        public string CategoryId { get; set; } = string.Empty; // e.g. "porcinos"
-        public string CategoryName { get; set; } = string.Empty; // e.g. "Porcinos"
-        public string Breed { get; set; } = string.Empty; // Raza
+
+        private string _categoryId = string.Empty;
+        public string CategoryId 
+        { 
+            get => _categoryId ?? string.Empty; 
+            set => _categoryId = value ?? string.Empty; 
+        }
+
+        private string _categoryName = string.Empty;
+        public string CategoryName 
+        { 
+            get => _categoryName ?? string.Empty; 
+            set => _categoryName = value ?? string.Empty; 
+        }
+
+        private string _breed = string.Empty;
+        public string Breed 
+        { 
+            get => _breed ?? string.Empty; 
+            set => _breed = value ?? string.Empty; 
+        }
+
         public int Quantity { get; set; } // Cantidad actual
         public int InitialQuantity { get; set; } // Cantidad inicial registrada
         public int MortalityCount { get; set; } // Animales fallecidos
@@ -16,12 +35,39 @@ namespace GalponApp.Domain.Models
         public string Gender { get; set; } = "Mixto"; // Macho, Hembra, Mixto
         public double InitialWeight { get; set; } // Peso inicial promedio (kg)
         public double CurrentWeight { get; set; } // Peso actual promedio (kg)
-        public string SanitaryStatus { get; set; } = "Excelente"; // Excelente, Regular, Enfermo, Aislado
-        public string Purpose { get; set; } = string.Empty; // Engorde, Reproducción, Carne, Huevos, etc.
-        public string Notes { get; set; } = string.Empty;
-        public string QRCode { get; set; } = string.Empty;
+
+        private string _sanitaryStatus = "Excelente";
+        public string SanitaryStatus 
+        { 
+            get => _sanitaryStatus ?? "Excelente"; 
+            set => _sanitaryStatus = value ?? "Excelente"; 
+        }
+
+        private string _purpose = string.Empty;
+        public string Purpose 
+        { 
+            get => _purpose ?? string.Empty; 
+            set => _purpose = value ?? string.Empty; 
+        }
+
+        private string _notes = string.Empty;
+        public string Notes 
+        { 
+            get => _notes ?? string.Empty; 
+            set => _notes = value ?? string.Empty; 
+        }
+
+        private string _qrCode = string.Empty;
+        public string QRCode 
+        { 
+            get => _qrCode ?? string.Empty; 
+            set => _qrCode = value ?? string.Empty; 
+        }
+
         public bool IsActive { get; set; } = true;
         public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public bool IsCompleted { get; set; } = false;
+        public bool IsDivided { get; set; } = false;
 
         // Propiedad calculada para la edad en semanas o días
         public int AgeInDays => (DateTime.Today - BirthDate.Date).Days;

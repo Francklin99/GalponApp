@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:GalponApp.Presentation.ViewModels"
+             xmlns:models="clr-namespace:GalponApp.Domain.Models"
+             x:Class="GalponApp.Presentation.Views.ClassifyBatchPage"
+             x:DataType="vm:ClassifyBatchViewModel"
+             Title="{Binding Title}"
+             BackgroundColor="#F8FAFC">
+
+    <Grid RowDefinitions="Auto, *, Auto" Padding="0">
+
+        <!-- Header -->
+        <Border Grid.Row="0" StrokeThickness="1" Stroke="#F1F5F9" BackgroundColor="White" Padding="16,12">
+            <Grid ColumnDefinitions="Auto, *">
+                <Button Grid.Column="0" Text="←" FontSize="20" FontAttributes="Bold" BackgroundColor="Transparent" TextColor="Black" WidthRequest="40" HeightRequest="40" Command="{Binding CancelCommand}" VerticalOptions="Center"/>
+                <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Margin="10,0,0,0">
+                    <Label Text="Clasificar Lote" FontSize="16" FontAttributes="Bold" TextColor="Black" />
+                    <Label Text="{Binding Batch.Name, StringFormat='Lote: {0}'}" FontSize="12" TextColor="#64748B" />
+                </VerticalStackLayout>
+            </Grid>
+        </Border>
+
+        <!-- Main Content (Stats and then List) -->
+        <ScrollView Grid.Row="1" Padding="16">
+            <VerticalStackLayout Spacing="16">
+
+                <!-- Counts & Percentages cards (Compact sized) -->
+                <Grid ColumnDefinitions="*, *, *" ColumnSpacing="10">
+                    
+                    <!-- Engorde Card -->
+                    <Border Grid.Column="0" StrokeShape="RoundRectangle 8" StrokeThickness="1" Stroke="#A5D6A7" BackgroundColor="#E8F5E9" Padding="6,8">
+                        <VerticalStackLayout Spacing="1" HorizontalOptions="Center">
+                            <Label Text="Engorde" FontSize="11" FontAttributes="Bold" TextColor="#2E7D32" HorizontalOptions="Center" />
+                            <Entry Text="{Binding EngordeCount, Mode=TwoWay}" Keyboard="Numeric" FontSize="16" FontAttributes="Bold" TextColor="#2E7D32" HorizontalTextAlignment="Center" WidthRequest="50" HeightRequest="32" BackgroundColor="White" Margin="0,2" />
+                            <Label Text="{Binding EngordePercentageText}" FontSize="10" TextColor="#2E7D32" HorizontalOptions="Center" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Madres Card -->
+                    <Border Grid.Column="1" StrokeShape="RoundRectangle 8" StrokeThickness="1" Stroke="#E1BEE7" BackgroundColor="#F3E5F5" Padding="6,8">
+                        <VerticalStackLayout Spacing="1" HorizontalOptions="Center">
+                            <Label Text="Madres" FontSize="11" FontAttributes="Bold" TextColor="#6A1B9A" HorizontalOptions="Center" />
+                            <Entry Text="{Binding MadresCount, Mode=TwoWay}" Keyboard="Numeric" FontSize="16" FontAttributes="Bold" TextColor="#6A1B9A" HorizontalTextAlignment="Center" WidthRequest="50" HeightRequest="32" BackgroundColor="White" Margin="0,2" />
+                            <Label Text="{Binding MadresPercentageText}" FontSize="10" TextColor="#6A1B9A" HorizontalOptions="Center" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Padrillos Card -->
+                    <Border Grid.Column="2" StrokeShape="RoundRectangle 8" StrokeThickness="1" Stroke="#BBDEFB" BackgroundColor="#E3F2FD" Padding="6,8">
+                        <VerticalStackLayout Spacing="1" HorizontalOptions="Center">
+                            <Label Text="Padrillos" FontSize="11" FontAttributes="Bold" TextColor="#1565C0" HorizontalOptions="Center" />
+                            <Entry Text="{Binding PadrillosCount, Mode=TwoWay}" Keyboard="Numeric" FontSize="16" FontAttributes="Bold" TextColor="#1565C0" HorizontalTextAlignment="Center" WidthRequest="50" HeightRequest="32" BackgroundColor="White" Margin="0,2" />
+                            <Label Text="{Binding PadrillosPercentageText}" FontSize="10" TextColor="#1565C0" HorizontalOptions="Center" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                </Grid>
+
+                <!-- Detailed summary counts table (Compact) -->
+                <Border StrokeShape="RoundRectangle 8" StrokeThickness="1" Stroke="#E2E8F0" BackgroundColor="White" Padding="12,8">
+                    <Grid RowDefinitions="Auto, Auto, Auto" ColumnDefinitions="*, Auto" RowSpacing="6">
+                        <Label Grid.Row="0" Grid.Column="0" Text="Asignados:" FontSize="13" TextColor="#475569" />
+                        <Label Grid.Row="0" Grid.Column="1" Text="{Binding AssignedCount}" FontSize="13" FontAttributes="Bold" TextColor="#2D6A4F" />
+
+                        <BoxView Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" HeightRequest="1" Color="#F1F5F9" />
+
+                        <Label Grid.Row="1" Grid.Column="0" Text="Sin asignar:" FontSize="13" TextColor="#475569" />
+                        <Label Grid.Row="1" Grid.Column="1" Text="{Binding UnassignedCount}" FontSize="13" FontAttributes="Bold" TextColor="#D97706" />
+
+                        <BoxView Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" HeightRequest="1" Color="#F1F5F9" />
+
+                        <Label Grid.Row="2" Grid.Column="0" Text="Total:" FontSize="14" FontAttributes="Bold" TextColor="Black" />
+                        <Label Grid.Row="2" Grid.Column="1" Text="{Binding TotalCount}" FontSize="14" FontAttributes="Bold" TextColor="Black" />
+                    </Grid>
+                </Border>
+
+                <!-- Table Card of Animals with Segmented Toggle Badges -->
+                <Border StrokeShape="RoundRectangle 8" StrokeThickness="1" Stroke="#E2E8F0" BackgroundColor="White" Padding="0">
+                    <VerticalStackLayout Spacing="0">
+                        <!-- Table Header -->
+                        <Grid ColumnDefinitions="*, Auto" Padding="16, 12" BackgroundColor="#F8FAFC">
+                            <Label Grid.Column="0" Text="Animal" FontAttributes="Bold" FontSize="13" TextColor="#475569" VerticalOptions="Center" />
+                            <Label Grid.Column="1" Text="Destino" FontAttributes="Bold" FontSize="13" TextColor="#475569" Margin="0,0,16,0" VerticalOptions="Center" />
+                        </Grid>
+                        <BoxView HeightRequest="1" Color="#E2E8F0" />
+
+                        <!-- CollectionView for Table Rows -->
+                        <CollectionView ItemsSource="{Binding Animals}" EmptyView="No hay animales registrados.">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="vm:AnimalClassificationItem">
+                                    <VerticalStackLayout Spacing="0">
+                                        <Grid ColumnDefinitions="*, Auto" Padding="16, 10" VerticalOptions="Center">
+                                            <Label Grid.Column="0" Text="{Binding Animal.Name}" FontSize="14" FontAttributes="Bold" TextColor="Black" VerticalOptions="Center" />
+                                            
+                                            <!-- Horizontal segmented badges for selection -->
+                                            <HorizontalStackLayout Grid.Column="1" Spacing="6" VerticalOptions="Center">
+                                                
+                                                <!-- Engorde Badge -->
+                                                <Border StrokeThickness="0" StrokeShape="RoundRectangle 4" Padding="8,4" HeightRequest="26" BackgroundColor="#F1F5F9">
+                                                    <Border.GestureRecognizers>
+                                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ClassifyBatchViewModel}}, Path=SetEngordeCommand}" CommandParameter="{Binding .}" />
+                                                    </Border.GestureRecognizers>
+                                                    <Label Text="Engorde" FontSize="11" FontAttributes="Bold" TextColor="#475569" VerticalOptions="Center" HorizontalOptions="Center">
+                                                        <Label.Triggers>
+                                                            <DataTrigger TargetType="Label" Binding="{Binding SelectedPurpose}" Value="Engorde">
+                                                                <Setter Property="TextColor" Value="White" />
+                                                            </DataTrigger>
+                                                        </Label.Triggers>
+                                                    </Label>
+                                                    <Border.Triggers>
+                                                        <DataTrigger TargetType="Border" Binding="{Binding SelectedPurpose}" Value="Engorde">
+                                                            <Setter Property="BackgroundColor" Value="#2D6A4F" />
+                                                        </DataTrigger>
+                                                    </Border.Triggers>
+                                                </Border>
+
+                                                <!-- Madres Badge -->
+                                                <Border StrokeThickness="0" StrokeShape="RoundRectangle 4" Padding="8,4" HeightRequest="26" BackgroundColor="#F1F5F9">
+                                                    <Border.GestureRecognizers>
+                                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ClassifyBatchViewModel}}, Path=SetMadresCommand}" CommandParameter="{Binding .}" />
+                                                    </Border.GestureRecognizers>
+                                                    <Label Text="Madres" FontSize="11" FontAttributes="Bold" TextColor="#475569" VerticalOptions="Center" HorizontalOptions="Center">
+                                                        <Label.Triggers>
+                                                            <DataTrigger TargetType="Label" Binding="{Binding SelectedPurpose}" Value="Madres">
+                                                                <Setter Property="TextColor" Value="White" />
+                                                            </DataTrigger>
+                                                        </Label.Triggers>
+                                                    </Label>
+                                                    <Border.Triggers>
+                                                        <DataTrigger TargetType="Border" Binding="{Binding SelectedPurpose}" Value="Madres">
+                                                            <Setter Property="BackgroundColor" Value="#7B1FA2" />
+                                                        </DataTrigger>
+                                                    </Border.Triggers>
+                                                </Border>
+
+                                                <!-- Padrillos Badge -->
+                                                <Border StrokeThickness="0" StrokeShape="RoundRectangle 4" Padding="8,4" HeightRequest="26" BackgroundColor="#F1F5F9">
+                                                    <Border.GestureRecognizers>
+                                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ClassifyBatchViewModel}}, Path=SetPadrillosCommand}" CommandParameter="{Binding .}" />
+                                                    </Border.GestureRecognizers>
+                                                    <Label Text="Padrillos" FontSize="11" FontAttributes="Bold" TextColor="#475569" VerticalOptions="Center" HorizontalOptions="Center">
+                                                        <Label.Triggers>
+                                                            <DataTrigger TargetType="Label" Binding="{Binding SelectedPurpose}" Value="Padrillos">
+                                                                <Setter Property="TextColor" Value="White" />
+                                                            </DataTrigger>
+                                                        </Label.Triggers>
+                                                    </Label>
+                                                    <Border.Triggers>
+                                                        <DataTrigger TargetType="Border" Binding="{Binding SelectedPurpose}" Value="Padrillos">
+                                                            <Setter Property="BackgroundColor" Value="#1976D2" />
+                                                        </DataTrigger>
+                                                    </Border.Triggers>
+                                                </Border>
+
+                                            </HorizontalStackLayout>
+                                        </Grid>
+                                        <BoxView HeightRequest="1" Color="#F1F5F9" />
+                                    </VerticalStackLayout>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </VerticalStackLayout>
+                </Border>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Actions Footer (Minimalist) -->
+        <Border Grid.Row="2" StrokeThickness="1" Stroke="#E2E8F0" BackgroundColor="White" Padding="16,12">
+            <Grid ColumnDefinitions="*, *" ColumnSpacing="12">
+                <Button Grid.Column="0" 
+                        Text="Cancelar" 
+                        BackgroundColor="White" 
+                        TextColor="Black" 
+                        BorderColor="#CBD5E1" 
+                        BorderWidth="1" 
+                        HeightRequest="44" 
+                        CornerRadius="8" 
+                        Command="{Binding CancelCommand}" />
+                
+                <Button Grid.Column="1" 
+                        Text="{Binding ConfirmButtonText}" 
+                        BackgroundColor="#2D6A4F" 
+                        TextColor="White" 
+                        IsEnabled="{Binding IsConfirmEnabled}" 
+                        HeightRequest="44" 
+                        CornerRadius="8" 
+                        Command="{Binding ConfirmClassificationCommand}">
+                    <Button.Triggers>
+                        <DataTrigger TargetType="Button" Binding="{Binding IsConfirmEnabled}" Value="False">
+                            <Setter Property="BackgroundColor" Value="#E2E8F0" />
+                            <Setter Property="TextColor" Value="#94A3B8" />
+                        </DataTrigger>
+                    </Button.Triggers>
+                </Button>
+            </Grid>
+        </Border>
+
+    </Grid>
+</ContentPage>

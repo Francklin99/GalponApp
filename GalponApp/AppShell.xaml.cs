@@ -12,6 +12,7 @@ namespace GalponApp
             // Registrar rutas para navegación asíncrona
             Routing.RegisterRoute(nameof(BatchDetailPage), typeof(BatchDetailPage));
             Routing.RegisterRoute(nameof(AddBatchPage), typeof(AddBatchPage));
+            Routing.RegisterRoute(nameof(ClassifyBatchPage), typeof(ClassifyBatchPage));
         }
     }
 }

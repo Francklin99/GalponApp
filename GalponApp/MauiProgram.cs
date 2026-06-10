@@ -37,6 +37,9 @@ namespace GalponApp
             builder.Services.AddTransient<BatchDetailViewModel>();
             builder.Services.AddTransient<BatchDetailPage>();
 
+            builder.Services.AddTransient<ClassifyBatchViewModel>();
+            builder.Services.AddTransient<ClassifyBatchPage>();
+
             builder.Services.AddSingleton<VaccinationViewModel>();
             builder.Services.AddSingleton<VaccinationPage>();
 

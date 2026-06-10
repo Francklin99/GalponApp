@@ -43,9 +43,65 @@ namespace GalponApp.Presentation.ViewModels
         [ObservableProperty]
         private string alternativeFeeds = string.Empty;
 
+        [ObservableProperty]
+        private string currentStageName = "Desconocido";
+
+        [ObservableProperty]
+        private double dailyFeedPerAnimal;
+
+        [ObservableProperty]
+        private double dailyWaterPerAnimal;
+
+        [ObservableProperty]
+        private string activeTab = "Vacunas";
+
+        [ObservableProperty]
+        private bool isVacunasTabVisible = true;
+
+        [ObservableProperty]
+        private bool isAlimentacionTabVisible = false;
+
+        [ObservableProperty]
+        private bool isAnimalesTabVisible = false;
+
+        [ObservableProperty]
+        private int healthyCount;
+
+        [ObservableProperty]
+        private int followUpCount;
+
+        [ObservableProperty]
+        private int sickCount;
+
+        [ObservableProperty]
+        private int observingCount;
+
+        [ObservableProperty]
+        private bool isClassificationRequired;
+
+        public bool IsPigletBatch => Batch != null && (Batch.CategoryId == "porcinos" || Batch.Purpose.Equals("Lechones", StringComparison.OrdinalIgnoreCase));
+        public bool ShowDivisionUndo => Batch != null && Batch.IsDivided;
+        public bool ShowDivisionPending => IsPigletBatch && !Batch.IsDivided && !IsClassificationRequired;
+        public bool ShowDivisionActive => IsPigletBatch && !Batch.IsDivided && IsClassificationRequired;
+        public bool ShowDivisionCard => IsPigletBatch || (Batch != null && Batch.IsDivided);
+
         public ObservableCollection<WeightLog> WeightLogs { get; } = new();
         public ObservableCollection<Vaccination> Vaccinations { get; } = new();
         public ObservableCollection<SanitaryRecord> SanitaryRecords { get; } = new();
+        [ObservableProperty]
+        private ObservableCollection<FeedingStageItem> feedingStages = new();
+
+        [ObservableProperty]
+        private ObservableCollection<Animal> animals = new();
+
+        [ObservableProperty]
+        private int totalAnimalsCount;
+
+        [ObservableProperty]
+        private string animalesInfoText = string.Empty;
+
+        [ObservableProperty]
+        private bool showAnimalesLimit = false;
 
         public BatchDetailViewModel(FileStorageService storageService, FeedingCalculator feedingCalculator, ReportService reportService)
         {
@@ -84,6 +140,10 @@ namespace GalponApp.Presentation.ViewModels
                 Vaccinations.Clear();
                 foreach (var v in vacs)
                 {
+                    // Sync saved custom fields into observable properties
+                    v.CustomMedicationName = v.SavedCustomMedicationName ?? string.Empty;
+                    v.CustomDoseAmount = v.SavedCustomDoseAmount ?? string.Empty;
+                    v.ShowCustomFields = false;
                     Vaccinations.Add(v);
                 }
 
@@ -105,6 +165,92 @@ namespace GalponApp.Presentation.ViewModels
                 FrequencyPerDay = feedResult.FrequencyPerDay;
                 RecommendedHours = feedResult.RecommendedHours;
                 AlternativeFeeds = feedResult.Alternatives;
+
+                DailyFeedPerAnimal = Batch.Quantity > 0 ? feedResult.DailyFeedNeededKg / Batch.Quantity : 0;
+                DailyWaterPerAnimal = Batch.Quantity > 0 ? feedResult.DailyWaterNeededLiters / Batch.Quantity : 0;
+                CurrentStageName = DetermineStageName(Batch.CategoryId, Batch.AgeInWeeks);
+
+                // Cargar histórico y cronograma de etapas de la guía de alimentación
+                var allConfigs = await _storageService.GetFeedingConfigsAsync();
+                var categoryConfigs = allConfigs
+                    .Where(c => c.CategoryId == Batch.CategoryId && 
+                                (c.Purpose.Equals(Batch.Purpose, StringComparison.OrdinalIgnoreCase) ||
+                                 ((c.Purpose.Equals("Reproducción", StringComparison.OrdinalIgnoreCase) || c.Purpose.Equals("Madres", StringComparison.OrdinalIgnoreCase)) &&
+                                  (Batch.Purpose.Equals("Reproducción", StringComparison.OrdinalIgnoreCase) || Batch.Purpose.Equals("Madres", StringComparison.OrdinalIgnoreCase)))))
+                    .OrderBy(c => c.MinAgeWeeks)
+                    .ToList();
+
+                FeedingStages.Clear();
+                foreach (var config in categoryConfigs)
+                {
+                    var item = new FeedingStageItem
+                    {
+                        Config = config,
+                        StageName = DetermineStageName(Batch.CategoryId, config.MinAgeWeeks),
+                        DurationText = config.MaxAgeWeeks >= 999 
+                            ? "Duración: Indefinida (Etapa Final)" 
+                            : $"Duración: {config.MaxAgeWeeks - config.MinAgeWeeks + 1} semanas"
+                    };
+
+                    // Calcular fechas de vigencia
+                    var start = Batch.BirthDate.AddDays(config.MinAgeWeeks * 7);
+                    if (config.MaxAgeWeeks >= 999)
+                    {
+                        item.DateRangeText = $"{start:dd/MM/yyyy} en adelante";
+                    }
+                    else
+                    {
+                        var end = Batch.BirthDate.AddDays((config.MaxAgeWeeks * 7) + 6);
+                        item.DateRangeText = $"{start:dd/MM/yyyy} al {end:dd/MM/yyyy}";
+                    }
+
+                    // Determinar estado de la etapa respecto a la edad actual
+                    int currentAge = Batch.AgeInWeeks;
+                    if (currentAge > config.MaxAgeWeeks)
+                    {
+                        item.Status = "Past";
+                        item.StatusText = "Cumplida";
+                        item.IsExpanded = false;
+                    }
+                    else if (currentAge >= config.MinAgeWeeks && currentAge <= config.MaxAgeWeeks)
+                    {
+                        item.Status = "Current";
+                        item.StatusText = "Etapa Actual";
+                        item.IsExpanded = true; // Expandido por defecto
+                    }
+                    else
+                    {
+                        item.Status = "Future";
+                        item.StatusText = "Próxima Etapa";
+                        item.IsExpanded = false;
+                    }
+
+                    FeedingStages.Add(item);
+                }
+                // Cargar animales del lote
+                // NOTA: BindableLayout no virtualiza; para evitar crash con lotes grandes
+                // se limita el render a 50 animales y se muestra el total real.
+                const int MaxDisplayedAnimals = 50;
+                var animalsList = await _storageService.GetAnimalsForBatchAsync(Batch.Id, Batch.Quantity, Batch.CurrentWeight);
+                TotalAnimalsCount = animalsList.Count;
+                var displayedAnimals = animalsList.Take(MaxDisplayedAnimals).ToList();
+                Animals = new ObservableCollection<Animal>(displayedAnimals);
+                ShowAnimalesLimit = TotalAnimalsCount > MaxDisplayedAnimals;
+                AnimalesInfoText = ShowAnimalesLimit
+                    ? $"Mostrando {MaxDisplayedAnimals} de {TotalAnimalsCount} animales"
+                    : $"{TotalAnimalsCount} animales en este lote";
+                UpdateAnimalCounters();
+                IsClassificationRequired = Batch.IsActive && 
+                                           !Batch.IsDivided && 
+                                           Vaccinations.Count > 0 && 
+                                           Vaccinations.All(v => v.Status == "Aplicada") && 
+                                           (Batch.CategoryId == "porcinos" ? Batch.AgeInWeeks >= 8 : true);
+
+                OnPropertyChanged(nameof(IsPigletBatch));
+                OnPropertyChanged(nameof(ShowDivisionUndo));
+                OnPropertyChanged(nameof(ShowDivisionPending));
+                OnPropertyChanged(nameof(ShowDivisionActive));
+                OnPropertyChanged(nameof(ShowDivisionCard));
             }
             catch (Exception ex)
             {
@@ -250,20 +396,52 @@ namespace GalponApp.Presentation.ViewModels
                 if (revert)
                 {
                     vac.AppliedDate = null;
+                    vac.Status = vac.DetermineStatus();
+                    vac.SavedCustomMedicationName = string.Empty;
+                    vac.SavedCustomDoseAmount = string.Empty;
+                    vac.CustomMedicationName = string.Empty;
+                    vac.CustomDoseAmount = string.Empty;
+                    vac.ShowCustomFields = false;
                     await _storageService.SaveVaccinationAsync(vac);
                     await LoadDetailsAsync();
                 }
             }
             else
             {
-                bool apply = await Shell.Current.DisplayAlertAsync("Aplicar Dosis", $"¿Confirmas la aplicación de '{vac.Name}' hoy?", "Sí, Aplicar", "Cancelar");
+                string message = $"¿Confirmas la aplicación de '{vac.Name}' hoy?";
+                if (!string.IsNullOrWhiteSpace(vac.CustomMedicationName))
+                {
+                    message = $"¿Confirmas la aplicación de '{vac.CustomMedicationName}' (dosis: {vac.CustomDoseAmount}) hoy?";
+                }
+
+                bool apply = await Shell.Current.DisplayAlertAsync("Aplicar Dosis", message, "Sí, Aplicar", "Cancelar");
                 if (apply)
                 {
                     vac.AppliedDate = DateTime.Now;
+                    vac.Status = "Aplicada";
+                    vac.ShowCustomFields = false;
+                    if (!string.IsNullOrWhiteSpace(vac.CustomMedicationName))
+                    {
+                        // Persist the custom fields to saved properties for JSON serialization
+                        vac.SavedCustomMedicationName = vac.CustomMedicationName;
+                        vac.SavedCustomDoseAmount = vac.CustomDoseAmount;
+                        vac.Notes = string.IsNullOrWhiteSpace(vac.Notes)
+                            ? $"Aplicada vacuna alternativa: {vac.CustomMedicationName} - Dosis: {vac.CustomDoseAmount}."
+                            : $"Aplicada vacuna alternativa: {vac.CustomMedicationName} - Dosis: {vac.CustomDoseAmount}. {vac.Notes}";
+                    }
                     await _storageService.SaveVaccinationAsync(vac);
                     await LoadDetailsAsync();
                 }
             }
+        }
+
+        [RelayCommand]
+        public void ToggleCustomFields(Vaccination vac)
+        {
+            if (vac == null) return;
+            // ShowCustomFields is an [ObservableProperty] on Vaccination (ObservableObject)
+            // so the UI will automatically update via INotifyPropertyChanged
+            vac.ShowCustomFields = !vac.ShowCustomFields;
         }
 
         // Exportación y Compartición de Reporte CSV
@@ -358,5 +536,239 @@ namespace GalponApp.Presentation.ViewModels
                 IsBusy = false;
             }
         }
+
+        [RelayCommand]
+        public void SetTab(string tabName)
+        {
+            ActiveTab = tabName;
+            IsVacunasTabVisible = tabName == "Vacunas";
+            IsAlimentacionTabVisible = tabName == "Alimentación";
+            IsAnimalesTabVisible = tabName == "Animales";
+        }
+
+        [RelayCommand]
+        public void ToggleStageExpanded(FeedingStageItem stageItem)
+        {
+            if (stageItem != null)
+            {
+                stageItem.IsExpanded = !stageItem.IsExpanded;
+            }
+        }
+
+        private string DetermineStageName(string categoryId, int ageInWeeks)
+        {
+            if (categoryId == "porcinos")
+            {
+                if (ageInWeeks <= 4) return "Pre-inicio";
+                if (ageInWeeks <= 8) return "Inicio";
+                if (ageInWeeks <= 16) return "Crecimiento";
+                return "Engorde";
+            }
+            else if (categoryId.StartsWith("avicolas"))
+            {
+                if (ageInWeeks <= 6) return "Crianza";
+                if (ageInWeeks <= 18) return "Desarrollo";
+                return "Postura";
+            }
+            else if (categoryId.StartsWith("bovinos"))
+            {
+                if (ageInWeeks <= 12) return "Ternero Iniciador";
+                if (ageInWeeks <= 50) return "Crecimiento";
+                return "Lactancia / Producción";
+            }
+            return "Desarrollo General";
+        }
+
+        private void UpdateAnimalCounters()
+        {
+            HealthyCount = Animals.Count(a => a.Status == "Saludable");
+            SickCount = Animals.Count(a => a.Status == "Enfermo");
+            ObservingCount = Animals.Count(a => a.Status == "En observación");
+            FollowUpCount = SickCount + ObservingCount;
+        }
+
+        [RelayCommand]
+        public async Task RenameAnimalAsync(Animal animal)
+        {
+            if (animal == null) return;
+            string newName = await Shell.Current.DisplayPromptAsync(
+                "Renombrar Animal",
+                $"Nuevo nombre para {animal.Name}:",
+                accept: "Guardar",
+                cancel: "Cancelar",
+                initialValue: animal.Name);
+
+            if (!string.IsNullOrWhiteSpace(newName) && newName != animal.Name)
+            {
+                animal.Name = newName.Trim();
+                await _storageService.SaveAnimalAsync(animal);
+            }
+        }
+
+        [RelayCommand]
+        public async Task ChangeAnimalStatusAsync(Animal animal)
+        {
+            if (animal == null) return;
+
+            string status = await Shell.Current.DisplayActionSheetAsync(
+                "Estado de Salud",
+                "Cancelar",
+                null,
+                "Saludable",
+                "En observación",
+                "Enfermo");
+
+            if (!string.IsNullOrEmpty(status) && status != "Cancelar" && status != animal.Status)
+            {
+                animal.Status = status;
+                animal.NotifyStatusChanged();
+                await _storageService.SaveAnimalAsync(animal);
+                UpdateAnimalCounters();
+            }
+        }
+
+        [RelayCommand]
+        public async Task SetAllAnimalsStatusAsync()
+        {
+            if (Animals.Count == 0) return;
+
+            string status = await Shell.Current.DisplayActionSheetAsync(
+                "Establecer Estado del Grupo",
+                "Cancelar",
+                null,
+                "Saludable",
+                "En observación",
+                "Enfermo");
+
+            if (!string.IsNullOrEmpty(status) && status != "Cancelar")
+            {
+                IsBusy = true;
+                try
+                {
+                    foreach (var animal in Animals)
+                    {
+                        if (animal.Status != status)
+                        {
+                            animal.Status = status;
+                            animal.NotifyStatusChanged();
+                            await _storageService.SaveAnimalAsync(animal);
+                        }
+                    }
+                    UpdateAnimalCounters();
+                }
+                finally
+                {
+                    IsBusy = false;
+                }
+            }
+        }
+
+        [RelayCommand]
+        public async Task SplitBatchAsync()
+        {
+            if (Batch == null) return;
+            await Shell.Current.GoToAsync("ClassifyBatchPage", new Dictionary<string, object>
+            {
+                { "Batch", Batch }
+            });
+        }
+
+        [RelayCommand]
+        public async Task UndoSplitBatchAsync()
+        {
+            if (Batch == null) return;
+
+            bool confirm = await Shell.Current.DisplayAlert("Deshacer División", 
+                "¿Está seguro de que desea deshacer la división? Esto eliminará los lotes creados a partir de este y devolverá los animales a este lote.", 
+                "Sí, Deshacer", "Cancelar");
+
+            if (!confirm) return;
+
+            IsBusy = true;
+            try
+            {
+                // 1. Obtener todos los lotes del sistema
+                var allBatches = await _storageService.GetBatchesAsync();
+                
+                // 2. Encontrar los sub-lotes creados por este lote original
+                var subBatches = allBatches
+                    .Where(b => b.Notes.Contains($"(ID: {Batch.Id})"))
+                    .ToList();
+
+                // 3. Obtener todos los animales
+                var allAnimals = await _storageService.GetAnimalsAsync();
+
+                foreach (var sb in subBatches)
+                {
+                    // Mover los animales de vuelta al lote padre
+                    var sbAnimals = allAnimals.Where(a => a.BatchId == sb.Id).ToList();
+                    foreach (var animal in sbAnimals)
+                    {
+                        animal.BatchId = Batch.Id;
+                        await _storageService.SaveAnimalAsync(animal);
+                    }
+
+                    // Eliminar las vacunas asociadas al sub-lote
+                    var sbVacs = await _storageService.GetVaccinationsForBatchAsync(sb.Id);
+                    foreach (var v in sbVacs)
+                    {
+                        await _storageService.DeleteVaccinationAsync(v.Id);
+                    }
+
+                    // Eliminar el sub-lote
+                    await _storageService.DeleteBatchAsync(sb.Id);
+                }
+
+                // 4. Reactivar el lote padre y quitar el flag de división
+                Batch.IsActive = true;
+                Batch.IsDivided = false;
+                await _storageService.SaveBatchAsync(Batch);
+
+                await Shell.Current.DisplayAlert("División Revertida", 
+                    "La división se ha deshecho con éxito. Los animales han retornado a este lote.", 
+                    "Aceptar");
+
+                // Recargar los detalles de la vista
+                await LoadDetailsAsync();
+            }
+            catch (Exception ex)
+            {
+                await Shell.Current.DisplayAlert("Error", 
+                    $"No se pudo deshacer la división: {ex.Message}", 
+                    "Aceptar");
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+        }
+    }
+
+    public partial class FeedingStageItem : ObservableObject
+    {
+        [ObservableProperty]
+        private FeedingConfig config = new();
+
+        [ObservableProperty]
+        private string stageName = string.Empty;
+
+        [ObservableProperty]
+        private string status = string.Empty; // Past, Current, Future
+
+        [ObservableProperty]
+        private string statusText = string.Empty;
+
+        [ObservableProperty]
+        private string dateRangeText = string.Empty;
+
+        [ObservableProperty]
+        private string durationText = string.Empty;
+
+        [ObservableProperty]
+        private bool isExpanded;
+
+        public bool IsCurrent => Status == "Current";
+        public bool IsPast => Status == "Past";
+        public bool IsFuture => Status == "Future";
     }
 }

@@ -63,7 +63,22 @@ namespace GalponApp.Presentation.ViewModels
 
                 // Cargar lotes
                 _allBatches = await _storageService.GetBatchesAsync();
+
+                // Calcular IsCompleted para cada lote
+                var allVacs = await _storageService.GetVaccinationsAsync();
+                foreach (var b in _allBatches)
+                {
+                    var batchVacs = allVacs.Where(v => v.BatchId == b.Id).ToList();
+                    b.IsCompleted = batchVacs.Count > 0 && batchVacs.All(v => v.Status == "Aplicada");
+                }
+
                 ApplyFilters();
+
+                // Auto-navigate for debugging
+                if (Batches.Count > 0)
+                {
+                    await GoToBatchDetailAsync(Batches.First());
+                }
             }
             catch (Exception ex)
             {
@@ -95,6 +110,9 @@ namespace GalponApp.Presentation.ViewModels
                     b.Breed.Contains(search, StringComparison.OrdinalIgnoreCase) || 
                     b.Purpose.Contains(search, StringComparison.OrdinalIgnoreCase));
             }
+
+            // Ordenar: lotes incompletos primero, completados al último, luego fecha desc
+            filtered = filtered.OrderBy(b => b.IsCompleted).ThenByDescending(b => b.CreatedAt);
 
             Batches.Clear();
             foreach (var b in filtered)
