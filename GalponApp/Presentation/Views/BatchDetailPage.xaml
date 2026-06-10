@@ -587,8 +587,10 @@
                                 Stroke="#86EFAC" BackgroundColor="#F0FDF4" Padding="10,12">
                             <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
                                 <Label Text="💚" FontSize="20" HorizontalOptions="Center"/>
-                                <Label Text="{Binding HealthyCount}" FontSize="24" FontAttributes="Bold"
-                                       TextColor="#15803D" HorizontalOptions="Center"/>
+                                <Entry Text="{Binding HealthyCount, Mode=TwoWay}" Keyboard="Numeric"
+                                       FontSize="18" FontAttributes="Bold" TextColor="#15803D"
+                                       HorizontalTextAlignment="Center" WidthRequest="70" HeightRequest="36"
+                                       BackgroundColor="White" Margin="0,2"/>
                                 <Label Text="Saludables" FontSize="10" TextColor="#15803D" HorizontalOptions="Center"/>
                             </VerticalStackLayout>
                         </Border>
@@ -597,8 +599,10 @@
                                 Stroke="#FDE68A" BackgroundColor="#FFFBEB" Padding="10,12">
                             <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
                                 <Label Text="🟡" FontSize="20" HorizontalOptions="Center"/>
-                                <Label Text="{Binding ObservingCount}" FontSize="24" FontAttributes="Bold"
-                                       TextColor="#92400E" HorizontalOptions="Center"/>
+                                <Entry Text="{Binding ObservingCount, Mode=TwoWay}" Keyboard="Numeric"
+                                       FontSize="18" FontAttributes="Bold" TextColor="#92400E"
+                                       HorizontalTextAlignment="Center" WidthRequest="70" HeightRequest="36"
+                                       BackgroundColor="White" Margin="0,2"/>
                                 <Label Text="En observ." FontSize="10" TextColor="#92400E" HorizontalOptions="Center"/>
                             </VerticalStackLayout>
                         </Border>
@@ -607,12 +611,27 @@
                                 Stroke="#FECACA" BackgroundColor="#FFF1F2" Padding="10,12">
                             <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
                                 <Label Text="🔴" FontSize="20" HorizontalOptions="Center"/>
-                                <Label Text="{Binding SickCount}" FontSize="24" FontAttributes="Bold"
-                                       TextColor="#991B1B" HorizontalOptions="Center"/>
+                                <Entry Text="{Binding SickCount, Mode=TwoWay}" Keyboard="Numeric"
+                                       FontSize="18" FontAttributes="Bold" TextColor="#991B1B"
+                                       HorizontalTextAlignment="Center" WidthRequest="70" HeightRequest="36"
+                                       BackgroundColor="White" Margin="0,2"/>
                                 <Label Text="Enfermos" FontSize="10" TextColor="#991B1B" HorizontalOptions="Center"/>
                             </VerticalStackLayout>
                         </Border>
                     </Grid>
+
+                    <!-- Panel de Guardar Distribución -->
+                    <VerticalStackLayout Spacing="4" HorizontalOptions="FillAndExpand" Margin="0,4,0,0">
+                        <Label Text="{Binding DistributionWarningText}" TextColor="#D97706" FontSize="11" FontAttributes="Bold" 
+                               HorizontalOptions="Center" HorizontalTextAlignment="Center"
+                               IsVisible="{Binding IsDistributionInvalid}"/>
+                        
+                        <Button Text="💾 Guardar Distribución de Salud" 
+                                BackgroundColor="#2D6A4F" TextColor="White" 
+                                CornerRadius="8" HeightRequest="38" FontSize="12" FontAttributes="Bold"
+                                Command="{Binding ApplyDistributionCommand}"
+                                IsEnabled="{Binding IsDistributionValid}"/>
+                    </VerticalStackLayout>
 
                     <!-- ─── Info total animales ─── -->
                     <Border StrokeShape="RoundRectangle 8" StrokeThickness="1" Stroke="#E2E8F0"

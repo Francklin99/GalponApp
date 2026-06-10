@@ -65,15 +65,24 @@ namespace GalponApp.Presentation.ViewModels
         private bool isAnimalesTabVisible = false;
 
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(IsDistributionValid))]
+        [NotifyPropertyChangedFor(nameof(IsDistributionInvalid))]
+        [NotifyPropertyChangedFor(nameof(DistributionWarningText))]
         private int healthyCount;
 
         [ObservableProperty]
         private int followUpCount;
 
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(IsDistributionValid))]
+        [NotifyPropertyChangedFor(nameof(IsDistributionInvalid))]
+        [NotifyPropertyChangedFor(nameof(DistributionWarningText))]
         private int sickCount;
 
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(IsDistributionValid))]
+        [NotifyPropertyChangedFor(nameof(IsDistributionInvalid))]
+        [NotifyPropertyChangedFor(nameof(DistributionWarningText))]
         private int observingCount;
 
         [ObservableProperty]
@@ -239,7 +248,7 @@ namespace GalponApp.Presentation.ViewModels
                 AnimalesInfoText = ShowAnimalesLimit
                     ? $"Mostrando {MaxDisplayedAnimals} de {TotalAnimalsCount} animales"
                     : $"{TotalAnimalsCount} animales en este lote";
-                UpdateAnimalCounters();
+                UpdateAnimalCounters(animalsList);
                 IsClassificationRequired = Batch.IsActive && 
                                            !Batch.IsDivided && 
                                            Vaccinations.Count > 0 && 
@@ -579,11 +588,164 @@ namespace GalponApp.Presentation.ViewModels
             return "Desarrollo General";
         }
 
-        private void UpdateAnimalCounters()
+        public bool IsDistributionValid => (HealthyCount + ObservingCount + SickCount) == TotalAnimalsCount;
+        public bool IsDistributionInvalid => !IsDistributionValid;
+        public string DistributionWarningText => $"La suma ({HealthyCount + ObservingCount + SickCount}) debe ser igual al total del lote ({TotalAnimalsCount})";
+
+        private bool _isAdjustingCounters = false;
+
+        partial void OnHealthyCountChanged(int value)
         {
-            HealthyCount = Animals.Count(a => a.Status == "Saludable");
-            SickCount = Animals.Count(a => a.Status == "Enfermo");
-            ObservingCount = Animals.Count(a => a.Status == "En observación");
+            if (_isAdjustingCounters || Batch == null) return;
+            _isAdjustingCounters = true;
+            try
+            {
+                if (value > TotalAnimalsCount)
+                {
+                    HealthyCount = TotalAnimalsCount;
+                }
+                else if (value < 0)
+                {
+                    HealthyCount = 0;
+                }
+
+                int remaining = TotalAnimalsCount - HealthyCount;
+                if (SickCount <= remaining)
+                {
+                    ObservingCount = remaining - SickCount;
+                }
+                else
+                {
+                    SickCount = remaining;
+                    ObservingCount = 0;
+                }
+            }
+            finally
+            {
+                _isAdjustingCounters = false;
+            }
+        }
+
+        partial void OnObservingCountChanged(int value)
+        {
+            if (_isAdjustingCounters || Batch == null) return;
+            _isAdjustingCounters = true;
+            try
+            {
+                if (value > TotalAnimalsCount)
+                {
+                    ObservingCount = TotalAnimalsCount;
+                }
+                else if (value < 0)
+                {
+                    ObservingCount = 0;
+                }
+
+                int remaining = TotalAnimalsCount - ObservingCount;
+                if (SickCount <= remaining)
+                {
+                    HealthyCount = remaining - SickCount;
+                }
+                else
+                {
+                    SickCount = remaining;
+                    HealthyCount = 0;
+                }
+            }
+            finally
+            {
+                _isAdjustingCounters = false;
+            }
+        }
+
+        partial void OnSickCountChanged(int value)
+        {
+            if (_isAdjustingCounters || Batch == null) return;
+            _isAdjustingCounters = true;
+            try
+            {
+                if (value > TotalAnimalsCount)
+                {
+                    SickCount = TotalAnimalsCount;
+                }
+                else if (value < 0)
+                {
+                    SickCount = 0;
+                }
+
+                int remaining = TotalAnimalsCount - SickCount;
+                if (ObservingCount <= remaining)
+                {
+                    HealthyCount = remaining - ObservingCount;
+                }
+                else
+                {
+                    ObservingCount = remaining;
+                    HealthyCount = 0;
+                }
+            }
+            finally
+            {
+                _isAdjustingCounters = false;
+            }
+        }
+
+        [RelayCommand]
+        public async Task ApplyDistributionAsync()
+        {
+            if (Batch == null) return;
+            if (!IsDistributionValid)
+            {
+                await Shell.Current.DisplayAlert("Distribución Inválida", DistributionWarningText, "Aceptar");
+                return;
+            }
+
+            IsBusy = true;
+            try
+            {
+                var allAnimals = await _storageService.GetAnimalsForBatchAsync(Batch.Id, Batch.Quantity, Batch.CurrentWeight);
+                
+                int targetHealthy = HealthyCount;
+                int targetObserving = ObservingCount;
+                int targetSick = SickCount;
+
+                int index = 0;
+                for (int i = 0; i < targetHealthy && index < allAnimals.Count; i++, index++)
+                {
+                    allAnimals[index].Status = "Saludable";
+                }
+                for (int i = 0; i < targetObserving && index < allAnimals.Count; i++, index++)
+                {
+                    allAnimals[index].Status = "En observación";
+                }
+                for (int i = 0; i < targetSick && index < allAnimals.Count; i++, index++)
+                {
+                    allAnimals[index].Status = "Enfermo";
+                }
+
+                foreach (var animal in allAnimals)
+                {
+                    await _storageService.SaveAnimalAsync(animal);
+                }
+
+                await LoadDetailsAsync();
+                await Shell.Current.DisplayAlert("Distribución Guardada", "Se ha actualizado el estado de todos los animales.", "Aceptar");
+            }
+            catch (Exception ex)
+            {
+                await Shell.Current.DisplayAlert("Error", ex.Message, "Aceptar");
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+        }
+
+        private void UpdateAnimalCounters(List<Animal> allAnimals)
+        {
+            HealthyCount = allAnimals.Count(a => a.Status == "Saludable");
+            SickCount = allAnimals.Count(a => a.Status == "Enfermo");
+            ObservingCount = allAnimals.Count(a => a.Status == "En observación");
             FollowUpCount = SickCount + ObservingCount;
         }
 
@@ -602,6 +764,7 @@ namespace GalponApp.Presentation.ViewModels
             {
                 animal.Name = newName.Trim();
                 await _storageService.SaveAnimalAsync(animal);
+                await LoadDetailsAsync();
             }
         }
 
@@ -623,14 +786,14 @@ namespace GalponApp.Presentation.ViewModels
                 animal.Status = status;
                 animal.NotifyStatusChanged();
                 await _storageService.SaveAnimalAsync(animal);
-                UpdateAnimalCounters();
+                await LoadDetailsAsync();
             }
         }
 
         [RelayCommand]
         public async Task SetAllAnimalsStatusAsync()
         {
-            if (Animals.Count == 0) return;
+            if (Batch == null) return;
 
             string status = await Shell.Current.DisplayActionSheetAsync(
                 "Establecer Estado del Grupo",
@@ -645,16 +808,16 @@ namespace GalponApp.Presentation.ViewModels
                 IsBusy = true;
                 try
                 {
-                    foreach (var animal in Animals)
+                    var allAnimals = await _storageService.GetAnimalsForBatchAsync(Batch.Id, Batch.Quantity, Batch.CurrentWeight);
+                    foreach (var animal in allAnimals)
                     {
                         if (animal.Status != status)
                         {
                             animal.Status = status;
-                            animal.NotifyStatusChanged();
                             await _storageService.SaveAnimalAsync(animal);
                         }
                     }
-                    UpdateAnimalCounters();
+                    await LoadDetailsAsync();
                 }
                 finally
                 {

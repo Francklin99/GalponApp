@@ -73,12 +73,6 @@ namespace GalponApp.Presentation.ViewModels
                 }
 
                 ApplyFilters();
-
-                // Auto-navigate for debugging
-                if (Batches.Count > 0)
-                {
-                    await GoToBatchDetailAsync(Batches.First());
-                }
             }
             catch (Exception ex)
             {
