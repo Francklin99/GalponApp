@@ -42,7 +42,9 @@ namespace GalponApp.Infrastructure.Services
             foreach (var v in vaccinations)
             {
                 string appliedDateStr = v.AppliedDate.HasValue ? v.AppliedDate.Value.ToString("dd/MM/yyyy") : "-";
-                sb.AppendLine($"{v.ScheduledDate:dd/MM/yyyy},{appliedDateStr},\"{v.Name}\",\"{v.Type}\",\"{v.Dose} {v.DoseUnit}\",\"{v.Status}\",\"{v.Notes.Replace("\"", "\"\"")}\"");
+                string name = v.HasCustomAppliedDose ? $"{v.Name} (Alternativo: {v.SavedCustomMedicationName})" : v.Name;
+                string dose = v.HasCustomAppliedDose ? v.SavedCustomDoseAmount : $"{v.Dose} {v.DoseUnit}";
+                sb.AppendLine($"{v.ScheduledDate:dd/MM/yyyy},{appliedDateStr},\"{name}\",\"{v.Type}\",\"{dose}\",\"{v.Status}\",\"{v.Notes.Replace("\"", "\"\"")}\"");
             }
 
             sb.AppendLine();
@@ -180,7 +182,10 @@ namespace GalponApp.Infrastructure.Services
                     if (v.Status == "Aplicada") statusClass = "badge-applied";
                     else if (v.Status == "Atrasada") statusClass = "badge-overdue";
                     
-                    sb.AppendLine($"<tr><td><strong>{v.Name}</strong></td><td>{v.Type}</td><td>{v.Dose} {v.DoseUnit}</td><td>{v.ScheduledDate:dd/MM/yyyy}</td><td>{appliedStr}</td><td><span class='badge {statusClass}'>{v.Status}</span></td><td>{v.Notes}</td></tr>");
+                    string name = v.HasCustomAppliedDose ? $"{v.Name} (Alternativo: {v.SavedCustomMedicationName})" : v.Name;
+                    string dose = v.HasCustomAppliedDose ? v.SavedCustomDoseAmount : $"{v.Dose} {v.DoseUnit}";
+                    
+                    sb.AppendLine($"<tr><td><strong>{name}</strong></td><td>{v.Type}</td><td>{dose}</td><td>{v.ScheduledDate:dd/MM/yyyy}</td><td>{appliedStr}</td><td><span class='badge {statusClass}'>{v.Status}</span></td><td>{v.Notes}</td></tr>");
                 }
                 sb.AppendLine("</tbody></table>");
             }

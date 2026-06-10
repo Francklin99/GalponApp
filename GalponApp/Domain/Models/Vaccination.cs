@@ -39,6 +39,15 @@ namespace GalponApp.Domain.Models
         public int DayNumber { get; set; }
 
         public bool IsApplied => AppliedDate.HasValue;
+
+        [JsonIgnore]
+        public bool HasCustomAppliedDose => IsApplied && (!string.IsNullOrWhiteSpace(SavedCustomMedicationName) || !string.IsNullOrWhiteSpace(SavedCustomDoseAmount));
+
+        [JsonIgnore]
+        public string CustomAppliedDoseDisplay => HasCustomAppliedDose
+            ? $"{SavedCustomMedicationName}{(string.IsNullOrWhiteSpace(SavedCustomDoseAmount) ? "" : $" ({SavedCustomDoseAmount})")}"
+            : string.Empty;
+
         public string AppliedSymbol => IsApplied ? "✓" : "⏰";
         public string AppliedColor => IsApplied ? "#2E7D32" : "#475569";
         public string AppliedBgColor => IsApplied ? "#E8F5E9" : "#F1F5F9";

@@ -337,6 +337,10 @@
                                         </Grid>
                                         <Label Text="{Binding DayNumber, StringFormat='Día {0}'}" FontSize="11" TextColor="#94A3B8"/>
                                         <Label Text="{Binding Description}" FontSize="12" TextColor="#64748B" LineBreakMode="WordWrap"/>
+                                        <HorizontalStackLayout Spacing="5" Margin="0,3,0,0" IsVisible="{Binding HasCustomAppliedDose}">
+                                            <Label Text="💉 Dosis aplicada:" FontSize="12" FontAttributes="Bold" TextColor="#C2410C" VerticalOptions="Center"/>
+                                            <Label Text="{Binding CustomAppliedDoseDisplay}" FontSize="12" TextColor="#C2410C" FontAttributes="Bold" VerticalOptions="Center"/>
+                                        </HorizontalStackLayout>
                                     </VerticalStackLayout>
 
                                     <!-- Acciones -->

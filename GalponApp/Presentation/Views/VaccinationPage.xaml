@@ -63,10 +63,10 @@
                             <Border.Shadow>
                                 <Shadow Brush="Black" Offset="0,2" Radius="4" Opacity="0.05" />
                             </Border.Shadow>
-                            <Grid Padding="14" ColumnDefinitions="Auto, *, Auto" RowDefinitions="Auto, Auto, Auto" ColumnSpacing="12" RowSpacing="2">
+                            <Grid Padding="14" ColumnDefinitions="Auto, *, Auto" RowDefinitions="Auto, Auto, Auto, Auto" ColumnSpacing="12" RowSpacing="2">
                                 
                                 <!-- Botón de Aplicado/Check -->
-                                <Button Grid.Column="0" Grid.Row="0" Grid.RowSpan="3" 
+                                <Button Grid.Column="0" Grid.Row="0" Grid.RowSpan="4" 
                                         Text="{Binding AppliedSymbol}" 
                                         TextColor="{Binding AppliedColor}"
                                         BackgroundColor="{Binding AppliedBgColor}" 
@@ -103,8 +103,14 @@
                                     <Label Text="{Binding AppliedDate, StringFormat='{0:dd/MM/yyyy}'}" FontSize="10" FontAttributes="Bold" TextColor="#2E7D32" IsVisible="{Binding IsApplied}" />
                                 </HorizontalStackLayout>
 
+                                <!-- Custom Dose details on general page -->
+                                <HorizontalStackLayout Grid.Row="3" Grid.Column="1" Spacing="4" Margin="0,2,0,0" IsVisible="{Binding HasCustomAppliedDose}">
+                                    <Label Text="💉 Dosis aplicada:" FontSize="10.5" FontAttributes="Bold" TextColor="#C2410C" />
+                                    <Label Text="{Binding CustomAppliedDoseDisplay}" FontSize="10.5" TextColor="#C2410C" FontAttributes="Bold" />
+                                </HorizontalStackLayout>
+
                                 <!-- Badge e ir a lote -->
-                                <VerticalStackLayout Grid.Row="0" Grid.Column="2" Grid.RowSpan="3" VerticalOptions="Center" HorizontalOptions="End" Spacing="6">
+                                <VerticalStackLayout Grid.Row="0" Grid.Column="2" Grid.RowSpan="4" VerticalOptions="Center" HorizontalOptions="End" Spacing="6">
                                     <!-- Badge de Estado -->
                                     <Border StrokeShape="RoundRectangle 8" StrokeThickness="0" Padding="8,4" HorizontalOptions="End">
                                         <Border.Triggers>
