@@ -94,7 +94,7 @@ namespace GalponApp.Presentation.ViewModels
         [ObservableProperty]
         private bool isClassificationRequired;
 
-        public bool IsPigletBatch => Batch != null && (Batch.CategoryId == "porcinos" || Batch.Purpose.Equals("Lechones", StringComparison.OrdinalIgnoreCase));
+        public bool IsPigletBatch => Batch != null && Batch.Purpose.Equals("Lechones", StringComparison.OrdinalIgnoreCase);
         public bool ShowDivisionUndo => Batch != null && Batch.IsDivided;
         public bool ShowDivisionPending => IsPigletBatch && !Batch.IsDivided && !IsClassificationRequired;
         public bool ShowDivisionActive => IsPigletBatch && !Batch.IsDivided && IsClassificationRequired;
@@ -258,9 +258,9 @@ namespace GalponApp.Presentation.ViewModels
                 UpdateAnimalCounters(animalsList);
                 IsClassificationRequired = Batch.IsActive && 
                                            !Batch.IsDivided && 
+                                           IsPigletBatch && 
                                            Vaccinations.Count > 0 && 
-                                           Vaccinations.All(v => v.Status == "Aplicada") && 
-                                           (Batch.CategoryId == "porcinos" ? Batch.AgeInWeeks >= 8 : true);
+                                           Vaccinations.All(v => v.Status == "Aplicada");
 
                 OnPropertyChanged(nameof(IsPigletBatch));
                 OnPropertyChanged(nameof(ShowDivisionUndo));
