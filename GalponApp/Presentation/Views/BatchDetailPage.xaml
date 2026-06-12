@@ -346,7 +346,7 @@
                                     <!-- Acciones -->
                                     <VerticalStackLayout Grid.Column="1" Grid.Row="1" Spacing="6" Margin="0,6,0,0">
                                         <!-- Cuando NO está aplicada -->
-                                        <Grid ColumnDefinitions="Auto, *" ColumnSpacing="10" IsVisible="True">
+                                        <Grid ColumnDefinitions="Auto, *, Auto" ColumnSpacing="10" IsVisible="True">
                                             <Grid.Triggers>
                                                 <DataTrigger TargetType="Grid" Binding="{Binding IsApplied}" Value="True">
                                                     <Setter Property="IsVisible" Value="False"/>
@@ -380,24 +380,51 @@
                                                 </Border>
                                                 <Label Text="Dosis diferente" FontSize="11" TextColor="#64748B" VerticalOptions="Center"/>
                                             </HorizontalStackLayout>
+
+                                            <!-- Botón de Alternativas (cuando NO está aplicada) -->
+                                            <Border Grid.Column="2" StrokeShape="RoundRectangle 6" StrokeThickness="1.5" Stroke="#0284C7"
+                                                    BackgroundColor="#F0F9FF" Padding="10,5" HorizontalOptions="End" VerticalOptions="Center">
+                                                <Border.GestureRecognizers>
+                                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:BatchDetailViewModel}}, Path=ToggleAlternativesCommand}" CommandParameter="{Binding .}"/>
+                                                </Border.GestureRecognizers>
+                                                <HorizontalStackLayout Spacing="5">
+                                                    <Label Text="ℹ️" FontSize="12" TextColor="#0284C7" VerticalOptions="Center"/>
+                                                    <Label Text="Alternativas" FontSize="11" FontAttributes="Bold" TextColor="#0284C7" VerticalOptions="Center"/>
+                                                </HorizontalStackLayout>
+                                            </Border>
                                         </Grid>
 
                                         <!-- Cuando YA está aplicada -->
-                                        <Border StrokeShape="RoundRectangle 6" StrokeThickness="1" Stroke="#CBD5E1"
-                                                BackgroundColor="#F8FAFC" Padding="10,5" HorizontalOptions="Start" IsVisible="False">
-                                            <Border.GestureRecognizers>
-                                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:BatchDetailViewModel}}, Path=ApplyVaccinationCommand}" CommandParameter="{Binding .}"/>
-                                            </Border.GestureRecognizers>
-                                            <Border.Triggers>
-                                                <DataTrigger TargetType="Border" Binding="{Binding IsApplied}" Value="True">
+                                        <HorizontalStackLayout Spacing="10" IsVisible="False">
+                                            <HorizontalStackLayout.Triggers>
+                                                <DataTrigger TargetType="HorizontalStackLayout" Binding="{Binding IsApplied}" Value="True">
                                                     <Setter Property="IsVisible" Value="True"/>
                                                 </DataTrigger>
-                                            </Border.Triggers>
-                                            <HorizontalStackLayout Spacing="5">
-                                                <Label Text="↩" FontSize="13" TextColor="#64748B" VerticalOptions="Center"/>
-                                                <Label Text="Revertir" FontSize="12" TextColor="#64748B" VerticalOptions="Center"/>
-                                            </HorizontalStackLayout>
-                                        </Border>
+                                            </HorizontalStackLayout.Triggers>
+
+                                            <Border StrokeShape="RoundRectangle 6" StrokeThickness="1" Stroke="#CBD5E1"
+                                                    BackgroundColor="#F8FAFC" Padding="10,5" VerticalOptions="Center">
+                                                <Border.GestureRecognizers>
+                                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:BatchDetailViewModel}}, Path=ApplyVaccinationCommand}" CommandParameter="{Binding .}"/>
+                                                </Border.GestureRecognizers>
+                                                <HorizontalStackLayout Spacing="5">
+                                                    <Label Text="↩" FontSize="13" TextColor="#64748B" VerticalOptions="Center"/>
+                                                    <Label Text="Revertir" FontSize="12" TextColor="#64748B" VerticalOptions="Center"/>
+                                                </HorizontalStackLayout>
+                                            </Border>
+
+                                            <!-- Botón de Alternativas (cuando YA está aplicada) -->
+                                            <Border StrokeShape="RoundRectangle 6" StrokeThickness="1.5" Stroke="#0284C7"
+                                                    BackgroundColor="#F0F9FF" Padding="10,5" VerticalOptions="Center">
+                                                <Border.GestureRecognizers>
+                                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:BatchDetailViewModel}}, Path=ToggleAlternativesCommand}" CommandParameter="{Binding .}"/>
+                                                </Border.GestureRecognizers>
+                                                <HorizontalStackLayout Spacing="5">
+                                                    <Label Text="ℹ️" FontSize="12" TextColor="#0284C7" VerticalOptions="Center"/>
+                                                    <Label Text="Alternativas" FontSize="11" FontAttributes="Bold" TextColor="#0284C7" VerticalOptions="Center"/>
+                                                </HorizontalStackLayout>
+                                            </Border>
+                                        </HorizontalStackLayout>
 
                                         <!-- Panel dosis diferente -->
                                         <VerticalStackLayout Padding="10" Spacing="8" BackgroundColor="#F0FDF4" IsVisible="{Binding ShowCustomFields}">
@@ -417,6 +444,19 @@
                                                     Command="{Binding Source={RelativeSource AncestorType={x:Type vm:BatchDetailViewModel}}, Path=ApplyVaccinationCommand}"
                                                     CommandParameter="{Binding .}"/>
                                         </VerticalStackLayout>
+
+                                        <!-- Panel de alternativas (Acordeón) -->
+                                        <Border StrokeShape="RoundRectangle 6" StrokeThickness="1" Stroke="#0284C7"
+                                                BackgroundColor="#F0F9FF" Padding="12" Margin="0,4,0,0"
+                                                IsVisible="{Binding ShowAlternatives}">
+                                            <VerticalStackLayout Spacing="4">
+                                                <HorizontalStackLayout Spacing="6">
+                                                    <Label Text="💡" FontSize="13" VerticalOptions="Center"/>
+                                                    <Label Text="Vacunas alternativas recomendadas:" FontSize="11" FontAttributes="Bold" TextColor="#0369A1" VerticalOptions="Center"/>
+                                                </HorizontalStackLayout>
+                                                <Label Text="{Binding Alternatives}" FontSize="12" TextColor="#0E7490" Margin="19,0,0,0"/>
+                                            </VerticalStackLayout>
+                                        </Border>
                                     </VerticalStackLayout>
                                 </Grid>
                             </DataTemplate>
@@ -588,41 +628,101 @@
                     <Grid ColumnDefinitions="*, *, *" ColumnSpacing="8">
                         <!-- Saludable -->
                         <Border Grid.Column="0" StrokeShape="RoundRectangle 10" StrokeThickness="1.5"
-                                Stroke="#86EFAC" BackgroundColor="#F0FDF4" Padding="10,12">
-                            <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
-                                <Label Text="💚" FontSize="20" HorizontalOptions="Center"/>
-                                <Entry Text="{Binding HealthyCount, Mode=TwoWay}" Keyboard="Numeric"
-                                       FontSize="18" FontAttributes="Bold" TextColor="#15803D"
-                                       HorizontalTextAlignment="Center" WidthRequest="70" HeightRequest="36"
-                                       BackgroundColor="White" Margin="0,2"/>
+                                Stroke="#86EFAC" BackgroundColor="#F0FDF4" Padding="6,10">
+                            <VerticalStackLayout Spacing="3" HorizontalOptions="Center">
+                                <Label Text="💚" FontSize="18" HorizontalOptions="Center"/>
+                                <HorizontalStackLayout Spacing="4" HorizontalOptions="Center" VerticalOptions="Center">
+                                    <Border WidthRequest="26" HeightRequest="26" StrokeShape="RoundRectangle 13" BackgroundColor="#DCFCE7" StrokeThickness="0" VerticalOptions="Center">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding DecrementHealthyCommand}"/>
+                                        </Border.GestureRecognizers>
+                                        <Label Text="-" FontSize="16" FontAttributes="Bold" TextColor="#15803D" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                    </Border>
+                                    <Entry Text="{Binding HealthyCount, Mode=TwoWay}" Keyboard="Numeric"
+                                           FontSize="15" FontAttributes="Bold" TextColor="#15803D"
+                                           HorizontalTextAlignment="Center" WidthRequest="40" HeightRequest="32"
+                                           BackgroundColor="White" VerticalOptions="Center"/>
+                                    <Border WidthRequest="26" HeightRequest="26" StrokeShape="RoundRectangle 13" BackgroundColor="#DCFCE7" StrokeThickness="0" VerticalOptions="Center">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding IncrementHealthyCommand}"/>
+                                        </Border.GestureRecognizers>
+                                        <Label Text="+" FontSize="16" FontAttributes="Bold" TextColor="#15803D" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                    </Border>
+                                </HorizontalStackLayout>
                                 <Label Text="Saludables" FontSize="10" TextColor="#15803D" HorizontalOptions="Center"/>
                             </VerticalStackLayout>
                         </Border>
                         <!-- En observación -->
                         <Border Grid.Column="1" StrokeShape="RoundRectangle 10" StrokeThickness="1.5"
-                                Stroke="#FDE68A" BackgroundColor="#FFFBEB" Padding="10,12">
-                            <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
-                                <Label Text="🟡" FontSize="20" HorizontalOptions="Center"/>
-                                <Entry Text="{Binding ObservingCount, Mode=TwoWay}" Keyboard="Numeric"
-                                       FontSize="18" FontAttributes="Bold" TextColor="#92400E"
-                                       HorizontalTextAlignment="Center" WidthRequest="70" HeightRequest="36"
-                                       BackgroundColor="White" Margin="0,2"/>
+                                Stroke="#FDE68A" BackgroundColor="#FFFBEB" Padding="6,10">
+                            <VerticalStackLayout Spacing="3" HorizontalOptions="Center">
+                                <Label Text="🟡" FontSize="18" HorizontalOptions="Center"/>
+                                <HorizontalStackLayout Spacing="4" HorizontalOptions="Center" VerticalOptions="Center">
+                                    <Border WidthRequest="26" HeightRequest="26" StrokeShape="RoundRectangle 13" BackgroundColor="#FEF3C7" StrokeThickness="0" VerticalOptions="Center">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding DecrementObservingCommand}"/>
+                                        </Border.GestureRecognizers>
+                                        <Label Text="-" FontSize="16" FontAttributes="Bold" TextColor="#92400E" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                    </Border>
+                                    <Entry Text="{Binding ObservingCount, Mode=TwoWay}" Keyboard="Numeric"
+                                           FontSize="15" FontAttributes="Bold" TextColor="#92400E"
+                                           HorizontalTextAlignment="Center" WidthRequest="40" HeightRequest="32"
+                                           BackgroundColor="White" VerticalOptions="Center"/>
+                                    <Border WidthRequest="26" HeightRequest="26" StrokeShape="RoundRectangle 13" BackgroundColor="#FEF3C7" StrokeThickness="0" VerticalOptions="Center">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding IncrementObservingCommand}"/>
+                                        </Border.GestureRecognizers>
+                                        <Label Text="+" FontSize="16" FontAttributes="Bold" TextColor="#92400E" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                    </Border>
+                                </HorizontalStackLayout>
                                 <Label Text="En observ." FontSize="10" TextColor="#92400E" HorizontalOptions="Center"/>
                             </VerticalStackLayout>
                         </Border>
                         <!-- Enfermos -->
                         <Border Grid.Column="2" StrokeShape="RoundRectangle 10" StrokeThickness="1.5"
-                                Stroke="#FECACA" BackgroundColor="#FFF1F2" Padding="10,12">
-                            <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
-                                <Label Text="🔴" FontSize="20" HorizontalOptions="Center"/>
-                                <Entry Text="{Binding SickCount, Mode=TwoWay}" Keyboard="Numeric"
-                                       FontSize="18" FontAttributes="Bold" TextColor="#991B1B"
-                                       HorizontalTextAlignment="Center" WidthRequest="70" HeightRequest="36"
-                                       BackgroundColor="White" Margin="0,2"/>
+                                Stroke="#FECACA" BackgroundColor="#FFF1F2" Padding="6,10">
+                            <VerticalStackLayout Spacing="3" HorizontalOptions="Center">
+                                <Label Text="🔴" FontSize="18" HorizontalOptions="Center"/>
+                                <HorizontalStackLayout Spacing="4" HorizontalOptions="Center" VerticalOptions="Center">
+                                    <Border WidthRequest="26" HeightRequest="26" StrokeShape="RoundRectangle 13" BackgroundColor="#FEE2E2" StrokeThickness="0" VerticalOptions="Center">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding DecrementSickCommand}"/>
+                                        </Border.GestureRecognizers>
+                                        <Label Text="-" FontSize="16" FontAttributes="Bold" TextColor="#991B1B" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                    </Border>
+                                    <Entry Text="{Binding SickCount, Mode=TwoWay}" Keyboard="Numeric"
+                                           FontSize="15" FontAttributes="Bold" TextColor="#991B1B"
+                                           HorizontalTextAlignment="Center" WidthRequest="40" HeightRequest="32"
+                                           BackgroundColor="White" VerticalOptions="Center"/>
+                                    <Border WidthRequest="26" HeightRequest="26" StrokeShape="RoundRectangle 13" BackgroundColor="#FEE2E2" StrokeThickness="0" VerticalOptions="Center">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding IncrementSickCommand}"/>
+                                        </Border.GestureRecognizers>
+                                        <Label Text="+" FontSize="16" FontAttributes="Bold" TextColor="#991B1B" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                    </Border>
+                                </HorizontalStackLayout>
                                 <Label Text="Enfermos" FontSize="10" TextColor="#991B1B" HorizontalOptions="Center"/>
                             </VerticalStackLayout>
                         </Border>
                     </Grid>
+
+                    <!-- Detailed summary counts table (Compact) -->
+                    <Border StrokeShape="RoundRectangle 8" StrokeThickness="1" Stroke="#E2E8F0" BackgroundColor="White" Padding="12,8">
+                        <Grid RowDefinitions="Auto, Auto, Auto, Auto, Auto" ColumnDefinitions="*, Auto" RowSpacing="6">
+                            <Label Grid.Row="0" Grid.Column="0" Text="Asignados:" FontSize="13" TextColor="#475569" />
+                            <Label Grid.Row="0" Grid.Column="1" Text="{Binding AssignedHealthCount}" FontSize="13" FontAttributes="Bold" TextColor="#2D6A4F" />
+
+                            <BoxView Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" HeightRequest="1" Color="#F1F5F9" />
+
+                            <Label Grid.Row="2" Grid.Column="0" Text="Sin asignar:" FontSize="13" TextColor="#475569" />
+                            <Label Grid.Row="2" Grid.Column="1" Text="{Binding UnassignedHealthCount}" FontSize="13" FontAttributes="Bold" TextColor="#D97706" />
+
+                            <BoxView Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" HeightRequest="1" Color="#F1F5F9" />
+
+                            <Label Grid.Row="4" Grid.Column="0" Text="Total:" FontSize="14" FontAttributes="Bold" TextColor="Black" />
+                            <Label Grid.Row="4" Grid.Column="1" Text="{Binding TotalAnimalsCount}" FontSize="14" FontAttributes="Bold" TextColor="Black" />
+                        </Grid>
+                    </Border>
 
                     <!-- Panel de Guardar Distribución -->
                     <VerticalStackLayout Spacing="4" HorizontalOptions="FillAndExpand" Margin="0,4,0,0">

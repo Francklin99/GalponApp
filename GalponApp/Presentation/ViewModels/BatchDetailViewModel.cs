@@ -68,6 +68,8 @@ namespace GalponApp.Presentation.ViewModels
         [NotifyPropertyChangedFor(nameof(IsDistributionValid))]
         [NotifyPropertyChangedFor(nameof(IsDistributionInvalid))]
         [NotifyPropertyChangedFor(nameof(DistributionWarningText))]
+        [NotifyPropertyChangedFor(nameof(AssignedHealthCount))]
+        [NotifyPropertyChangedFor(nameof(UnassignedHealthCount))]
         private int healthyCount;
 
         [ObservableProperty]
@@ -77,12 +79,16 @@ namespace GalponApp.Presentation.ViewModels
         [NotifyPropertyChangedFor(nameof(IsDistributionValid))]
         [NotifyPropertyChangedFor(nameof(IsDistributionInvalid))]
         [NotifyPropertyChangedFor(nameof(DistributionWarningText))]
+        [NotifyPropertyChangedFor(nameof(AssignedHealthCount))]
+        [NotifyPropertyChangedFor(nameof(UnassignedHealthCount))]
         private int sickCount;
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(IsDistributionValid))]
         [NotifyPropertyChangedFor(nameof(IsDistributionInvalid))]
         [NotifyPropertyChangedFor(nameof(DistributionWarningText))]
+        [NotifyPropertyChangedFor(nameof(AssignedHealthCount))]
+        [NotifyPropertyChangedFor(nameof(UnassignedHealthCount))]
         private int observingCount;
 
         [ObservableProperty]
@@ -104,6 +110,7 @@ namespace GalponApp.Presentation.ViewModels
         private ObservableCollection<Animal> animals = new();
 
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(UnassignedHealthCount))]
         private int totalAnimalsCount;
 
         [ObservableProperty]
@@ -453,6 +460,13 @@ namespace GalponApp.Presentation.ViewModels
             vac.ShowCustomFields = !vac.ShowCustomFields;
         }
 
+        [RelayCommand]
+        public void ToggleAlternatives(Vaccination vac)
+        {
+            if (vac == null) return;
+            vac.ShowAlternatives = !vac.ShowAlternatives;
+        }
+
         // Exportación y Compartición de Reporte CSV
         [RelayCommand]
         public async Task ExportCsvAsync()
@@ -590,7 +604,25 @@ namespace GalponApp.Presentation.ViewModels
 
         public bool IsDistributionValid => (HealthyCount + ObservingCount + SickCount) == TotalAnimalsCount;
         public bool IsDistributionInvalid => !IsDistributionValid;
-        public string DistributionWarningText => $"La suma ({HealthyCount + ObservingCount + SickCount}) debe ser igual al total del lote ({TotalAnimalsCount})";
+        public string DistributionWarningText
+        {
+            get
+            {
+                int sum = HealthyCount + ObservingCount + SickCount;
+                if (sum < TotalAnimalsCount)
+                {
+                    return $"⚠️ Faltan asignar {TotalAnimalsCount - sum} animales para completar el lote ({TotalAnimalsCount})";
+                }
+                else if (sum > TotalAnimalsCount)
+                {
+                    return $"⚠️ Se han asignado {sum - TotalAnimalsCount} de más. El total debe ser {TotalAnimalsCount}";
+                }
+                return string.Empty;
+            }
+        }
+
+        public int AssignedHealthCount => HealthyCount + ObservingCount + SickCount;
+        public int UnassignedHealthCount => TotalAnimalsCount - AssignedHealthCount;
 
         private bool _isAdjustingCounters = false;
 
@@ -607,17 +639,6 @@ namespace GalponApp.Presentation.ViewModels
                 else if (value < 0)
                 {
                     HealthyCount = 0;
-                }
-
-                int remaining = TotalAnimalsCount - HealthyCount;
-                if (SickCount <= remaining)
-                {
-                    ObservingCount = remaining - SickCount;
-                }
-                else
-                {
-                    SickCount = remaining;
-                    ObservingCount = 0;
                 }
             }
             finally
@@ -640,17 +661,6 @@ namespace GalponApp.Presentation.ViewModels
                 {
                     ObservingCount = 0;
                 }
-
-                int remaining = TotalAnimalsCount - ObservingCount;
-                if (SickCount <= remaining)
-                {
-                    HealthyCount = remaining - SickCount;
-                }
-                else
-                {
-                    SickCount = remaining;
-                    HealthyCount = 0;
-                }
             }
             finally
             {
@@ -672,22 +682,53 @@ namespace GalponApp.Presentation.ViewModels
                 {
                     SickCount = 0;
                 }
-
-                int remaining = TotalAnimalsCount - SickCount;
-                if (ObservingCount <= remaining)
-                {
-                    HealthyCount = remaining - ObservingCount;
-                }
-                else
-                {
-                    ObservingCount = remaining;
-                    HealthyCount = 0;
-                }
             }
             finally
             {
                 _isAdjustingCounters = false;
             }
+        }
+
+        [RelayCommand]
+        public void IncrementHealthy()
+        {
+            if (HealthyCount < TotalAnimalsCount)
+                HealthyCount++;
+        }
+
+        [RelayCommand]
+        public void DecrementHealthy()
+        {
+            if (HealthyCount > 0)
+                HealthyCount--;
+        }
+
+        [RelayCommand]
+        public void IncrementObserving()
+        {
+            if (ObservingCount < TotalAnimalsCount)
+                ObservingCount++;
+        }
+
+        [RelayCommand]
+        public void DecrementObserving()
+        {
+            if (ObservingCount > 0)
+                ObservingCount--;
+        }
+
+        [RelayCommand]
+        public void IncrementSick()
+        {
+            if (SickCount < TotalAnimalsCount)
+                SickCount++;
+        }
+
+        [RelayCommand]
+        public void DecrementSick()
+        {
+            if (SickCount > 0)
+                SickCount--;
         }
 
         [RelayCommand]

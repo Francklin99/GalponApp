@@ -63,7 +63,7 @@
                             <Border.Shadow>
                                 <Shadow Brush="Black" Offset="0,2" Radius="4" Opacity="0.05" />
                             </Border.Shadow>
-                            <Grid Padding="14" ColumnDefinitions="Auto, *, Auto" RowDefinitions="Auto, Auto, Auto, Auto" ColumnSpacing="12" RowSpacing="2">
+                            <Grid Padding="14" ColumnDefinitions="Auto, *, Auto" RowDefinitions="Auto, Auto, Auto, Auto, Auto" ColumnSpacing="12" RowSpacing="2">
                                 
                                 <!-- Botón de Aplicado/Check -->
                                 <Button Grid.Column="0" Grid.Row="0" Grid.RowSpan="4" 
@@ -139,16 +139,40 @@
                                         </Label>
                                     </Border>
                                     
-                                    <Button Text="Ver Lote" 
-                                            FontSize="10" 
-                                            HeightRequest="24" 
-                                            Padding="8,0" 
-                                            BackgroundColor="#F1F5F9" 
-                                            TextColor="#2E7D32" 
-                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:VaccinationViewModel}}, Path=GoToBatchCommand}"
-                                            CommandParameter="{Binding .}" />
+                                    <HorizontalStackLayout Spacing="6">
+                                        <Button Text="Alternativas" 
+                                                FontSize="10" 
+                                                HeightRequest="24" 
+                                                Padding="8,0" 
+                                                BackgroundColor="#F0F9FF" 
+                                                TextColor="#0284C7" 
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:VaccinationViewModel}}, Path=ToggleAlternativesCommand}"
+                                                CommandParameter="{Binding .}" />
+
+                                        <Button Text="Ver Lote" 
+                                                FontSize="10" 
+                                                HeightRequest="24" 
+                                                Padding="8,0" 
+                                                BackgroundColor="#F1F5F9" 
+                                                TextColor="#2E7D32" 
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:VaccinationViewModel}}, Path=GoToBatchCommand}"
+                                                CommandParameter="{Binding .}" />
+                                    </HorizontalStackLayout>
                                 </VerticalStackLayout>
 
+                                <!-- Accordion de Alternativas -->
+                                <Border Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2"
+                                        StrokeShape="RoundRectangle 6" StrokeThickness="1.5" Stroke="#0284C7"
+                                        BackgroundColor="#F0F9FF" Padding="12" Margin="0,6,0,0"
+                                        IsVisible="{Binding ShowAlternatives}">
+                                    <VerticalStackLayout Spacing="4">
+                                        <HorizontalStackLayout Spacing="6">
+                                            <Label Text="💡" FontSize="12" VerticalOptions="Center"/>
+                                            <Label Text="Vacunas alternativas recomendadas:" FontSize="10.5" FontAttributes="Bold" TextColor="#0369A1" VerticalOptions="Center"/>
+                                        </HorizontalStackLayout>
+                                        <Label Text="{Binding Alternatives}" FontSize="11.5" TextColor="#0E7490" Margin="18,0,0,0"/>
+                                    </VerticalStackLayout>
+                                </Border>
                             </Grid>
                         </Border>
                     </DataTemplate>

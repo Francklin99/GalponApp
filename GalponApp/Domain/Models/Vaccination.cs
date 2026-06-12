@@ -36,6 +36,10 @@ namespace GalponApp.Domain.Models
         [JsonIgnore]
         private bool showCustomFields = false;
 
+        [ObservableProperty]
+        [JsonIgnore]
+        private bool showAlternatives = false;
+
         public int DayNumber { get; set; }
 
         public bool IsApplied => AppliedDate.HasValue;

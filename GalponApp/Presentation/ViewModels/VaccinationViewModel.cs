@@ -124,6 +124,13 @@ namespace GalponApp.Presentation.ViewModels
             }
         }
 
+        [RelayCommand]
+        public void ToggleAlternatives(Vaccination vac)
+        {
+            if (vac == null) return;
+            vac.ShowAlternatives = !vac.ShowAlternatives;
+        }
+
         // Navega a la ficha del lote correspondiente desde la vacuna
         [RelayCommand]
         public async Task GoToBatchAsync(Vaccination vac)
