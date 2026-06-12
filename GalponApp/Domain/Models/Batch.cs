@@ -87,5 +87,40 @@ namespace GalponApp.Domain.Models
             "cunicultura" => "🐇",
             _ => "🐾"
         };
+
+        [System.Text.Json.Serialization.JsonIgnore]
+        public string CardBgColor => IsDivided 
+            ? "#F1F5F9" 
+            : CategoryId switch
+            {
+                "porcinos" => "#FDF2F8",
+                "bovinos_leche" => "#EEF2FF",
+                "bovinos_carne" => "#FFFBEB",
+                "avicolas_engorde" => "#FEFCE8",
+                "avicolas_postura" => "#FFF7ED",
+                "ovinos" => "#F8FAFC",
+                "caprinos" => "#FAF5FF",
+                "cunicultura" => "#F0FDFA",
+                _ => "#ECFDF5"
+            };
+
+        [System.Text.Json.Serialization.JsonIgnore]
+        public string CardStrokeColor => IsDivided 
+            ? "#94A3B8" 
+            : CategoryId switch
+            {
+                "porcinos" => "#FBCFE8",
+                "bovinos_leche" => "#C7D2FE",
+                "bovinos_carne" => "#FDE68A",
+                "avicolas_engorde" => "#FEF08A",
+                "avicolas_postura" => "#FED7AA",
+                "ovinos" => "#CBD5E1",
+                "caprinos" => "#E9D5FF",
+                "cunicultura" => "#99F6E4",
+                _ => "#A7F3D0"
+            };
+
+        [System.Text.Json.Serialization.JsonIgnore]
+        public double CardOpacity => IsDivided ? 0.65 : 1.0;
     }
 }

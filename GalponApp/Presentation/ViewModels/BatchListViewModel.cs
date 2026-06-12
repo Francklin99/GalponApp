@@ -104,9 +104,10 @@ namespace GalponApp.Presentation.ViewModels
                     b.Breed.Contains(search, StringComparison.OrdinalIgnoreCase) || 
                     b.Purpose.Contains(search, StringComparison.OrdinalIgnoreCase));
             }
-
-            // Ordenar: lotes incompletos primero, completados al último, luego fecha desc
-            filtered = filtered.OrderBy(b => b.IsCompleted).ThenByDescending(b => b.CreatedAt);
+            // Ordenar: No divididos primero, divididos al final. Para los no divididos, ordenamos por IsCompleted (incompletos primero, completados después), luego por fecha desc
+            filtered = filtered.OrderBy(b => b.IsDivided)
+                               .ThenBy(b => b.IsCompleted)
+                               .ThenByDescending(b => b.CreatedAt);
 
             Batches.Clear();
             foreach (var b in filtered)

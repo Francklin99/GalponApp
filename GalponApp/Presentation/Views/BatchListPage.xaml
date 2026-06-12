@@ -93,9 +93,9 @@
                                 <VisualStateGroup x:Name="CommonStates">
                                     <VisualState x:Name="Normal">
                                         <VisualState.Setters>
-                                            <Setter Property="BackgroundColor" Value="White" />
-                                            <Setter Property="Stroke" Value="#E2E9E5" />
-                                            <Setter Property="Opacity" Value="1.0" />
+                                            <Setter Property="BackgroundColor" Value="{Binding CardBgColor}" />
+                                            <Setter Property="Stroke" Value="{Binding CardStrokeColor}" />
+                                            <Setter Property="Opacity" Value="{Binding CardOpacity}" />
                                         </VisualState.Setters>
                                     </VisualState>
                                     <VisualState x:Name="PointerOver">
@@ -178,8 +178,12 @@
                                             </Label>
                                         </Border>
 
-                                        <Border StrokeShape="RoundRectangle 6" StrokeThickness="0" BackgroundColor="#E0F2FE" Padding="8,3" Margin="0,0,0,4">
+                                        <Border StrokeShape="RoundRectangle 6" StrokeThickness="0" BackgroundColor="#E0F2FE" Padding="8,3" Margin="0,0,6,4">
                                             <Label Text="{Binding AgeInWeeks, StringFormat='{0} semanas'}" FontSize="10" FontAttributes="Bold" TextColor="#0369A1" />
+                                        </Border>
+
+                                        <Border StrokeShape="RoundRectangle 6" StrokeThickness="0" BackgroundColor="#E2E8F0" Padding="8,3" Margin="0,0,0,4" IsVisible="{Binding IsDivided}">
+                                            <Label Text="📦 Dividido" FontSize="10" FontAttributes="Bold" TextColor="#475569" />
                                         </Border>
                                     </FlexLayout>
                                 </VerticalStackLayout>
