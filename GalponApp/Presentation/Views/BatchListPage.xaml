@@ -84,7 +84,7 @@
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="models:Batch">
 
-                        <Border StrokeShape="RoundRectangle 16" StrokeThickness="1" BackgroundColor="{StaticResource CardBg}">
+                        <Border StrokeShape="RoundRectangle 16" StrokeThickness="2" BackgroundColor="{StaticResource CardBg}">
                             <Border.Shadow>
                                 <Shadow Brush="#1B4332" Offset="0,4" Radius="8" Opacity="0.04" />
                             </Border.Shadow>
@@ -128,13 +128,28 @@
                                     <Label Text="{Binding CategoryIcon}" FontSize="24" HorizontalOptions="Center" VerticalOptions="Center" />
                                 </Border>
 
-                                <Grid Grid.Row="0" Grid.Column="1" ColumnDefinitions="*, Auto" ColumnSpacing="10" VerticalOptions="Start">
+                                <Grid Grid.Row="0" Grid.Column="1" ColumnDefinitions="*, Auto, Auto" ColumnSpacing="10" VerticalOptions="Start">
                                     <Label Grid.Column="0" Text="{Binding Name}" FontSize="15" FontAttributes="Bold" TextColor="{StaticResource TextDark}" LineBreakMode="WordWrap" />
 
                                     <VerticalStackLayout Grid.Column="1" HorizontalOptions="End" VerticalOptions="Start">
-                                        <Label Text="Peso Promedio" FontSize="9" TextColor="{StaticResource TextMuted}" HorizontalOptions="End" />
-                                        <Label Text="{Binding CurrentWeight, StringFormat='{0:F1} kg'}" FontSize="16" FontAttributes="Bold" TextColor="{StaticResource EmeraldMint}" HorizontalOptions="End" />
+                                        <Label Text="Cantidad" FontSize="9" TextColor="{StaticResource TextMuted}" HorizontalOptions="End" />
+                                        <Label Text="{Binding Quantity, StringFormat='{0} animales'}" FontSize="16" FontAttributes="Bold" TextColor="{StaticResource EmeraldMint}" HorizontalOptions="End" />
                                     </VerticalStackLayout>
+
+                                    <Button Grid.Column="2"
+                                            Text="🗑️"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:BatchListViewModel}}, Path=DeleteBatchCommand}"
+                                            CommandParameter="{Binding .}"
+                                            BackgroundColor="#FEE2E2"
+                                            TextColor="#DC2626"
+                                            FontSize="14"
+                                            WidthRequest="32"
+                                            HeightRequest="32"
+                                            CornerRadius="16"
+                                            Padding="0"
+                                            VerticalOptions="Center"
+                                            HorizontalOptions="End"
+                                            Margin="4,0,0,0" />
                                 </Grid>
 
                                 <VerticalStackLayout Grid.Row="1" Grid.Column="1" Spacing="8">
@@ -148,7 +163,7 @@
 
                                     <FlexLayout Wrap="Wrap" Direction="Row" AlignContent="Start" JustifyContent="Start">
                                         <Border StrokeShape="RoundRectangle 6" StrokeThickness="0" BackgroundColor="#F1F5F9" Padding="8,3" Margin="0,0,6,4">
-                                            <Label Text="{Binding Quantity, StringFormat='{0} cabezas'}" FontSize="10" FontAttributes="Bold" TextColor="#475569" />
+                                            <Label Text="{Binding CurrentWeight, StringFormat='{0:F1} kg'}" FontSize="10" FontAttributes="Bold" TextColor="#475569" />
                                         </Border>
 
                                         <Border StrokeShape="RoundRectangle 6" StrokeThickness="0" Padding="8,3" BackgroundColor="#FFF3CD" Margin="0,0,6,4">

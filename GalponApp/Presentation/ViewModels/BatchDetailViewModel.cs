@@ -868,6 +868,12 @@ namespace GalponApp.Presentation.ViewModels
         }
 
         [RelayCommand]
+        public async Task GoBackAsync()
+        {
+            await Shell.Current.GoToAsync("..");
+        }
+
+        [RelayCommand]
         public async Task SplitBatchAsync()
         {
             if (Batch == null) return;

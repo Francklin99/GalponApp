@@ -13,7 +13,21 @@
         <!-- Header -->
         <Border Grid.Row="0" StrokeThickness="1" Stroke="#F1F5F9" BackgroundColor="White" Padding="16,12">
             <Grid ColumnDefinitions="Auto, *">
-                <Button Grid.Column="0" Text="←" FontSize="20" FontAttributes="Bold" BackgroundColor="Transparent" TextColor="Black" WidthRequest="40" HeightRequest="40" Command="{Binding CancelCommand}" VerticalOptions="Center"/>
+                <Border Grid.Column="0" 
+                        WidthRequest="40" HeightRequest="40" 
+                        StrokeShape="RoundRectangle 20" 
+                        StrokeThickness="0"
+                        BackgroundColor="#2D6A4F"
+                        VerticalOptions="Center">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding CancelCommand}"/>
+                    </Border.GestureRecognizers>
+                    <Border.Shadow>
+                        <Shadow Brush="#1B4332" Offset="0,3" Radius="5" Opacity="0.2" />
+                    </Border.Shadow>
+                    <Label Text="←" FontSize="20" FontAttributes="Bold" TextColor="White"
+                           HorizontalOptions="Center" VerticalOptions="Center" Margin="0,0,1,2"/>
+                </Border>
                 <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Margin="10,0,0,0">
                     <Label Text="Clasificar Lote" FontSize="16" FontAttributes="Bold" TextColor="Black" />
                     <Label Text="{Binding Batch.Name, StringFormat='Lote: {0}'}" FontSize="12" TextColor="#64748B" />

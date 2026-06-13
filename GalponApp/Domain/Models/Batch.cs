@@ -90,18 +90,18 @@ namespace GalponApp.Domain.Models
 
         [System.Text.Json.Serialization.JsonIgnore]
         public string CardBgColor => IsDivided 
-            ? "#F1F5F9" 
+            ? "#E2E8F0" 
             : CategoryId switch
             {
-                "porcinos" => "#FDF2F8",
-                "bovinos_leche" => "#EEF2FF",
-                "bovinos_carne" => "#FFFBEB",
-                "avicolas_engorde" => "#FEFCE8",
-                "avicolas_postura" => "#FFF7ED",
-                "ovinos" => "#F8FAFC",
-                "caprinos" => "#FAF5FF",
-                "cunicultura" => "#F0FDFA",
-                _ => "#ECFDF5"
+                "porcinos" => "#FCE7F3",
+                "bovinos_leche" => "#E0E7FF",
+                "bovinos_carne" => "#FEF3C7",
+                "avicolas_engorde" => "#FEF9C3",
+                "avicolas_postura" => "#FFEDD5",
+                "ovinos" => "#F1F5F9",
+                "caprinos" => "#F3E8FF",
+                "cunicultura" => "#CCFBF1",
+                _ => "#D1FAE5"
             };
 
         [System.Text.Json.Serialization.JsonIgnore]
@@ -109,15 +109,15 @@ namespace GalponApp.Domain.Models
             ? "#94A3B8" 
             : CategoryId switch
             {
-                "porcinos" => "#FBCFE8",
-                "bovinos_leche" => "#C7D2FE",
-                "bovinos_carne" => "#FDE68A",
-                "avicolas_engorde" => "#FEF08A",
-                "avicolas_postura" => "#FED7AA",
-                "ovinos" => "#CBD5E1",
-                "caprinos" => "#E9D5FF",
-                "cunicultura" => "#99F6E4",
-                _ => "#A7F3D0"
+                "porcinos" => "#F472B6",
+                "bovinos_leche" => "#818CF8",
+                "bovinos_carne" => "#FBBF24",
+                "avicolas_engorde" => "#FACC15",
+                "avicolas_postura" => "#FB923C",
+                "ovinos" => "#94A3B8",
+                "caprinos" => "#C084FC",
+                "cunicultura" => "#2DD4BF",
+                _ => "#34D399"
             };
 
         [System.Text.Json.Serialization.JsonIgnore]

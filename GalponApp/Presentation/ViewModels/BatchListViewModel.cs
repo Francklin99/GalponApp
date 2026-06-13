@@ -134,5 +134,32 @@ namespace GalponApp.Presentation.ViewModels
             await Shell.Current.GoToAsync(nameof(AddBatchPage));
         }
 
+        [RelayCommand]
+        public async Task DeleteBatchAsync(Batch batch)
+        {
+            if (batch == null) return;
+
+            bool confirm = await Shell.Current.DisplayAlert("Eliminar Lote", 
+                $"¿Está seguro de que desea eliminar el lote '{batch.Name}' y todos sus registros asociados? Esta acción no se puede deshacer.", 
+                "Sí, Eliminar", "Cancelar");
+
+            if (!confirm) return;
+
+            IsBusy = true;
+            try
+            {
+                await _storageService.DeleteBatchAsync(batch.Id);
+                await LoadBatchesAsync();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error al eliminar lote: {ex.Message}");
+                await Shell.Current.DisplayAlert("Error", "No se pudo eliminar el lote.", "Aceptar");
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+        }
     }
 }
