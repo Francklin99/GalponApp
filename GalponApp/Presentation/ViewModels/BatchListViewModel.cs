@@ -145,20 +145,24 @@ namespace GalponApp.Presentation.ViewModels
 
             if (!confirm) return;
 
-            IsBusy = true;
             try
             {
+                // Remover visualmente de inmediato sin retraso
+                if (Batches.Contains(batch))
+                {
+                    Batches.Remove(batch);
+                }
+                _allBatches.Remove(batch);
+
+                // Eliminar de forma asíncrona del almacenamiento físico
                 await _storageService.DeleteBatchAsync(batch.Id);
-                await LoadBatchesAsync();
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error al eliminar lote: {ex.Message}");
                 await Shell.Current.DisplayAlert("Error", "No se pudo eliminar el lote.", "Aceptar");
-            }
-            finally
-            {
-                IsBusy = false;
+                // En caso de error, recargar para restaurar la coherencia visual
+                await LoadBatchesAsync();
             }
         }
     }

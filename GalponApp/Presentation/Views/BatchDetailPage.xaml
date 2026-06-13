@@ -346,7 +346,16 @@
                                                 </Label>
                                             </Border>
                                         </Grid>
-                                        <Label Text="{Binding DayNumber, StringFormat='Día {0}'}" FontSize="11" TextColor="#94A3B8"/>
+                                        <HorizontalStackLayout Spacing="6" Margin="0,1,0,1">
+                                            <Label Text="{Binding DayNumber, StringFormat='Día {0}'}" FontSize="11" TextColor="#94A3B8" VerticalOptions="Center"/>
+                                            <Label Text="•" TextColor="#CBD5E1" FontSize="11" VerticalOptions="Center"/>
+                                            <Label Text="📅 Programada:" FontSize="11" TextColor="#64748B" VerticalOptions="Center"/>
+                                            <Label Text="{Binding ScheduledDate, StringFormat='{0:dd/MM/yyyy}'}" FontSize="11" FontAttributes="Bold" TextColor="#334155" VerticalOptions="Center"/>
+                                            
+                                            <Label Text="•" TextColor="#CBD5E1" FontSize="11" IsVisible="{Binding IsApplied}" VerticalOptions="Center"/>
+                                            <Label Text="Aplicada:" FontSize="11" TextColor="#64748B" IsVisible="{Binding IsApplied}" VerticalOptions="Center"/>
+                                            <Label Text="{Binding AppliedDate, StringFormat='{0:dd/MM/yyyy}'}" FontSize="11" FontAttributes="Bold" TextColor="#2D6A4F" IsVisible="{Binding IsApplied}" VerticalOptions="Center"/>
+                                        </HorizontalStackLayout>
                                         <Label Text="{Binding Description}" FontSize="12" TextColor="#64748B" LineBreakMode="WordWrap"/>
                                         <HorizontalStackLayout Spacing="5" Margin="0,3,0,0" IsVisible="{Binding HasCustomAppliedDose}">
                                             <Label Text="💉 Dosis aplicada:" FontSize="12" FontAttributes="Bold" TextColor="#C2410C" VerticalOptions="Center"/>

@@ -107,49 +107,28 @@
                                 </VisualStateGroup>
                             </VisualStateManager.VisualStateGroups>
 
-                            <Border.GestureRecognizers>
-                                <TapGestureRecognizer 
-                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:BatchListViewModel}}, Path=GoToBatchDetailCommand}"
-                                    CommandParameter="{Binding .}" />
-                            </Border.GestureRecognizers>
-
                             <Grid Padding="14" 
-      ColumnDefinitions="Auto, *" 
-      RowDefinitions="Auto, Auto" 
-      ColumnSpacing="14" 
-      RowSpacing="8">
+                                  ColumnDefinitions="Auto, *, Auto" 
+                                  RowDefinitions="Auto, Auto" 
+                                  ColumnSpacing="14" 
+                                  RowSpacing="8">
 
                                 <Border Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" 
-            WidthRequest="52" HeightRequest="52" 
-            StrokeShape="RoundRectangle 26" 
-            BackgroundColor="{StaticResource LightMint}" 
-            HorizontalOptions="Center" VerticalOptions="Start" 
-            StrokeThickness="0">
+                                        WidthRequest="52" HeightRequest="52" 
+                                        StrokeShape="RoundRectangle 26" 
+                                        BackgroundColor="{StaticResource LightMint}" 
+                                        HorizontalOptions="Center" VerticalOptions="Start" 
+                                        StrokeThickness="0">
                                     <Label Text="{Binding CategoryIcon}" FontSize="24" HorizontalOptions="Center" VerticalOptions="Center" />
                                 </Border>
 
-                                <Grid Grid.Row="0" Grid.Column="1" ColumnDefinitions="*, Auto, Auto" ColumnSpacing="10" VerticalOptions="Start">
+                                <Grid Grid.Row="0" Grid.Column="1" ColumnDefinitions="*, Auto" ColumnSpacing="10" VerticalOptions="Start">
                                     <Label Grid.Column="0" Text="{Binding Name}" FontSize="15" FontAttributes="Bold" TextColor="{StaticResource TextDark}" LineBreakMode="WordWrap" />
 
                                     <VerticalStackLayout Grid.Column="1" HorizontalOptions="End" VerticalOptions="Start">
                                         <Label Text="Cantidad" FontSize="9" TextColor="{StaticResource TextMuted}" HorizontalOptions="End" />
                                         <Label Text="{Binding Quantity, StringFormat='{0} animales'}" FontSize="16" FontAttributes="Bold" TextColor="{StaticResource EmeraldMint}" HorizontalOptions="End" />
                                     </VerticalStackLayout>
-
-                                    <Button Grid.Column="2"
-                                            Text="🗑️"
-                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:BatchListViewModel}}, Path=DeleteBatchCommand}"
-                                            CommandParameter="{Binding .}"
-                                            BackgroundColor="#FEE2E2"
-                                            TextColor="#DC2626"
-                                            FontSize="14"
-                                            WidthRequest="32"
-                                            HeightRequest="32"
-                                            CornerRadius="16"
-                                            Padding="0"
-                                            VerticalOptions="Center"
-                                            HorizontalOptions="End"
-                                            Margin="4,0,0,0" />
                                 </Grid>
 
                                 <VerticalStackLayout Grid.Row="1" Grid.Column="1" Spacing="8">
@@ -202,6 +181,33 @@
                                         </Border>
                                     </FlexLayout>
                                 </VerticalStackLayout>
+
+                                <!-- Capa transparente que captura el tap para navegar al detalle. Solo cubre columnas 0 y 1 -->
+                                <Border Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Grid.ColumnSpan="2"
+                                        BackgroundColor="Transparent"
+                                        StrokeThickness="0">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer 
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:BatchListViewModel}}, Path=GoToBatchDetailCommand}"
+                                            CommandParameter="{Binding .}" />
+                                    </Border.GestureRecognizers>
+                                </Border>
+
+                                <!-- Botón de eliminar en la columna 2, fuera del área de la capa de navegación -->
+                                <Button Grid.Row="0" Grid.Column="2" Grid.RowSpan="2"
+                                        Text="🗑️"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:BatchListViewModel}}, Path=DeleteBatchCommand}"
+                                        CommandParameter="{Binding .}"
+                                        BackgroundColor="#FEE2E2"
+                                        TextColor="#DC2626"
+                                        FontSize="14"
+                                        WidthRequest="32"
+                                        HeightRequest="32"
+                                        CornerRadius="16"
+                                        Padding="0"
+                                        VerticalOptions="Center"
+                                        HorizontalOptions="End"
+                                        Margin="4,0,0,0" />
 
                             </Grid>
                         </Border>

@@ -54,6 +54,80 @@ namespace GalponApp.Infrastructure.Services
                 if (File.Exists(_weightLogsPath)) File.Delete(_weightLogsPath);
                 await CreateSeedDataAsync();
             }
+
+            // Migración/actualización de datos existentes (Inseminación y corrección de DayNumber)
+            try
+            {
+                if (File.Exists(_batchesPath) && File.Exists(_vaccinationsPath))
+                {
+                    var batches = await LoadListAsync<Batch>(_batchesPath);
+                    var vacs = await LoadListAsync<Vaccination>(_vaccinationsPath);
+                    bool updated = false;
+
+                    foreach (var batch in batches)
+                    {
+                        var batchVacs = vacs.Where(v => v.BatchId == batch.Id).ToList();
+                        
+                        // 1. Corregir DayNumber en vacunas que quedaron en Día 0
+                        foreach (var v in batchVacs)
+                        {
+                            if (v.DayNumber == 0)
+                            {
+                                int calculatedDays = (v.ScheduledDate.Date - batch.BirthDate.Date).Days;
+                                if (calculatedDays > 0)
+                                {
+                                    v.DayNumber = calculatedDays;
+                                    updated = true;
+                                }
+                            }
+                        }
+
+                        // 2. Añadir Inseminación si es lote de reproducción/madres y no la tiene
+                        bool isMother = batch.CategoryId == "porcinos" && 
+                            (batch.Purpose.Equals("Reproducción", StringComparison.OrdinalIgnoreCase) || 
+                             batch.Name.Contains("madres", StringComparison.OrdinalIgnoreCase) || 
+                             batch.Name.Contains("madre", StringComparison.OrdinalIgnoreCase));
+
+                        if (isMother && !batchVacs.Any(v => v.Name.Contains("Inseminación")))
+                        {
+                            var newInsemination = new Vaccination
+                            {
+                                Id = Guid.NewGuid().ToString(),
+                                BatchId = batch.Id,
+                                BatchName = batch.Name,
+                                Name = "Inseminación Artificial (Servicio)",
+                                Type = "Reproducción",
+                                Description = "Planificación de la inseminación artificial o monta natural. Se programa a partir de los 210 días de edad (7 meses) y con un peso mínimo sugerido de 115-130 kg.",
+                                Dose = 1.0,
+                                DoseUnit = "dosis",
+                                ScheduledDate = batch.BirthDate.AddDays(210),
+                                DayNumber = 210,
+                                Status = "Pendiente",
+                                Alternatives = "Semen de semental Landrace/Duroc / Monta natural"
+                            };
+
+                            if (newInsemination.ScheduledDate < DateTime.Today)
+                            {
+                                newInsemination.Status = "Aplicada";
+                                newInsemination.AppliedDate = newInsemination.ScheduledDate;
+                                newInsemination.Notes = "Aplicada automáticamente según calendario histórico.";
+                            }
+
+                            vacs.Add(newInsemination);
+                            updated = true;
+                        }
+                    }
+
+                    if (updated)
+                    {
+                        await SaveListAsync(_vaccinationsPath, vacs);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error ejecutando migración de datos: {ex.Message}");
+            }
         }
 
         #region Generic Load/Save Helpers
@@ -700,6 +774,7 @@ namespace GalponApp.Infrastructure.Services
                     Dose = 2.0,
                     DoseUnit = "ml",
                     ScheduledDate = birth.AddDays(45),
+                    DayNumber = 45,
                     Status = "Pendiente",
                     Alternatives = "Pest-Vac / Cólera Porcino"
                 });
@@ -714,6 +789,7 @@ namespace GalponApp.Infrastructure.Services
                     Dose = 2.0,
                     DoseUnit = "ml",
                     ScheduledDate = birth.AddDays(21),
+                    DayNumber = 21,
                     Status = "Pendiente",
                     Alternatives = "RespiSure / M+Pac"
                 });
@@ -728,6 +804,7 @@ namespace GalponApp.Infrastructure.Services
                     Dose = 2.0,
                     DoseUnit = "ml",
                     ScheduledDate = birth.AddDays(42),
+                    DayNumber = 42,
                     Status = "Pendiente",
                     Alternatives = "RespiSure / M+Pac"
                 });
@@ -742,9 +819,32 @@ namespace GalponApp.Infrastructure.Services
                     Dose = 1.0,
                     DoseUnit = "ml/33kg",
                     ScheduledDate = birth.AddDays(60),
+                    DayNumber = 60,
                     Status = "Pendiente",
                     Alternatives = "Dectomax / Ivomec"
                 });
+
+                // Tareas reproductivas especiales para lotes de Madres / Reproducción
+                if (batch.Purpose.Equals("Reproducción", StringComparison.OrdinalIgnoreCase) || 
+                    batch.Name.Contains("madres", StringComparison.OrdinalIgnoreCase) || 
+                    batch.Name.Contains("madre", StringComparison.OrdinalIgnoreCase))
+                {
+                    vacs.Add(new Vaccination
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        BatchId = batch.Id,
+                        BatchName = batch.Name,
+                        Name = "Inseminación Artificial (Servicio)",
+                        Type = "Reproducción",
+                        Description = "Planificación de la inseminación artificial o monta natural. Se programa a partir de los 210 días de edad (7 meses) y con un peso mínimo sugerido de 115-130 kg.",
+                        Dose = 1.0,
+                        DoseUnit = "dosis",
+                        ScheduledDate = birth.AddDays(210),
+                        DayNumber = 210,
+                        Status = "Pendiente",
+                        Alternatives = "Semen de semental Landrace/Duroc / Monta natural"
+                    });
+                }
             }
             else if (categoryId == "avicolas_engorde" || categoryId == "avicolas_postura")
             {
@@ -760,6 +860,7 @@ namespace GalponApp.Infrastructure.Services
                     Dose = 0.03,
                     DoseUnit = "ml",
                     ScheduledDate = birth.AddDays(7),
+                    DayNumber = 7,
                     Status = "Pendiente",
                     Alternatives = "Nobilis / Poulvac"
                 });
@@ -774,6 +875,7 @@ namespace GalponApp.Infrastructure.Services
                     Dose = 1.0,
                     DoseUnit = "dosis/ave",
                     ScheduledDate = birth.AddDays(35),
+                    DayNumber = 35,
                     Status = "Pendiente",
                     Alternatives = "Poulvac Fowl Pox"
                 });
@@ -788,6 +890,7 @@ namespace GalponApp.Infrastructure.Services
                     Dose = 2.0,
                     DoseUnit = "g/L",
                     ScheduledDate = birth.AddDays(14),
+                    DayNumber = 14,
                     Status = "Pendiente",
                     Alternatives = "Vitapoli / Promotor-L"
                 });
@@ -806,6 +909,7 @@ namespace GalponApp.Infrastructure.Services
                     Dose = 2.0,
                     DoseUnit = "ml",
                     ScheduledDate = birth.AddDays(15),
+                    DayNumber = 15,
                     Status = "Pendiente",
                     Alternatives = "Aftogen / Aftosan"
                 });
@@ -820,6 +924,7 @@ namespace GalponApp.Infrastructure.Services
                     Dose = 5.0,
                     DoseUnit = "ml",
                     ScheduledDate = birth.AddDays(45),
+                    DayNumber = 45,
                     Status = "Pendiente",
                     Alternatives = "Covexin 8 / Tasvax"
                 });
@@ -838,6 +943,7 @@ namespace GalponApp.Infrastructure.Services
                     Dose = 1.0,
                     DoseUnit = "ml/10kg",
                     ScheduledDate = birth.AddDays(30),
+                    DayNumber = 30,
                     Status = "Pendiente",
                     Alternatives = "Panacur / Albendazol"
                 });
