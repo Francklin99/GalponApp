@@ -784,7 +784,7 @@ namespace GalponApp.Presentation.ViewModels
 
         private void UpdateAnimalCounters(List<Animal> allAnimals)
         {
-            HealthyCount = allAnimals.Count(a => a.Status == "Saludable");
+            HealthyCount = allAnimals.Count(a => a.Status == "Saludable" || a.Status == "Inseminación pendiente" || a.Status == "Inseminada");
             SickCount = allAnimals.Count(a => a.Status == "Enfermo");
             ObservingCount = allAnimals.Count(a => a.Status == "En observación");
             FollowUpCount = SickCount + ObservingCount;
@@ -820,7 +820,9 @@ namespace GalponApp.Presentation.ViewModels
                 null,
                 "Saludable",
                 "En observación",
-                "Enfermo");
+                "Enfermo",
+                "Inseminación pendiente",
+                "Inseminada");
 
             if (!string.IsNullOrEmpty(status) && status != "Cancelar" && status != animal.Status)
             {
@@ -842,7 +844,9 @@ namespace GalponApp.Presentation.ViewModels
                 null,
                 "Saludable",
                 "En observación",
-                "Enfermo");
+                "Enfermo",
+                "Inseminación pendiente",
+                "Inseminada");
 
             if (!string.IsNullOrEmpty(status) && status != "Cancelar")
             {

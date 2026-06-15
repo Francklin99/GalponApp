@@ -18,32 +18,38 @@ namespace GalponApp.Domain.Models
         [ObservableProperty]
         private double weight;
 
-        // Valores: "Saludable", "En observación", "Enfermo"
+        // Valores: "Saludable", "En observación", "Enfermo", "Inseminación pendiente", "Inseminada"
         [ObservableProperty]
         private string status = "Saludable";
 
         [JsonIgnore]
         public string StatusIcon => Status switch
         {
-            "Saludable" => "💚",
-            "Enfermo"   => "🔴",
-            _           => "🟡"
+            "Saludable"              => "💚",
+            "Enfermo"                => "🔴",
+            "Inseminación pendiente" => "🧬",
+            "Inseminada"             => "🤰",
+            _                        => "🟡" // En observación
         };
 
         [JsonIgnore]
         public Color StatusBg => Status switch
         {
-            "Saludable" => Color.FromArgb("#F0FDF4"),
-            "Enfermo"   => Color.FromArgb("#FFF1F2"),
-            _           => Color.FromArgb("#FFFBEB")
+            "Saludable"              => Color.FromArgb("#F0FDF4"),
+            "Enfermo"                => Color.FromArgb("#FFF1F2"),
+            "Inseminación pendiente" => Color.FromArgb("#F3E8FF"), // Púrpura
+            "Inseminada"             => Color.FromArgb("#FCE7F3"), // Rosa
+            _                        => Color.FromArgb("#FFFBEB")  // Amarillo
         };
 
         [JsonIgnore]
         public Color StatusTextColor => Status switch
         {
-            "Saludable" => Color.FromArgb("#15803D"),
-            "Enfermo"   => Color.FromArgb("#991B1B"),
-            _           => Color.FromArgb("#92400E")
+            "Saludable"              => Color.FromArgb("#15803D"),
+            "Enfermo"                => Color.FromArgb("#991B1B"),
+            "Inseminación pendiente" => Color.FromArgb("#7E22CE"), // Púrpura oscuro
+            "Inseminada"             => Color.FromArgb("#BE185D"), // Rosa oscuro
+            _                        => Color.FromArgb("#92400E")  // Naranja/Marrón oscuro
         };
 
         public void NotifyStatusChanged()
