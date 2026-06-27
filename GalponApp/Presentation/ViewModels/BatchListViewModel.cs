@@ -165,5 +165,33 @@ namespace GalponApp.Presentation.ViewModels
                 await LoadBatchesAsync();
             }
         }
+
+        [RelayCommand]
+        public async Task ToggleDeactivateBatchAsync(Batch batch)
+        {
+            if (batch == null) return;
+
+            string action = batch.IsActive ? "Dar de baja" : "Dar de alta";
+            string msg = batch.IsActive 
+                ? $"¿Está seguro de que desea dar de baja el lote '{batch.Name}'? Seguirá apareciendo en la lista de forma opaca y no se considerará en el conteo de raciones del Dashboard."
+                : $"¿Desea reactivar y dar de alta el lote '{batch.Name}'?";
+
+            bool confirm = await Shell.Current.DisplayAlert(action, msg, "Sí, confirmar", "Cancelar");
+            if (!confirm) return;
+
+            try
+            {
+                batch.IsActive = !batch.IsActive;
+                await _storageService.SaveBatchAsync(batch);
+                
+                // Recargar para ordenar y aplicar filtros
+                await LoadBatchesAsync();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error al cambiar estado del lote: {ex.Message}");
+                await Shell.Current.DisplayAlert("Error", "No se pudo cambiar el estado del lote.", "Aceptar");
+            }
+        }
     }
 }

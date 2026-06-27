@@ -121,6 +121,6 @@ namespace GalponApp.Domain.Models
             };
 
         [System.Text.Json.Serialization.JsonIgnore]
-        public double CardOpacity => IsDivided ? 0.65 : 1.0;
+        public double CardOpacity => !IsActive ? 0.45 : (IsDivided ? 0.65 : 1.0);
     }
 }

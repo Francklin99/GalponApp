@@ -193,21 +193,40 @@
                                     </Border.GestureRecognizers>
                                 </Border>
 
-                                <!-- Botón de eliminar en la columna 2, fuera del área de la capa de navegación -->
-                                <Button Grid.Row="0" Grid.Column="2" Grid.RowSpan="2"
-                                        Text="🗑️"
-                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:BatchListViewModel}}, Path=DeleteBatchCommand}"
-                                        CommandParameter="{Binding .}"
-                                        BackgroundColor="#FEE2E2"
-                                        TextColor="#DC2626"
-                                        FontSize="14"
-                                        WidthRequest="32"
-                                        HeightRequest="32"
-                                        CornerRadius="16"
-                                        Padding="0"
-                                        VerticalOptions="Center"
-                                        HorizontalOptions="End"
-                                        Margin="4,0,0,0" />
+                                 <!-- Panel de Acciones en la columna 2 (Baja/Reactivar y Eliminar) -->
+                                 <VerticalStackLayout Grid.Row="0" Grid.Column="2" Grid.RowSpan="2" Spacing="6" VerticalOptions="Center" HorizontalOptions="End" Margin="4,0,0,0">
+                                     <!-- Botón de dar de baja / dar de alta -->
+                                     <Button WidthRequest="32" HeightRequest="32" CornerRadius="16" Padding="0"
+                                             Command="{Binding Source={RelativeSource AncestorType={x:Type vm:BatchListViewModel}}, Path=ToggleDeactivateBatchCommand}"
+                                             CommandParameter="{Binding .}">
+                                         <Button.Style>
+                                             <Style TargetType="Button">
+                                                 <Setter Property="Text" Value="🚫" />
+                                                 <Setter Property="BackgroundColor" Value="#F1F5F9" />
+                                                 <Setter Property="TextColor" Value="#475569" />
+                                                 <Style.Triggers>
+                                                     <DataTrigger TargetType="Button" Binding="{Binding IsActive}" Value="False">
+                                                         <Setter Property="Text" Value="✅" />
+                                                         <Setter Property="BackgroundColor" Value="#E2F0D9" />
+                                                         <Setter Property="TextColor" Value="#2D6A4F" />
+                                                     </DataTrigger>
+                                                 </Style.Triggers>
+                                             </Style>
+                                         </Button.Style>
+                                     </Button>
+
+                                     <!-- Botón de eliminar -->
+                                     <Button Text="🗑️"
+                                             Command="{Binding Source={RelativeSource AncestorType={x:Type vm:BatchListViewModel}}, Path=DeleteBatchCommand}"
+                                             CommandParameter="{Binding .}"
+                                             BackgroundColor="#FEE2E2"
+                                             TextColor="#DC2626"
+                                             FontSize="14"
+                                             WidthRequest="32"
+                                             HeightRequest="32"
+                                             CornerRadius="16"
+                                             Padding="0" />
+                                 </VerticalStackLayout>
 
                             </Grid>
                         </Border>
