@@ -4,7 +4,6 @@
              xmlns:vm="clr-namespace:GalponApp.Presentation.ViewModels"
              xmlns:controls="clr-namespace:GalponApp.Presentation.Controls"
              x:Class="GalponApp.Presentation.Views.DashboardPage"
-             Shell.NavBarIsVisible="False"
              Title="{Binding Title}"
              BackgroundColor="#F8FAFC">
 
@@ -23,28 +22,27 @@
         <ScrollView Grid.Row="0">
             <VerticalStackLayout x:Name="MainLayout" Padding="16" Spacing="16">
 
-                <!-- ══════════════════════════════════════ CABECERA ══════════════════════════════════════ -->
-                <Grid ColumnDefinitions="*, Auto" Margin="0,8,0,4">
-                    <HorizontalStackLayout Grid.Column="0" Spacing="8" VerticalOptions="Center">
-                        <Label Text="🚜" FontSize="20" VerticalOptions="Center" />
-                        <Label Text="GalponApp / Dashboard" FontSize="18" FontAttributes="Bold" TextColor="#0F172A" VerticalOptions="Center" />
-                    </HorizontalStackLayout>
-                    <HorizontalStackLayout Grid.Column="1" Spacing="12" VerticalOptions="Center">
-                        <Button Text="🔄" 
-                                FontSize="14" 
-                                HeightRequest="36" 
-                                WidthRequest="36" 
-                                CornerRadius="18" 
-                                BackgroundColor="White" 
-                                TextColor="#0F172A" 
-                                Padding="0"
-                                Command="{Binding LoadStatsCommand}">
-                            <Button.Shadow>
-                                <Shadow Brush="Black" Offset="0,1" Radius="2" Opacity="0.08" />
-                            </Button.Shadow>
-                        </Button>
-                        <Label Text="🔔" FontSize="20" TextColor="#0F172A" VerticalOptions="Center" Margin="0,0,4,0" />
-                    </HorizontalStackLayout>
+                <!-- ══════════════════════════════════════ RESUMEN DE HOY ══════════════════════════════════════ -->
+                <Grid ColumnDefinitions="*, Auto" Margin="0,0,0,4">
+                    <VerticalStackLayout Grid.Column="0" VerticalOptions="Center" Spacing="2">
+                        <Label Text="¡Hola de nuevo!" FontSize="18" FontAttributes="Bold" TextColor="#0F172A" />
+                        <Label Text="Aquí está el resumen general de hoy" FontSize="12.5" TextColor="#64748B" />
+                    </VerticalStackLayout>
+
+                    <Button Grid.Column="1"
+                            Text="🔄 Actualizar" 
+                            FontSize="12" 
+                            FontAttributes="Bold"
+                            HeightRequest="36" 
+                            CornerRadius="18" 
+                            BackgroundColor="#E2F0D9" 
+                            TextColor="#1B4332" 
+                            Padding="12,0"
+                            Command="{Binding LoadStatsCommand}">
+                        <Button.Shadow>
+                            <Shadow Brush="Black" Offset="0,1" Radius="2" Opacity="0.08" />
+                        </Button.Shadow>
+                    </Button>
                 </Grid>
 
                 <!-- ══════════════════════════════════════ TARJETAS TOP (2 columnas para móvil) ══════════════════════════════════════ -->

@@ -4,8 +4,29 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:views="clr-namespace:GalponApp.Presentation.Views"
-    Title="GalponApp"
-    Shell.NavBarHasShadow="True">
+    Title="Granja El Amigo"
+    Shell.BackgroundColor="White"
+    Shell.ForegroundColor="#1B4332"
+    Shell.TitleColor="#1B4332"
+    Shell.NavBarHasShadow="True"
+    FlyoutBehavior="Disabled">
+
+    <Shell.TitleView>
+        <Grid ColumnDefinitions="Auto, *, Auto" ColumnSpacing="10" Padding="12,0,12,0" VerticalOptions="Center">
+            <!-- Logo de la granja (Cerdo premium) -->
+            <Border Grid.Column="0" WidthRequest="56" HeightRequest="56" StrokeShape="RoundRectangle 28" StrokeThickness="1.5" Stroke="#E2E8F0" BackgroundColor="White" VerticalOptions="Center">
+                <Image Source="farm_logo.jpg" Aspect="AspectFit" Margin="1" />
+            </Border>
+
+            <!-- Nombre de la Granja -->
+            <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="0">
+                <Label Text="Granja El Amigo" FontSize="15" FontAttributes="Bold" TextColor="#1B4332" />
+                <Label Text="Sistema de Control" FontSize="9.5" TextColor="#64748B" />
+            </VerticalStackLayout>
+            
+            <Label Grid.Column="2" Text="🚜" FontSize="18" VerticalOptions="Center" Margin="0,0,8,0" />
+        </Grid>
+    </Shell.TitleView>
 
     <Shell.Resources>
         <ResourceDictionary>

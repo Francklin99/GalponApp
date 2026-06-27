@@ -49,6 +49,16 @@ namespace GalponApp
             builder.Services.AddSingleton<ReportsViewModel>();
             builder.Services.AddSingleton<ReportsPage>();
 
+#if WINDOWS
+            Microsoft.Maui.Handlers.ToolbarHandler.Mapper.AppendToMapping("HideWindowsOverflow", (handler, view) =>
+            {
+                if (handler.PlatformView is Microsoft.UI.Xaml.Controls.CommandBar commandBar)
+                {
+                    commandBar.OverflowButtonVisibility = Microsoft.UI.Xaml.Controls.CommandBarOverflowButtonVisibility.Collapsed;
+                }
+            });
+#endif
+
 #if DEBUG
             builder.Logging.AddDebug();
 #endif
