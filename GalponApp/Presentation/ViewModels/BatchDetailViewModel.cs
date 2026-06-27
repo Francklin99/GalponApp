@@ -750,23 +750,24 @@ namespace GalponApp.Presentation.ViewModels
             try
             {
                 var allAnimals = await _storageService.GetAnimalsForBatchAsync(Batch.Id, Batch.Quantity, Batch.CurrentWeight);
+                var activeAnimals = allAnimals.Where(a => a.Status != "Muerto" && a.Status != "Vendido").ToList();
                 
                 int targetHealthy = HealthyCount;
                 int targetObserving = ObservingCount;
                 int targetSick = SickCount;
 
                 int index = 0;
-                for (int i = 0; i < targetHealthy && index < allAnimals.Count; i++, index++)
+                for (int i = 0; i < targetHealthy && index < activeAnimals.Count; i++, index++)
                 {
-                    allAnimals[index].Status = "Saludable";
+                    activeAnimals[index].Status = "Saludable";
                 }
-                for (int i = 0; i < targetObserving && index < allAnimals.Count; i++, index++)
+                for (int i = 0; i < targetObserving && index < activeAnimals.Count; i++, index++)
                 {
-                    allAnimals[index].Status = "En observación";
+                    activeAnimals[index].Status = "En observación";
                 }
-                for (int i = 0; i < targetSick && index < allAnimals.Count; i++, index++)
+                for (int i = 0; i < targetSick && index < activeAnimals.Count; i++, index++)
                 {
-                    allAnimals[index].Status = "Enfermo";
+                    activeAnimals[index].Status = "Enfermo";
                 }
 
                 foreach (var animal in allAnimals)
@@ -789,10 +790,12 @@ namespace GalponApp.Presentation.ViewModels
 
         private void UpdateAnimalCounters(List<Animal> allAnimals)
         {
-            HealthyCount = allAnimals.Count(a => a.Status == "Saludable" || a.Status == "Inseminación pendiente" || a.Status == "Inseminada");
-            SickCount = allAnimals.Count(a => a.Status == "Enfermo");
-            ObservingCount = allAnimals.Count(a => a.Status == "En observación");
+            var activeAnimals = allAnimals.Where(a => a.Status != "Muerto" && a.Status != "Vendido").ToList();
+            HealthyCount = activeAnimals.Count(a => a.Status == "Saludable" || a.Status == "Inseminación pendiente" || a.Status == "Inseminada");
+            SickCount = activeAnimals.Count(a => a.Status == "Enfermo");
+            ObservingCount = activeAnimals.Count(a => a.Status == "En observación");
             FollowUpCount = SickCount + ObservingCount;
+            TotalAnimalsCount = activeAnimals.Count;
         }
 
         [RelayCommand]
@@ -827,13 +830,51 @@ namespace GalponApp.Presentation.ViewModels
                 "En observación",
                 "Enfermo",
                 "Inseminación pendiente",
-                "Inseminada");
+                "Inseminada",
+                "Muerto",
+                "Vendido");
 
             if (!string.IsNullOrEmpty(status) && status != "Cancelar" && status != animal.Status)
             {
+                string oldStatus = animal.Status;
                 animal.Status = status;
                 animal.NotifyStatusChanged();
                 await _storageService.SaveAnimalAsync(animal);
+
+                // Sincronizar automáticamente la cantidad del lote si muere o se vende
+                if (Batch != null)
+                {
+                    bool wasActive = oldStatus != "Muerto" && oldStatus != "Vendido";
+                    bool isActive = status != "Muerto" && status != "Vendido";
+
+                    if (wasActive && !isActive)
+                    {
+                        Batch.Quantity = Math.Max(0, Batch.Quantity - 1);
+                        if (status == "Muerto")
+                        {
+                            Batch.MortalityCount++;
+                        }
+                    }
+                    else if (!wasActive && isActive)
+                    {
+                        Batch.Quantity++;
+                        if (oldStatus == "Muerto")
+                        {
+                            Batch.MortalityCount = Math.Max(0, Batch.MortalityCount - 1);
+                        }
+                    }
+                    else if (oldStatus == "Muerto" && status == "Vendido")
+                    {
+                        Batch.MortalityCount = Math.Max(0, Batch.MortalityCount - 1);
+                    }
+                    else if (oldStatus == "Vendido" && status == "Muerto")
+                    {
+                        Batch.MortalityCount++;
+                    }
+
+                    await _storageService.SaveBatchAsync(Batch);
+                }
+
                 await LoadDetailsAsync();
             }
         }
@@ -851,7 +892,9 @@ namespace GalponApp.Presentation.ViewModels
                 "En observación",
                 "Enfermo",
                 "Inseminación pendiente",
-                "Inseminada");
+                "Inseminada",
+                "Muerto",
+                "Vendido");
 
             if (!string.IsNullOrEmpty(status) && status != "Cancelar")
             {
@@ -863,10 +906,40 @@ namespace GalponApp.Presentation.ViewModels
                     {
                         if (animal.Status != status)
                         {
+                            string oldStatus = animal.Status;
                             animal.Status = status;
                             await _storageService.SaveAnimalAsync(animal);
+
+                            bool wasActive = oldStatus != "Muerto" && oldStatus != "Vendido";
+                            bool isActive = status != "Muerto" && status != "Vendido";
+
+                            if (wasActive && !isActive)
+                            {
+                                Batch.Quantity = Math.Max(0, Batch.Quantity - 1);
+                                if (status == "Muerto")
+                                {
+                                    Batch.MortalityCount++;
+                                }
+                            }
+                            else if (!wasActive && isActive)
+                            {
+                                Batch.Quantity++;
+                                if (oldStatus == "Muerto")
+                                {
+                                    Batch.MortalityCount = Math.Max(0, Batch.MortalityCount - 1);
+                                }
+                            }
+                            else if (oldStatus == "Muerto" && status == "Vendido")
+                            {
+                                Batch.MortalityCount = Math.Max(0, Batch.MortalityCount - 1);
+                            }
+                            else if (oldStatus == "Vendido" && status == "Muerto")
+                            {
+                                Batch.MortalityCount++;
+                            }
                         }
                     }
+                    await _storageService.SaveBatchAsync(Batch);
                     await LoadDetailsAsync();
                 }
                 finally
