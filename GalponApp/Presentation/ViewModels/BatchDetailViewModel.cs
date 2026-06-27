@@ -13,6 +13,7 @@ using GalponApp.Infrastructure.Services;
 namespace GalponApp.Presentation.ViewModels
 {
     [QueryProperty(nameof(Batch), "Batch")]
+    [QueryProperty(nameof(ActiveTab), "ActiveTab")]
     public partial class BatchDetailViewModel : BaseViewModel
     {
         private readonly FileStorageService _storageService;
@@ -560,13 +561,17 @@ namespace GalponApp.Presentation.ViewModels
             }
         }
 
+        partial void OnActiveTabChanged(string value)
+        {
+            IsVacunasTabVisible = value == "Vacunas";
+            IsAlimentacionTabVisible = value == "Alimentación";
+            IsAnimalesTabVisible = value == "Animales";
+        }
+
         [RelayCommand]
         public void SetTab(string tabName)
         {
             ActiveTab = tabName;
-            IsVacunasTabVisible = tabName == "Vacunas";
-            IsAlimentacionTabVisible = tabName == "Alimentación";
-            IsAnimalesTabVisible = tabName == "Animales";
         }
 
         [RelayCommand]

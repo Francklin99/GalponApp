@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:GalponApp.Presentation.ViewModels"
              xmlns:models="clr-namespace:GalponApp.Domain.Models"
-             x:Class="GalponApp.Presentation.Views.VaccinationPage"
+             x:Class="GalponApp.Presentation.Views.AlertsPage"
              Title="{Binding Title}"
              BackgroundColor="#F4F6F4">
 
@@ -51,9 +51,9 @@
             </CollectionView.ItemTemplate>
         </CollectionView>
 
-        <!-- Calendario de Tareas Veterinarias -->
+        <!-- Calendario de Tareas Veterinarias / Alertas -->
         <RefreshView Grid.Row="1" Command="{Binding LoadVaccinationsCommand}" IsRefreshing="{Binding IsBusy}">
-            <CollectionView ItemsSource="{Binding Vaccinations}" EmptyView="No se registran vacunas para el filtro seleccionado.">
+            <CollectionView ItemsSource="{Binding Vaccinations}" EmptyView="No se registran tareas de alerta para el filtro seleccionado.">
                 <CollectionView.ItemsLayout>
                     <LinearItemsLayout Orientation="Vertical" ItemSpacing="12" />
                 </CollectionView.ItemsLayout>
@@ -63,10 +63,10 @@
                             <Border.Shadow>
                                 <Shadow Brush="Black" Offset="0,2" Radius="4" Opacity="0.05" />
                             </Border.Shadow>
-                            <Grid Padding="14" ColumnDefinitions="Auto, *, Auto" RowDefinitions="Auto, Auto, Auto, Auto, Auto" ColumnSpacing="12" RowSpacing="2">
+                            <Grid Padding="14" ColumnDefinitions="Auto, *, Auto" RowDefinitions="Auto, Auto" ColumnSpacing="12" RowSpacing="2">
                                 
                                 <!-- Botón de Aplicado/Check -->
-                                <Button Grid.Column="0" Grid.Row="0" Grid.RowSpan="4" 
+                                <Button Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" 
                                         Text="{Binding AppliedSymbol}" 
                                         TextColor="{Binding AppliedColor}"
                                         BackgroundColor="{Binding AppliedBgColor}" 
@@ -76,41 +76,48 @@
                                         Padding="0" 
                                         FontSize="14" 
                                         VerticalOptions="Center"
-                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:VaccinationViewModel}}, Path=ToggleVaccinationCommand}"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AlertsViewModel}}, Path=ToggleVaccinationCommand}"
                                         CommandParameter="{Binding .}" />
 
-                                <!-- Nombre vacuna e info -->
-                                <Label Grid.Row="0" Grid.Column="1" Text="{Binding Name}" FontSize="15" FontAttributes="Bold" TextColor="#1E293B" />
-                                
-                                <!-- Subtítulo: Lote de animales -->
-                                <HorizontalStackLayout Grid.Row="1" Grid.Column="1" Spacing="6" VerticalOptions="Center">
-                                    <Label Text="📦 Lote:" FontSize="11" TextColor="#64748B" />
-                                    <Label Text="{Binding BatchName}" FontSize="11" FontAttributes="Bold" TextColor="#2E7D32" />
-                                    <Label Text="•" TextColor="#CBD5E1" />
-                                    <Label Text="{Binding Type}" FontSize="11" TextColor="#64748B" />
-                                    <Label Text="•" TextColor="#CBD5E1" />
-                                    <Label Text="{Binding Dose, StringFormat='{0}'}" FontSize="11" TextColor="#64748B" />
-                                    <Label Text="{Binding DoseUnit}" FontSize="11" TextColor="#64748B" />
-                                </HorizontalStackLayout>
+                                <!-- Contenido de Información (Clickable para ir al lote y sección de vacunas) -->
+                                <VerticalStackLayout Grid.Column="1" Grid.Row="0" Spacing="3" VerticalOptions="Center">
+                                    <VerticalStackLayout.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AlertsViewModel}}, Path=GoToBatchCommand}" CommandParameter="{Binding .}" />
+                                    </VerticalStackLayout.GestureRecognizers>
 
-                                <!-- Fechas -->
-                                <HorizontalStackLayout Grid.Row="2" Grid.Column="1" Spacing="6" Margin="0,2,0,0">
-                                    <Label Text="📅 Programado:" FontSize="10" TextColor="#64748B" />
-                                    <Label Text="{Binding ScheduledDate, StringFormat='{0:dd/MM/yyyy}'}" FontSize="10" FontAttributes="Bold" TextColor="#1E293B" />
+                                    <!-- Nombre de la Alerta/Vacuna -->
+                                    <Label Text="{Binding Name}" FontSize="15" FontAttributes="Bold" TextColor="#1E293B" LineBreakMode="WordWrap" />
                                     
-                                    <Label Text="•" TextColor="#CBD5E1" IsVisible="{Binding IsApplied}" />
-                                    <Label Text="Aplicado:" FontSize="10" TextColor="#64748B" IsVisible="{Binding IsApplied}" />
-                                    <Label Text="{Binding AppliedDate, StringFormat='{0:dd/MM/yyyy}'}" FontSize="10" FontAttributes="Bold" TextColor="#2E7D32" IsVisible="{Binding IsApplied}" />
-                                </HorizontalStackLayout>
+                                    <!-- Información del lote de animales -->
+                                    <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                                        <Label Text="📦 Lote:" FontSize="11" TextColor="#64748B" />
+                                        <Label Text="{Binding BatchName}" FontSize="11" FontAttributes="Bold" TextColor="#2E7D32" />
+                                        <Label Text="•" TextColor="#CBD5E1" />
+                                        <Label Text="{Binding Type}" FontSize="11" TextColor="#64748B" />
+                                        <Label Text="•" TextColor="#CBD5E1" />
+                                        <Label Text="{Binding Dose, StringFormat='{0}'}" FontSize="11" TextColor="#64748B" />
+                                        <Label Text="{Binding DoseUnit}" FontSize="11" TextColor="#64748B" />
+                                    </HorizontalStackLayout>
 
-                                <!-- Custom Dose details on general page -->
-                                <HorizontalStackLayout Grid.Row="3" Grid.Column="1" Spacing="4" Margin="0,2,0,0" IsVisible="{Binding HasCustomAppliedDose}">
-                                    <Label Text="💉 Dosis aplicada:" FontSize="10.5" FontAttributes="Bold" TextColor="#C2410C" />
-                                    <Label Text="{Binding CustomAppliedDoseDisplay}" FontSize="10.5" TextColor="#C2410C" FontAttributes="Bold" />
-                                </HorizontalStackLayout>
+                                    <!-- Fechas de Programación y Aplicación -->
+                                    <HorizontalStackLayout Spacing="6" Margin="0,2,0,0">
+                                        <Label Text="📅 Programado:" FontSize="10" TextColor="#64748B" />
+                                        <Label Text="{Binding ScheduledDate, StringFormat='{0:dd/MM/yyyy}'}" FontSize="10" FontAttributes="Bold" TextColor="#1E293B" />
+                                        
+                                        <Label Text="•" TextColor="#CBD5E1" IsVisible="{Binding IsApplied}" />
+                                        <Label Text="Aplicado:" FontSize="10" TextColor="#64748B" IsVisible="{Binding IsApplied}" />
+                                        <Label Text="{Binding AppliedDate, StringFormat='{0:dd/MM/yyyy}'}" FontSize="10" FontAttributes="Bold" TextColor="#2E7D32" IsVisible="{Binding IsApplied}" />
+                                    </HorizontalStackLayout>
 
-                                <!-- Badge e ir a lote -->
-                                <VerticalStackLayout Grid.Row="0" Grid.Column="2" Grid.RowSpan="4" VerticalOptions="Center" HorizontalOptions="End" Spacing="6">
+                                    <!-- Detalles de dosis personalizada -->
+                                    <HorizontalStackLayout Spacing="4" Margin="0,2,0,0" IsVisible="{Binding HasCustomAppliedDose}">
+                                        <Label Text="💉 Dosis aplicada:" FontSize="10.5" FontAttributes="Bold" TextColor="#C2410C" />
+                                        <Label Text="{Binding CustomAppliedDoseDisplay}" FontSize="10.5" TextColor="#C2410C" FontAttributes="Bold" />
+                                    </HorizontalStackLayout>
+                                </VerticalStackLayout>
+
+                                <!-- Acciones y Badges a la derecha -->
+                                <VerticalStackLayout Grid.Column="2" Grid.Row="0" VerticalOptions="Center" HorizontalOptions="End" Spacing="6">
                                     <!-- Badge de Estado -->
                                     <Border StrokeShape="RoundRectangle 8" StrokeThickness="0" Padding="8,4" HorizontalOptions="End">
                                         <Border.Triggers>
@@ -146,7 +153,7 @@
                                                 Padding="8,0" 
                                                 BackgroundColor="#F0F9FF" 
                                                 TextColor="#0284C7" 
-                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:VaccinationViewModel}}, Path=ToggleAlternativesCommand}"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AlertsViewModel}}, Path=ToggleAlternativesCommand}"
                                                 CommandParameter="{Binding .}" />
 
                                         <Button Text="Ver Lote" 
@@ -155,13 +162,13 @@
                                                 Padding="8,0" 
                                                 BackgroundColor="#F1F5F9" 
                                                 TextColor="#2E7D32" 
-                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:VaccinationViewModel}}, Path=GoToBatchCommand}"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AlertsViewModel}}, Path=GoToBatchCommand}"
                                                 CommandParameter="{Binding .}" />
                                     </HorizontalStackLayout>
                                 </VerticalStackLayout>
 
                                 <!-- Accordion de Alternativas -->
-                                <Border Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2"
+                                <Border Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2"
                                         StrokeShape="RoundRectangle 6" StrokeThickness="1.5" Stroke="#0284C7"
                                         BackgroundColor="#F0F9FF" Padding="12" Margin="0,6,0,0"
                                         IsVisible="{Binding ShowAlternatives}">

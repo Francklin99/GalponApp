@@ -12,7 +12,7 @@ using GalponApp.Presentation.Views;
 
 namespace GalponApp.Presentation.ViewModels
 {
-    public partial class VaccinationViewModel : BaseViewModel
+    public partial class AlertsViewModel : BaseViewModel
     {
         private readonly FileStorageService _storageService;
         private List<Vaccination> _allVaccinations = new();
@@ -23,10 +23,10 @@ namespace GalponApp.Presentation.ViewModels
         public ObservableCollection<Vaccination> Vaccinations { get; } = new();
         public List<string> FilterOptions { get; } = new() { "Pendientes", "Atrasadas", "Aplicadas", "Todas" };
 
-        public VaccinationViewModel(FileStorageService storageService)
+        public AlertsViewModel(FileStorageService storageService)
         {
             _storageService = storageService;
-            Title = "Calendario Sanitario";
+            Title = "Alertas Sanitarias";
         }
 
         [RelayCommand]
@@ -47,7 +47,7 @@ namespace GalponApp.Presentation.ViewModels
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error al cargar calendario de vacunas: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Error al cargar calendario de vacunas (alertas): {ex.Message}");
             }
             finally
             {
@@ -131,7 +131,7 @@ namespace GalponApp.Presentation.ViewModels
             vac.ShowAlternatives = !vac.ShowAlternatives;
         }
 
-        // Navega a la ficha del lote correspondiente desde la vacuna
+        // Navega a la ficha del lote correspondiente desde la vacuna, activando la pestaña de Vacunas
         [RelayCommand]
         public async Task GoToBatchAsync(Vaccination vac)
         {
@@ -144,7 +144,8 @@ namespace GalponApp.Presentation.ViewModels
             {
                 await Shell.Current.GoToAsync(nameof(BatchDetailPage), new Dictionary<string, object>
                 {
-                    { "Batch", targetBatch }
+                    { "Batch", targetBatch },
+                    { "ActiveTab", "Vacunas" }
                 });
             }
             else

@@ -25,11 +25,11 @@
         <Tab Title="Lotes" Icon="lotes_tab.png">
             <ShellContent ContentTemplate="{DataTemplate views:BatchListPage}" Route="BatchListPage" />
         </Tab>
-        <Tab Title="Calendario" Icon="calendar_tab.png">
-            <ShellContent ContentTemplate="{DataTemplate views:VaccinationPage}" Route="VaccinationPage" />
+        <Tab Title="Alertas" Icon="alerts_tab.png">
+            <ShellContent ContentTemplate="{DataTemplate views:AlertsPage}" Route="AlertsPage" />
         </Tab>
-        <Tab Title="Calculadora" Icon="calculator_tab.png">
-            <ShellContent ContentTemplate="{DataTemplate views:FeedCalculatorPage}" Route="FeedCalculatorPage" />
+        <Tab Title="Ayuda" Icon="help_tab.png">
+            <ShellContent ContentTemplate="{DataTemplate views:HelpCenterPage}" Route="HelpCenterPage" />
         </Tab>
         <Tab Title="Reportes" Icon="reports_tab.png">
             <ShellContent ContentTemplate="{DataTemplate views:ReportsPage}" Route="ReportsPage" />

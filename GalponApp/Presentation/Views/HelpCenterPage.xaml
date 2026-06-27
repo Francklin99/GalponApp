@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:GalponApp.Presentation.ViewModels"
+             xmlns:models="clr-namespace:GalponApp.Domain.Models"
+             x:Class="GalponApp.Presentation.Views.HelpCenterPage"
+             Title="{Binding Title}"
+             BackgroundColor="#F4F8F5">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Color x:Key="FarmGreen">#1B4332</Color>
+            <Color x:Key="EmeraldMint">#2D6A4F</Color>
+            <Color x:Key="LeafGreen">#40916C</Color>
+            <Color x:Key="LightMint">#D8F3DC</Color>
+            <Color x:Key="CardBg">#FFFFFF</Color>
+            <Color x:Key="TextDark">#0F172A</Color>
+            <Color x:Key="TextMuted">#475569</Color>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid x:Name="MainGrid" RowDefinitions="Auto, Auto, *" Padding="16" RowSpacing="14">
+
+        <!-- Buscador -->
+        <Border Grid.Row="0" StrokeShape="RoundRectangle 22" StrokeThickness="1" Stroke="#E2E9E5" BackgroundColor="White" HeightRequest="44">
+            <Border.Shadow>
+                <Shadow Brush="#2D6A4F" Offset="0,3" Radius="6" Opacity="0.05" />
+            </Border.Shadow>
+            <Grid ColumnDefinitions="Auto, *, Auto">
+                <Label Grid.Column="0" Text="🔍" FontSize="16" VerticalOptions="Center" Margin="14,0,6,0" />
+                <Entry Grid.Column="1" 
+                       Placeholder="Buscar por enfermedad, síntoma o tratamiento..." 
+                       Text="{Binding SearchText, Mode=TwoWay}" 
+                       FontSize="13" 
+                       TextColor="#0F172A" 
+                       VerticalOptions="Center"
+                       ReturnType="Search" />
+                <Button Grid.Column="2"
+                        Text="✕"
+                        Command="{Binding ClearSearchCommand}"
+                        IsVisible="{Binding SearchText, Converter={x:Static vm:StringNotEmptyConverter.Instance}}"
+                        BackgroundColor="Transparent"
+                        TextColor="#64748B"
+                        WidthRequest="36"
+                        HeightRequest="36"
+                        CornerRadius="18"
+                        Padding="0"
+                        VerticalOptions="Center" />
+            </Grid>
+        </Border>
+
+        <!-- Chips de Especies -->
+        <CollectionView Grid.Row="1" 
+                        ItemsSource="{Binding Categories}" 
+                        SelectedItem="{Binding SelectedCategory, Mode=TwoWay}" 
+                        SelectionMode="Single"
+                        HeightRequest="44"
+                        SelectionChanged="CollectionView_SelectionChanged">
+            <CollectionView.ItemsLayout>
+                <LinearItemsLayout Orientation="Horizontal" ItemSpacing="8" />
+            </CollectionView.ItemsLayout>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="x:String">
+                    <Border x:Name="ChipBorder" StrokeShape="RoundRectangle 20" StrokeThickness="1" HeightRequest="38" Padding="14,0" VerticalOptions="Center">
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Normal">
+                                    <VisualState.Setters>
+                                        <Setter Property="BackgroundColor" Value="White" />
+                                        <Setter Property="Stroke" Value="#E2E9E5" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="Selected">
+                                    <VisualState.Setters>
+                                        <Setter Property="BackgroundColor" Value="{StaticResource LightMint}" />
+                                        <Setter Property="Stroke" Value="{StaticResource EmeraldMint}" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                        <Label x:Name="ChipLabel" FontSize="12.5" FontAttributes="Bold" TextColor="#334155" VerticalOptions="Center">
+                            <Label.Triggers>
+                                <DataTrigger TargetType="Label" Binding="{Binding .}" Value="Todos">
+                                    <Setter Property="Text" Value="🌐 Todos" />
+                                </DataTrigger>
+                                <DataTrigger TargetType="Label" Binding="{Binding .}" Value="Porcinos">
+                                    <Setter Property="Text" Value="🐷 Porcinos" />
+                                </DataTrigger>
+                                <DataTrigger TargetType="Label" Binding="{Binding .}" Value="Bovinos">
+                                    <Setter Property="Text" Value="🐄 Bovinos" />
+                                </DataTrigger>
+                                <DataTrigger TargetType="Label" Binding="{Binding .}" Value="Aves">
+                                    <Setter Property="Text" Value="🐔 Aves" />
+                                </DataTrigger>
+                                <DataTrigger TargetType="Label" Binding="{Binding .}" Value="Ovinos / Caprinos">
+                                    <Setter Property="Text" Value="🐑 Ovinos / Caprinos" />
+                                </DataTrigger>
+                                <DataTrigger TargetType="Label" Binding="{Binding .}" Value="Cunicultura">
+                                    <Setter Property="Text" Value="🐇 Cunicultura" />
+                                </DataTrigger>
+                            </Label.Triggers>
+                        </Label>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <!-- Listado de Enfermedades (Acordeón) -->
+        <CollectionView Grid.Row="2" 
+                        ItemsSource="{Binding FilteredDiseases}"
+                        EmptyView="No se encontraron temas de ayuda sanitaria.">
+            <CollectionView.ItemsLayout>
+                <LinearItemsLayout Orientation="Vertical" ItemSpacing="12" />
+            </CollectionView.ItemsLayout>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:Disease">
+                    <Border StrokeShape="RoundRectangle 16" StrokeThickness="1" Stroke="#E2E9E5" BackgroundColor="{StaticResource CardBg}">
+                        <Border.Shadow>
+                            <Shadow Brush="#1B4332" Offset="0,4" Radius="8" Opacity="0.04" />
+                        </Border.Shadow>
+
+                        <Grid RowDefinitions="Auto, Auto">
+                            <!-- Cabecera (Click para expandir) -->
+                            <Grid Grid.Row="0" ColumnDefinitions="Auto, *, Auto" Padding="14" ColumnSpacing="12">
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:HelpCenterViewModel}}, Path=ToggleDiseaseCommand}" CommandParameter="{Binding .}" />
+                                </Grid.GestureRecognizers>
+
+                                <Border Grid.Column="0" 
+                                        WidthRequest="42" HeightRequest="42" 
+                                        StrokeShape="RoundRectangle 21" 
+                                        BackgroundColor="#F1F5F9" 
+                                        StrokeThickness="0"
+                                        VerticalOptions="Center">
+                                    <Label Text="{Binding Icon}" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" />
+                                </Border>
+
+                                <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                                    <Label Text="{Binding Name}" FontSize="14.5" FontAttributes="Bold" TextColor="{StaticResource TextDark}" LineBreakMode="WordWrap" />
+                                    <Label Text="{Binding Category}" FontSize="11" TextColor="{StaticResource TextMuted}" />
+                                </VerticalStackLayout>
+
+                                <Label Grid.Column="2" Text="▼" FontSize="14" TextColor="#64748B" VerticalOptions="Center" HorizontalOptions="End" Margin="4,0">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding IsExpanded}" Value="True">
+                                            <Setter Property="Text" Value="▲" />
+                                            <Setter Property="TextColor" Value="{StaticResource EmeraldMint}" />
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                            </Grid>
+
+                            <!-- Contenido Detallado Expandible -->
+                            <VerticalStackLayout Grid.Row="1" IsVisible="{Binding IsExpanded}" Padding="14,0,14,14" Spacing="10">
+                                
+                                <!-- Síntomas -->
+                                <Border StrokeShape="RoundRectangle 8" StrokeThickness="0" BackgroundColor="#FEF2F2" Padding="12">
+                                    <VerticalStackLayout Spacing="4">
+                                        <Label Text="🔴 Síntomas Comunes" FontSize="11.5" FontAttributes="Bold" TextColor="#991B1B" />
+                                        <Label Text="{Binding Symptoms}" FontSize="13" TextColor="#7F1D1D" LineBreakMode="WordWrap" />
+                                    </VerticalStackLayout>
+                                </Border>
+
+                                <!-- Acción / Qué Hacer -->
+                                <Border StrokeShape="RoundRectangle 8" StrokeThickness="0" BackgroundColor="#EFF6FF" Padding="12">
+                                    <VerticalStackLayout Spacing="4">
+                                        <Label Text="ℹ️ Guía de Acción / Qué hacer" FontSize="11.5" FontAttributes="Bold" TextColor="#1E40AF" />
+                                        <Label Text="{Binding WhatToDo}" FontSize="13" TextColor="#1E3A8A" LineBreakMode="WordWrap" />
+                                    </VerticalStackLayout>
+                                </Border>
+
+                                <!-- Tratamiento Principal -->
+                                <Border StrokeShape="RoundRectangle 8" StrokeThickness="0" BackgroundColor="#F0FDF4" Padding="12">
+                                    <VerticalStackLayout Spacing="4">
+                                        <Label Text="💉 Tratamiento Sugerido (Ampollas / Dosis)" FontSize="11.5" FontAttributes="Bold" TextColor="#166534" />
+                                        <Label Text="{Binding Treatment}" FontSize="13" TextColor="#14532D" LineBreakMode="WordWrap" />
+                                    </VerticalStackLayout>
+                                </Border>
+
+                                <!-- Tratamiento Alternativo -->
+                                <Border StrokeShape="RoundRectangle 8" StrokeThickness="0" BackgroundColor="#FAF5FF" Padding="12">
+                                    <VerticalStackLayout Spacing="4">
+                                        <Label Text="💊 Alternativas de Tratamiento" FontSize="11.5" FontAttributes="Bold" TextColor="#6B21A8" />
+                                        <Label Text="{Binding AlternativeTreatment}" FontSize="13" TextColor="#581C87" LineBreakMode="WordWrap" />
+                                    </VerticalStackLayout>
+                                </Border>
+
+                                <!-- Alimentación Recomendada -->
+                                <Border StrokeShape="RoundRectangle 8" StrokeThickness="0" BackgroundColor="#FFFBEB" Padding="12">
+                                    <VerticalStackLayout Spacing="4">
+                                        <Label Text="🌾 Alimentación durante el tratamiento" FontSize="11.5" FontAttributes="Bold" TextColor="#92400E" />
+                                        <Label Text="{Binding FeedingGuidance}" FontSize="13" TextColor="#78350F" LineBreakMode="WordWrap" />
+                                    </VerticalStackLayout>
+                                </Border>
+
+                            </VerticalStackLayout>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+    </Grid>
+</ContentPage>

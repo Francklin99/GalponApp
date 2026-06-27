@@ -40,11 +40,11 @@ namespace GalponApp
             builder.Services.AddTransient<ClassifyBatchViewModel>();
             builder.Services.AddTransient<ClassifyBatchPage>();
 
-            builder.Services.AddSingleton<VaccinationViewModel>();
-            builder.Services.AddSingleton<VaccinationPage>();
+            builder.Services.AddSingleton<AlertsViewModel>();
+            builder.Services.AddSingleton<AlertsPage>();
 
-            builder.Services.AddSingleton<FeedCalculatorViewModel>();
-            builder.Services.AddSingleton<FeedCalculatorPage>();
+            builder.Services.AddSingleton<HelpCenterViewModel>();
+            builder.Services.AddSingleton<HelpCenterPage>();
 
             builder.Services.AddSingleton<ReportsViewModel>();
             builder.Services.AddSingleton<ReportsPage>();

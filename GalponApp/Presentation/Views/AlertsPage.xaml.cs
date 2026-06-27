@@ -3,11 +3,11 @@ using GalponApp.Presentation.ViewModels;
 
 namespace GalponApp.Presentation.Views
 {
-    public partial class VaccinationPage : ContentPage
+    public partial class AlertsPage : ContentPage
     {
-        public VaccinationViewModel ViewModel { get; }
+        public AlertsViewModel ViewModel { get; }
 
-        public VaccinationPage(VaccinationViewModel viewModel)
+        public AlertsPage(AlertsViewModel viewModel)
         {
             InitializeComponent();
             ViewModel = viewModel;

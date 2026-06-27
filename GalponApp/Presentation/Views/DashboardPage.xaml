@@ -4,8 +4,9 @@
              xmlns:vm="clr-namespace:GalponApp.Presentation.ViewModels"
              xmlns:controls="clr-namespace:GalponApp.Presentation.Controls"
              x:Class="GalponApp.Presentation.Views.DashboardPage"
+             Shell.NavBarIsVisible="False"
              Title="{Binding Title}"
-             BackgroundColor="#F4F6F4">
+             BackgroundColor="#F8FAFC">
 
     <ContentPage.Resources>
         <ResourceDictionary>
@@ -17,158 +18,403 @@
         </ResourceDictionary>
     </ContentPage.Resources>
 
-    <ScrollView>
-        <VerticalStackLayout x:Name="MainLayout" Padding="16" Spacing="20">
+    <Grid RowDefinitions="*">
+        
+        <ScrollView Grid.Row="0">
+            <VerticalStackLayout x:Name="MainLayout" Padding="16" Spacing="16">
 
-            <Grid ColumnDefinitions="*, Auto" VerticalOptions="Center">
-                <VerticalStackLayout Grid.Column="0" Spacing="2">
-                    <Label Text="Mi Producción" FontSize="13" TextColor="#64748B" FontAttributes="Bold"/>
-                    <Label Text="GalponApp Inteligente" FontSize="24" FontAttributes="Bold" TextColor="#1E293B" />
-                </VerticalStackLayout>
-                <Button Grid.Column="1" 
-                        Text="🔄" 
-                        FontSize="16" 
-                        HeightRequest="40" 
-                        WidthRequest="40" 
-                        CornerRadius="20" 
-                        BackgroundColor="White" 
-                        TextColor="{StaticResource PrimaryGreen}" 
-                        Command="{Binding LoadStatsCommand}" />
-            </Grid>
-
-            <FlexLayout Wrap="Wrap" Direction="Row" JustifyContent="SpaceBetween" AlignContent="Stretch">
-
-                <Border FlexLayout.Basis="48%" FlexLayout.Grow="1" Margin="6" StrokeShape="RoundRectangle 12" StrokeThickness="1" Stroke="#E2E9E5" BackgroundColor="{StaticResource CardBackground}">
-                    <Grid ColumnDefinitions="Auto, *" Padding="16" ColumnSpacing="16">
-                        <Border Grid.Column="0" WidthRequest="48" HeightRequest="48" StrokeShape="RoundRectangle 12" BackgroundColor="#E8F5E9" StrokeThickness="0" HorizontalOptions="Center" VerticalOptions="Center">
-                            <Label Text="📈" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" />
-                        </Border>
-                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
-                            <Label Text="Animales totales" FontSize="13" TextColor="#64748B" />
-                            <Label Text="{Binding TotalAnimals}" FontSize="26" FontAttributes="Bold" TextColor="#1E293B" />
-                        </VerticalStackLayout>
-                    </Grid>
-                </Border>
-
-                <Border FlexLayout.Basis="48%" FlexLayout.Grow="1" Margin="6" StrokeShape="RoundRectangle 12" StrokeThickness="1" Stroke="#E2E9E5" BackgroundColor="{StaticResource CardBackground}">
-                    <Grid ColumnDefinitions="Auto, *" Padding="16" ColumnSpacing="16">
-                        <Border Grid.Column="0" WidthRequest="48" HeightRequest="48" StrokeShape="RoundRectangle 12" BackgroundColor="#EFEBE9" StrokeThickness="0" HorizontalOptions="Center" VerticalOptions="Center">
-                            <Label Text="🚀" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" />
-                        </Border>
-                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
-                            <Label Text="Lotes activos" FontSize="13" TextColor="#64748B" />
-                            <Label Text="{Binding ActiveBatchesCount}" FontSize="26" FontAttributes="Bold" TextColor="#1E293B" />
-                        </VerticalStackLayout>
-                    </Grid>
-                </Border>
-
-                <Border FlexLayout.Basis="48%" FlexLayout.Grow="1" Margin="6" StrokeShape="RoundRectangle 12" StrokeThickness="1" Stroke="#E2E9E5" BackgroundColor="{StaticResource CardBackground}">
-                    <Grid ColumnDefinitions="Auto, *" Padding="16" ColumnSpacing="16">
-                        <Border Grid.Column="0" WidthRequest="48" HeightRequest="48" StrokeShape="RoundRectangle 12" BackgroundColor="#FFF8E1" StrokeThickness="0" HorizontalOptions="Center" VerticalOptions="Center">
-                            <Label Text="⚠️" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" />
-                        </Border>
-                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
-                            <Label Text="Alertas" FontSize="13" TextColor="#64748B" />
-                            <Label Text="{Binding SickAnimalsCount}" FontSize="26" FontAttributes="Bold" TextColor="#1E293B" />
-                            <Label Text="Requieren atención" FontSize="11" TextColor="{StaticResource ErrorRed}" Margin="0,2,0,0" />
-                        </VerticalStackLayout>
-                    </Grid>
-                </Border>
-
-                <Border FlexLayout.Basis="48%" FlexLayout.Grow="1" Margin="6" StrokeShape="RoundRectangle 12" StrokeThickness="1" Stroke="#E2E9E5" BackgroundColor="{StaticResource CardBackground}">
-                    <Grid ColumnDefinitions="Auto, *" Padding="16" ColumnSpacing="16">
-                        <Border Grid.Column="0" WidthRequest="48" HeightRequest="48" StrokeShape="RoundRectangle 12" BackgroundColor="#E0F2F1" StrokeThickness="0" HorizontalOptions="Center" VerticalOptions="Center">
-                            <Label Text="➕" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" />
-                        </Border>
-                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
-                            <Label Text="Vacunas pendientes" FontSize="13" TextColor="#64748B" />
-                            <Label Text="{Binding UpcomingVaccinationsCount}" FontSize="26" FontAttributes="Bold" TextColor="#1E293B" />
-                        </VerticalStackLayout>
-                    </Grid>
-                </Border>
-            </FlexLayout>
-
-            <Border StrokeShape="RoundRectangle 12" StrokeThickness="0" BackgroundColor="{StaticResource CardBackground}">
-                <Border.Shadow>
-                    <Shadow Brush="Black" Offset="0,2" Radius="4" Opacity="0.04" />
-                </Border.Shadow>
-                <Grid Padding="16" ColumnDefinitions="*, Auto" RowDefinitions="Auto, Auto" RowSpacing="10">
-                    <VerticalStackLayout Grid.Row="0" Grid.Column="0" Spacing="2">
-                        <Label Text="Suministro de Alimento Proyectado" FontSize="15" FontAttributes="Bold" TextColor="#1E293B" />
-                        <Label Text="Estimación de ración requerida para el día de hoy" FontSize="12" TextColor="#64748B" />
-                    </VerticalStackLayout>
-                    <Label Grid.Row="0" Grid.Column="1" Text="🌾" FontSize="24" VerticalOptions="Center" />
-
-                    <HorizontalStackLayout Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Spacing="24" Margin="0,4,0,0">
-                        <VerticalStackLayout>
-                            <Label Text="Cantidad Total" FontSize="11" TextColor="#64748B" />
-                            <Label Text="{Binding DailyFeedConsumptionKg, StringFormat='{0:F1} kg'}" FontSize="20" FontAttributes="Bold" TextColor="{StaticResource PrimaryGreen}" />
-                        </VerticalStackLayout>
-                        <BoxView WidthRequest="1" HeightRequest="32" Color="#E2E8F0" />
-                        <VerticalStackLayout>
-                            <Label Text="Costo Estimado" FontSize="11" TextColor="#64748B" />
-                            <Label Text="{Binding FeedCostEstimationToday, StringFormat='S/. {0:F2}'}" FontSize="20" FontAttributes="Bold" TextColor="{StaticResource SecondaryBrown}" />
-                        </VerticalStackLayout>
+                <!-- ══════════════════════════════════════ CABECERA ══════════════════════════════════════ -->
+                <Grid ColumnDefinitions="*, Auto" Margin="0,8,0,4">
+                    <HorizontalStackLayout Grid.Column="0" Spacing="8" VerticalOptions="Center">
+                        <Label Text="🚜" FontSize="20" VerticalOptions="Center" />
+                        <Label Text="GalponApp / Dashboard" FontSize="18" FontAttributes="Bold" TextColor="#0F172A" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout Grid.Column="1" Spacing="12" VerticalOptions="Center">
+                        <Button Text="🔄" 
+                                FontSize="14" 
+                                HeightRequest="36" 
+                                WidthRequest="36" 
+                                CornerRadius="18" 
+                                BackgroundColor="White" 
+                                TextColor="#0F172A" 
+                                Padding="0"
+                                Command="{Binding LoadStatsCommand}">
+                            <Button.Shadow>
+                                <Shadow Brush="Black" Offset="0,1" Radius="2" Opacity="0.08" />
+                            </Button.Shadow>
+                        </Button>
+                        <Label Text="🔔" FontSize="20" TextColor="#0F172A" VerticalOptions="Center" Margin="0,0,4,0" />
                     </HorizontalStackLayout>
                 </Grid>
-            </Border>
 
-            <Border StrokeShape="RoundRectangle 12" StrokeThickness="1" BackgroundColor="#FEF2F2" Stroke="#FCA5A5">
-                <VerticalStackLayout Padding="16" Spacing="10">
-                    <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
-                        <Label Text="⚠️" FontSize="16"/>
-                        <Label Text="Tareas Críticas de Crianza (Hoy)" FontSize="15" FontAttributes="Bold" TextColor="#991B1B" />
-                    </HorizontalStackLayout>
+                <!-- ══════════════════════════════════════ TARJETAS TOP (2 columnas para móvil) ══════════════════════════════════════ -->
+                <Grid ColumnDefinitions="*, *" RowDefinitions="Auto, Auto, Auto" RowSpacing="8" ColumnSpacing="8">
+                    
+                    <!-- Madres -->
+                    <Border Grid.Row="0" Grid.Column="0" StrokeShape="RoundRectangle 12" StrokeThickness="1" Stroke="#E2E8F0" BackgroundColor="{StaticResource CardBackground}" Padding="12">
+                        <Border.Shadow>
+                            <Shadow Brush="Black" Offset="0,2" Radius="4" Opacity="0.02" />
+                        </Border.Shadow>
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="♀" FontSize="16" FontAttributes="Bold" TextColor="#0F172A" />
+                            <Label Text="Madres" FontSize="11.5" TextColor="#64748B" />
+                            <Label Text="{Binding MothersCount}" FontSize="24" FontAttributes="Bold" TextColor="#0F172A" />
+                            <Label Text="{Binding MothersSubtext}" FontSize="9.5" TextColor="#94A3B8" />
+                        </VerticalStackLayout>
+                    </Border>
 
-                    <CollectionView ItemsSource="{Binding CriticalAlerts}" EmptyView="¡Todo al día! No hay tareas pendientes para hoy.">
-                        <CollectionView.ItemsLayout>
-                            <LinearItemsLayout Orientation="Vertical" ItemSpacing="8" />
-                        </CollectionView.ItemsLayout>
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate>
-                                <Grid ColumnDefinitions="Auto, *">
-                                    <Label Grid.Column="0" Text="• " FontAttributes="Bold" TextColor="#7F1D1D" VerticalOptions="Start"/>
-                                    <Label Grid.Column="1" Text="{Binding .}" FontSize="13" TextColor="#7F1D1D" LineBreakMode="WordWrap" />
-                                </Grid>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
-                </VerticalStackLayout>
-            </Border>
+                    <!-- Lechones -->
+                    <Border Grid.Row="0" Grid.Column="1" StrokeShape="RoundRectangle 12" StrokeThickness="1" Stroke="#E2E8F0" BackgroundColor="{StaticResource CardBackground}" Padding="12">
+                        <Border.Shadow>
+                            <Shadow Brush="Black" Offset="0,2" Radius="4" Opacity="0.02" />
+                        </Border.Shadow>
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="👶" FontSize="14" />
+                            <Label Text="Lechones" FontSize="11.5" TextColor="#64748B" />
+                            <Label Text="{Binding LechonesCount}" FontSize="24" FontAttributes="Bold" TextColor="#0F172A" />
+                            <Label Text="{Binding LechonesSubtext}" FontSize="9.5" TextColor="#94A3B8" />
+                        </VerticalStackLayout>
+                    </Border>
 
-            <Border StrokeShape="RoundRectangle 12" StrokeThickness="0" BackgroundColor="{StaticResource CardBackground}">
-                <Border.Shadow>
-                    <Shadow Brush="Black" Offset="0,2" Radius="4" Opacity="0.04" />
-                </Border.Shadow>
-                <VerticalStackLayout Padding="16" Spacing="12">
-                    <Label Text="Cumplimiento General del Galpón" FontSize="15" FontAttributes="Bold" TextColor="#1E293B" />
+                    <!-- Engorde -->
+                    <Border Grid.Row="1" Grid.Column="0" StrokeShape="RoundRectangle 12" StrokeThickness="1" Stroke="#E2E8F0" BackgroundColor="{StaticResource CardBackground}" Padding="12">
+                        <Border.Shadow>
+                            <Shadow Brush="Black" Offset="0,2" Radius="4" Opacity="0.02" />
+                        </Border.Shadow>
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="🏋️" FontSize="14" />
+                            <Label Text="Engorde" FontSize="11.5" TextColor="#64748B" />
+                            <Label Text="{Binding EngordeCount}" FontSize="24" FontAttributes="Bold" TextColor="#0F172A" />
+                            <Label Text="{Binding EngordeSubtext}" FontSize="9.5" TextColor="#94A3B8" />
+                        </VerticalStackLayout>
+                    </Border>
 
-                    <Grid ColumnDefinitions="*, *" ColumnSpacing="12" HorizontalOptions="Center">
-                        <VerticalStackLayout Grid.Column="0" Spacing="4" HorizontalOptions="Center" WidthRequest="110">
-                            <controls:CircularProgressControl 
-                                Progress="{Binding VaccinationProgress}" 
-                                ProgressColor="{StaticResource PrimaryGreen}" 
-                                CenterSubtext="Cobertura" 
-                                StrokeWidth="6"
-                                HeightRequest="70" 
-                                WidthRequest="70" />
-                            <Label Text="Vacunación" FontSize="11" FontAttributes="Bold" HorizontalOptions="Center" TextColor="#475569" />
+                    <!-- Padrillos -->
+                    <Border Grid.Row="1" Grid.Column="1" StrokeShape="RoundRectangle 12" StrokeThickness="1" Stroke="#E2E8F0" BackgroundColor="{StaticResource CardBackground}" Padding="12">
+                        <Border.Shadow>
+                            <Shadow Brush="Black" Offset="0,2" Radius="4" Opacity="0.02" />
+                        </Border.Shadow>
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="♂" FontSize="16" FontAttributes="Bold" TextColor="#0F172A" />
+                            <Label Text="Padrillos" FontSize="11.5" TextColor="#64748B" />
+                            <Label Text="{Binding PadrillosCount}" FontSize="24" FontAttributes="Bold" TextColor="#0F172A" />
+                            <Label Text="{Binding PadrillosSubtext}" FontSize="9.5" TextColor="#94A3B8" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Total General Card (Horizontal, abarca las 2 columnas) -->
+                    <Border Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" StrokeShape="RoundRectangle 12" StrokeThickness="1" Stroke="#E2E8F0" BackgroundColor="{StaticResource CardBackground}" Padding="16,12">
+                        <Border.Shadow>
+                            <Shadow Brush="Black" Offset="0,2" Radius="4" Opacity="0.02" />
+                        </Border.Shadow>
+                        <Grid ColumnDefinitions="Auto, *, Auto">
+                            <Border Grid.Column="0" WidthRequest="40" HeightRequest="40" StrokeShape="RoundRectangle 8" BackgroundColor="#E8F5E9" StrokeThickness="0" Margin="0,0,12,0">
+                                <Label Text="📈" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center" />
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                                <Label Text="Total General" FontSize="13" FontAttributes="Bold" TextColor="#0F172A" />
+                                <Label Text="Todos los animales de la granja" FontSize="10.5" TextColor="#64748B" />
+                            </VerticalStackLayout>
+                            <Label Grid.Column="2" Text="{Binding TotalAnimals}" FontSize="26" FontAttributes="Bold" TextColor="#2E7D32" VerticalOptions="Center" />
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <!-- ══════════════════════════════════════ SECCIÓN ALIMENTO ══════════════════════════════════════ -->
+                <Border StrokeShape="RoundRectangle 12" StrokeThickness="1" Stroke="#E2E8F0" BackgroundColor="{StaticResource CardBackground}">
+                    <Border.Shadow>
+                        <Shadow Brush="Black" Offset="0,3" Radius="5" Opacity="0.03" />
+                    </Border.Shadow>
+                    
+                    <VerticalStackLayout Padding="16" Spacing="12">
+                        
+                        <!-- Header Alimento -->
+                        <Grid ColumnDefinitions="*, Auto">
+                            <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                <Label Text="Alimento" FontSize="16" FontAttributes="Bold" TextColor="#0F172A" />
+                                <Label Text="Suministro e Inversión Proyectada" FontSize="12.5" TextColor="#64748B" />
+                            </VerticalStackLayout>
+                            <Border Grid.Column="1" WidthRequest="36" HeightRequest="36" StrokeShape="RoundRectangle 8" BackgroundColor="#F8FAFC" StrokeThickness="0">
+                                <Label Text="🍽️" FontSize="16" HorizontalOptions="Center" VerticalOptions="Center" />
+                            </Border>
+                        </Grid>
+
+                        <!-- Body Alimento -->
+                        <Grid ColumnDefinitions="Auto, *" ColumnSpacing="16" Margin="0,6,0,0">
+                            
+                            <!-- Circular Progress -->
+                            <controls:CircularProgressControl Grid.Column="0"
+                                Progress="{Binding ActiveFeedProgress}" 
+                                ProgressColor="Black" 
+                                CenterText="{Binding ActiveFeedAmountDisplay}" 
+                                CenterSubtext="S/D" 
+                                InvertTextOrder="True"
+                                StrokeWidth="10"
+                                HeightRequest="96" 
+                                WidthRequest="96" />
+
+                            <!-- Leyenda Interactiva -->
+                            <VerticalStackLayout Grid.Column="1" Spacing="6" VerticalOptions="Center" Margin="16,0,0,0">
+                                
+                                <!-- Lechones -->
+                                <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                                    <HorizontalStackLayout.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SelectFeedCategoryCommand}" CommandParameter="Lechones" />
+                                    </HorizontalStackLayout.GestureRecognizers>
+                                    <Label Text="●" TextColor="Black" FontSize="14" VerticalOptions="Center" />
+                                    <Label Text="Lechones" FontSize="12.5" TextColor="#64748B" VerticalOptions="Center">
+                                        <Label.Triggers>
+                                            <DataTrigger TargetType="Label" Binding="{Binding SelectedFeedCategory}" Value="Lechones">
+                                                <Setter Property="FontAttributes" Value="Bold" />
+                                                <Setter Property="TextColor" Value="#0F172A" />
+                                                <Setter Property="FontSize" Value="13" />
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
+                                </HorizontalStackLayout>
+
+                                <!-- Engorde -->
+                                <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                                    <HorizontalStackLayout.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SelectFeedCategoryCommand}" CommandParameter="Engorde" />
+                                    </HorizontalStackLayout.GestureRecognizers>
+                                    <Label Text="●" TextColor="#94A3B8" FontSize="14" VerticalOptions="Center" />
+                                    <Label Text="Engorde" FontSize="12.5" TextColor="#64748B" VerticalOptions="Center">
+                                        <Label.Triggers>
+                                            <DataTrigger TargetType="Label" Binding="{Binding SelectedFeedCategory}" Value="Engorde">
+                                                <Setter Property="FontAttributes" Value="Bold" />
+                                                <Setter Property="TextColor" Value="#0F172A" />
+                                                <Setter Property="FontSize" Value="13" />
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
+                                </HorizontalStackLayout>
+
+                                <!-- Madres -->
+                                <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                                    <HorizontalStackLayout.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SelectFeedCategoryCommand}" CommandParameter="Madres" />
+                                    </HorizontalStackLayout.GestureRecognizers>
+                                    <Label Text="●" TextColor="#64748B" FontSize="14" VerticalOptions="Center" />
+                                    <Label Text="Madres" FontSize="12.5" TextColor="#64748B" VerticalOptions="Center">
+                                        <Label.Triggers>
+                                            <DataTrigger TargetType="Label" Binding="{Binding SelectedFeedCategory}" Value="Madres">
+                                                <Setter Property="FontAttributes" Value="Bold" />
+                                                <Setter Property="TextColor" Value="#0F172A" />
+                                                <Setter Property="FontSize" Value="13" />
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
+                                </HorizontalStackLayout>
+
+                                <!-- Padrillos -->
+                                <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                                    <HorizontalStackLayout.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SelectFeedCategoryCommand}" CommandParameter="Padrillos" />
+                                    </HorizontalStackLayout.GestureRecognizers>
+                                    <Label Text="●" TextColor="#CBD5E1" FontSize="14" VerticalOptions="Center" />
+                                    <Label Text="Padrillos" FontSize="12.5" TextColor="#64748B" VerticalOptions="Center">
+                                        <Label.Triggers>
+                                            <DataTrigger TargetType="Label" Binding="{Binding SelectedFeedCategory}" Value="Padrillos">
+                                                <Setter Property="FontAttributes" Value="Bold" />
+                                                <Setter Property="TextColor" Value="#0F172A" />
+                                                <Setter Property="FontSize" Value="13" />
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
+                                </HorizontalStackLayout>
+
+                                <!-- Todos -->
+                                <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                                    <HorizontalStackLayout.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SelectFeedCategoryCommand}" CommandParameter="Todos" />
+                                    </HorizontalStackLayout.GestureRecognizers>
+                                    <Label Text="●" TextColor="#2E7D32" FontSize="14" VerticalOptions="Center" />
+                                    <Label Text="Todos" FontSize="12.5" TextColor="#64748B" VerticalOptions="Center">
+                                        <Label.Triggers>
+                                            <DataTrigger TargetType="Label" Binding="{Binding SelectedFeedCategory}" Value="Todos">
+                                                <Setter Property="FontAttributes" Value="Bold" />
+                                                <Setter Property="TextColor" Value="#2E7D32" />
+                                                <Setter Property="FontSize" Value="13" />
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
+                                </HorizontalStackLayout>
+
+                            </VerticalStackLayout>
+                        </Grid>
+
+                        <BoxView HeightRequest="1" Color="#E2E8F0" Margin="0,6,0,4" />
+
+                        <!-- Costos Proyectados -->
+                        <Grid ColumnDefinitions="*, *">
+                            <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                <Label Text="Costo Diario" FontSize="11" TextColor="#64748B" />
+                                <Label Text="{Binding FeedCostEstimationToday, StringFormat='S/. {0:F2}'}" FontSize="18" FontAttributes="Bold" TextColor="#0F172A" />
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Column="1" Spacing="2" HorizontalOptions="End">
+                                <Label Text="Inversión Mes" FontSize="11" TextColor="#64748B" HorizontalOptions="End" />
+                                <Label Text="{Binding FeedCostEstimationMonth, StringFormat='S/. {0:F2}'}" FontSize="18" FontAttributes="Bold" TextColor="#166534" HorizontalOptions="End" />
+                            </VerticalStackLayout>
+                        </Grid>
+
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- ══════════════════════════════════════ SECCIÓN ALERTAS Y CRÍTICAS ══════════════════════════════════════ -->
+                <Border StrokeShape="RoundRectangle 12" StrokeThickness="1" Stroke="#FCA5A5" BackgroundColor="#FEE2E2">
+                    <VerticalStackLayout Padding="16" Spacing="12">
+                        
+                        <!-- Cabecera Alertas -->
+                        <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                            <Label Text="⚠️" FontSize="16" TextColor="#991B1B" VerticalOptions="Center" />
+                            <Label Text="Alertas y Tareas Críticas" FontSize="16" FontAttributes="Bold" TextColor="#991B1B" VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+
+                        <!-- Items Alertas -->
+                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding CriticalAlerts}" Spacing="8">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="vm:DashboardAlert">
+                                    <Border StrokeShape="RoundRectangle 8" StrokeThickness="0" BackgroundColor="White" Padding="12,10">
+                                        <Grid ColumnDefinitions="Auto, *">
+                                            <Label Grid.Column="0" Text="{Binding Icon}" FontSize="15" VerticalOptions="Center" Margin="0,0,8,0" />
+                                            <Label Grid.Column="1" Text="{Binding Text}" FontSize="12.5" TextColor="#991B1B" FontAttributes="Bold" LineBreakMode="WordWrap" VerticalOptions="Center" />
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
                         </VerticalStackLayout>
 
-                        <VerticalStackLayout Grid.Column="1" Spacing="4" HorizontalOptions="Center" WidthRequest="110">
-                            <controls:CircularProgressControl 
-                                Progress="{Binding HealthComplianceProgress}" 
-                                ProgressColor="#0EA5E9" 
-                                CenterSubtext="Sanos" 
-                                StrokeWidth="6"
-                                HeightRequest="70" 
-                                WidthRequest="70" />
-                            <Label Text="Índice Salud" FontSize="11" FontAttributes="Bold" HorizontalOptions="Center" TextColor="#475569" />
-                        </VerticalStackLayout>
-                    </Grid>
-                </VerticalStackLayout>
-            </Border>
+                        <!-- Bottom Metricas -->
+                        <Grid ColumnDefinitions="*, *" ColumnSpacing="10" Margin="0,4,0,0">
+                            <!-- Mortalidad -->
+                            <Border Grid.Column="0" StrokeShape="RoundRectangle 8" StrokeThickness="0" BackgroundColor="White" Padding="12">
+                                <VerticalStackLayout HorizontalOptions="Center" Spacing="4">
+                                    <Label Text="Mortalidad" FontSize="11" FontAttributes="Bold" TextColor="#991B1B" HorizontalOptions="Center" />
+                                    <Label Text="{Binding MortalityRate, StringFormat='{0:F0}%'}" FontSize="22" FontAttributes="Bold" TextColor="#B91C1C" HorizontalOptions="Center" />
+                                </VerticalStackLayout>
+                            </Border>
+                            <!-- Indice Salud -->
+                            <Border Grid.Column="1" StrokeShape="RoundRectangle 8" StrokeThickness="0" BackgroundColor="White" Padding="12">
+                                <VerticalStackLayout HorizontalOptions="Center" Spacing="4">
+                                    <Label Text="Índice Salud" FontSize="11" FontAttributes="Bold" TextColor="#166534" HorizontalOptions="Center" />
+                                    <Label Text="{Binding HealthIndex, StringFormat='{0:F0}%'}" FontSize="22" FontAttributes="Bold" TextColor="#166534" HorizontalOptions="Center" />
+                                </VerticalStackLayout>
+                            </Border>
+                        </Grid>
 
-        </VerticalStackLayout>
-    </ScrollView>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- ══════════════════════════════════════ SECCIÓN HISTORIAL & INVENTARIO ══════════════════════════════════════ -->
+                <Border StrokeShape="RoundRectangle 12" StrokeThickness="1" Stroke="#E2E8F0" BackgroundColor="{StaticResource CardBackground}">
+                    <Border.Shadow>
+                        <Shadow Brush="Black" Offset="0,3" Radius="5" Opacity="0.03" />
+                    </Border.Shadow>
+                    
+                    <VerticalStackLayout Padding="16" Spacing="16">
+                        
+                        <!-- Header Historial -->
+                        <Grid ColumnDefinitions="*, Auto">
+                            <Label Grid.Column="0" Text="Historial &amp; Inventario" FontSize="16" FontAttributes="Bold" TextColor="#0F172A" VerticalOptions="Center"/>
+                            <Border Grid.Column="1" StrokeShape="RoundRectangle 6" StrokeThickness="0" BackgroundColor="#F1F5F9" Padding="8,4" VerticalOptions="Center">
+                                <Label Text="Ene - Jun" FontSize="11" TextColor="#64748B" FontAttributes="Bold"/>
+                            </Border>
+                        </Grid>
+
+                        <!-- Chart Barras Custom -->
+                        <VerticalStackLayout Spacing="8">
+                            <Grid ColumnDefinitions="*, *, *, *, *, *" HeightRequest="110" VerticalOptions="End">
+                                <!-- Ene -->
+                                <HorizontalStackLayout Grid.Column="0" Spacing="3" HorizontalOptions="Center" VerticalOptions="End">
+                                    <BoxView WidthRequest="6" HeightRequest="40" Color="#10B981" CornerRadius="3" />
+                                    <BoxView WidthRequest="6" HeightRequest="20" Color="#94A3B8" CornerRadius="3" />
+                                    <BoxView WidthRequest="6" HeightRequest="10" Color="#EF4444" CornerRadius="3" />
+                                </HorizontalStackLayout>
+                                <!-- Feb -->
+                                <HorizontalStackLayout Grid.Column="1" Spacing="3" HorizontalOptions="Center" VerticalOptions="End">
+                                    <BoxView WidthRequest="6" HeightRequest="60" Color="#10B981" CornerRadius="3" />
+                                    <BoxView WidthRequest="6" HeightRequest="25" Color="#94A3B8" CornerRadius="3" />
+                                    <BoxView WidthRequest="6" HeightRequest="5" Color="#EF4444" CornerRadius="3" />
+                                </HorizontalStackLayout>
+                                <!-- Mar -->
+                                <HorizontalStackLayout Grid.Column="2" Spacing="3" HorizontalOptions="Center" VerticalOptions="End">
+                                    <BoxView WidthRequest="6" HeightRequest="80" Color="#10B981" CornerRadius="3" />
+                                    <BoxView WidthRequest="6" HeightRequest="15" Color="#94A3B8" CornerRadius="3" />
+                                    <BoxView WidthRequest="6" HeightRequest="12" Color="#EF4444" CornerRadius="3" />
+                                </HorizontalStackLayout>
+                                <!-- Abr -->
+                                <HorizontalStackLayout Grid.Column="3" Spacing="3" HorizontalOptions="Center" VerticalOptions="End">
+                                    <BoxView WidthRequest="6" HeightRequest="50" Color="#10B981" CornerRadius="3" />
+                                    <BoxView WidthRequest="6" HeightRequest="30" Color="#94A3B8" CornerRadius="3" />
+                                    <BoxView WidthRequest="6" HeightRequest="8" Color="#EF4444" CornerRadius="3" />
+                                </HorizontalStackLayout>
+                                <!-- May -->
+                                <HorizontalStackLayout Grid.Column="4" Spacing="3" HorizontalOptions="Center" VerticalOptions="End">
+                                    <BoxView WidthRequest="6" HeightRequest="70" Color="#10B981" CornerRadius="3" />
+                                    <BoxView WidthRequest="6" HeightRequest="22" Color="#94A3B8" CornerRadius="3" />
+                                    <BoxView WidthRequest="6" HeightRequest="10" Color="#EF4444" CornerRadius="3" />
+                                </HorizontalStackLayout>
+                                <!-- Jun -->
+                                <HorizontalStackLayout Grid.Column="5" Spacing="3" HorizontalOptions="Center" VerticalOptions="End">
+                                    <BoxView WidthRequest="6" HeightRequest="90" Color="#10B981" CornerRadius="3" />
+                                    <BoxView WidthRequest="6" HeightRequest="18" Color="#94A3B8" CornerRadius="3" />
+                                    <BoxView WidthRequest="6" HeightRequest="5" Color="#EF4444" CornerRadius="3" />
+                                </HorizontalStackLayout>
+                            </Grid>
+                            
+                            <!-- Eje X Divider -->
+                            <BoxView HeightRequest="1" Color="#E2E8F0" HorizontalOptions="FillAndExpand" />
+
+                            <!-- Etiquetas Eje X -->
+                            <Grid ColumnDefinitions="*, *, *, *, *, *">
+                                <Label Grid.Column="0" Text="ENE" FontSize="9.5" FontAttributes="Bold" TextColor="#94A3B8" HorizontalOptions="Center" />
+                                <Label Grid.Column="1" Text="FEB" FontSize="9.5" FontAttributes="Bold" TextColor="#94A3B8" HorizontalOptions="Center" />
+                                <Label Grid.Column="2" Text="MAR" FontSize="9.5" FontAttributes="Bold" TextColor="#94A3B8" HorizontalOptions="Center" />
+                                <Label Grid.Column="3" Text="ABR" FontSize="9.5" FontAttributes="Bold" TextColor="#94A3B8" HorizontalOptions="Center" />
+                                <Label Grid.Column="4" Text="MAY" FontSize="9.5" FontAttributes="Bold" TextColor="#94A3B8" HorizontalOptions="Center" />
+                                <Label Grid.Column="5" Text="JUN" FontSize="9.5" FontAttributes="Bold" TextColor="#94A3B8" HorizontalOptions="Center" />
+                            </Grid>
+                        </VerticalStackLayout>
+
+                        <!-- Leyenda -->
+                        <HorizontalStackLayout Spacing="16" HorizontalOptions="Center" Margin="0,4,0,0">
+                            <HorizontalStackLayout Spacing="4" VerticalOptions="Center">
+                                <Label Text="●" TextColor="#10B981" FontSize="11" VerticalOptions="Center" />
+                                <Label Text="Venta" FontSize="11" TextColor="#64748B" VerticalOptions="Center" />
+                            </HorizontalStackLayout>
+                            <HorizontalStackLayout Spacing="4" VerticalOptions="Center">
+                                <Label Text="●" TextColor="#94A3B8" FontSize="11" VerticalOptions="Center" />
+                                <Label Text="Desecho" FontSize="11" TextColor="#64748B" VerticalOptions="Center" />
+                            </HorizontalStackLayout>
+                            <HorizontalStackLayout Spacing="4" VerticalOptions="Center">
+                                <Label Text="●" TextColor="#EF4444" FontSize="11" VerticalOptions="Center" />
+                                <Label Text="Mortalidad" FontSize="11" TextColor="#64748B" VerticalOptions="Center" />
+                            </HorizontalStackLayout>
+                        </HorizontalStackLayout>
+
+                    </VerticalStackLayout>
+                </Border>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Floating Action Button (FAB) -->
+        <Border WidthRequest="56" HeightRequest="56"
+                StrokeShape="RoundRectangle 28"
+                BackgroundColor="Black"
+                HorizontalOptions="End" VerticalOptions="End"
+                Margin="24"
+                Padding="0">
+            <Border.Shadow>
+                <Shadow Brush="Black" Offset="0,4" Radius="6" Opacity="0.3"/>
+            </Border.Shadow>
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding GoToRegisterBatchCommand}" />
+            </Border.GestureRecognizers>
+            <Label Text="+" TextColor="White" FontSize="28" FontAttributes="Bold"
+                   HorizontalOptions="Center" VerticalOptions="Center" Margin="0,0,0,2"/>
+        </Border>
+
+    </Grid>
 </ContentPage>

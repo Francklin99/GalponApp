@@ -44,7 +44,6 @@ namespace GalponApp.Presentation.Controls
             get => (string)GetValue(CenterTextProperty);
             set => SetValue(CenterTextProperty, value);
         }
-
         public static readonly BindableProperty CenterSubtextProperty =
             BindableProperty.Create(nameof(CenterSubtext), typeof(string), typeof(CircularProgressControl), string.Empty,
                 propertyChanged: (bindable, oldValue, newValue) => ((CircularProgressControl)bindable).Invalidate());
@@ -55,6 +54,15 @@ namespace GalponApp.Presentation.Controls
             set => SetValue(CenterSubtextProperty, value);
         }
 
+        public static readonly BindableProperty InvertTextOrderProperty =
+            BindableProperty.Create(nameof(InvertTextOrder), typeof(bool), typeof(CircularProgressControl), false,
+                propertyChanged: (bindable, oldValue, newValue) => ((CircularProgressControl)bindable).Invalidate());
+
+        public bool InvertTextOrder
+        {
+            get => (bool)GetValue(InvertTextOrderProperty);
+            set => SetValue(InvertTextOrderProperty, value);
+        }
         public CircularProgressControl()
         {
             Drawable = this;
@@ -95,22 +103,41 @@ namespace GalponApp.Presentation.Controls
                 
                 canvas.DrawArc(cx - radius, cy - radius, radius * 2, radius * 2, startAngle, startAngle + sweepAngle, clockwise: false, closed: false);
             }
-
             // 3. Dibujar textos en el centro
             string mainText = string.IsNullOrEmpty(CenterText) ? $"{(Progress * 100):F0}%" : CenterText;
 
-            canvas.FontColor = Color.FromArgb("#1E293B"); // Slate 800
-            canvas.FontSize = radius * 0.45f;
-            canvas.Font = Microsoft.Maui.Graphics.Font.DefaultBold;
-            canvas.DrawString(mainText, cx - radius, cy - radius + (string.IsNullOrEmpty(CenterSubtext) ? 0f : -radius * 0.15f), radius * 2, radius * 2, HorizontalAlignment.Center, VerticalAlignment.Center);
-
-            if (!string.IsNullOrEmpty(CenterSubtext))
+            if (InvertTextOrder)
             {
-                canvas.FontColor = Color.FromArgb("#64748B"); // Slate 500
-                canvas.FontSize = radius * 0.22f;
-                canvas.Font = Microsoft.Maui.Graphics.Font.Default;
-                canvas.DrawString(CenterSubtext, cx - radius, cy + radius * 0.2f, radius * 2, radius * 0.5f, HorizontalAlignment.Center, VerticalAlignment.Center);
+                // Subtext is drawn at the top (smaller, Slate 500)
+                if (!string.IsNullOrEmpty(CenterSubtext))
+                {
+                    canvas.FontColor = Color.FromArgb("#64748B"); // Slate 500
+                    canvas.FontSize = radius * 0.28f;
+                    canvas.Font = Microsoft.Maui.Graphics.Font.DefaultBold;
+                    canvas.DrawString(CenterSubtext, cx - radius, cy - radius * 0.35f, radius * 2, radius * 0.4f, HorizontalAlignment.Center, VerticalAlignment.Center);
+                }
+
+                // MainText is drawn at the bottom (larger, Slate 800)
+                canvas.FontColor = Color.FromArgb("#0F172A"); // Slate 900
+                canvas.FontSize = radius * 0.40f;
+                canvas.Font = Microsoft.Maui.Graphics.Font.DefaultBold;
+                canvas.DrawString(mainText, cx - radius, cy + radius * 0.05f, radius * 2, radius * 0.5f, HorizontalAlignment.Center, VerticalAlignment.Center);
             }
-        }
+            else
+            {
+                // Standard order
+                canvas.FontColor = Color.FromArgb("#1E293B"); // Slate 800
+                canvas.FontSize = radius * 0.45f;
+                canvas.Font = Microsoft.Maui.Graphics.Font.DefaultBold;
+                canvas.DrawString(mainText, cx - radius, cy - radius + (string.IsNullOrEmpty(CenterSubtext) ? 0f : -radius * 0.15f), radius * 2, radius * 2, HorizontalAlignment.Center, VerticalAlignment.Center);
+
+                if (!string.IsNullOrEmpty(CenterSubtext))
+                {
+                    canvas.FontColor = Color.FromArgb("#64748B"); // Slate 500
+                    canvas.FontSize = radius * 0.22f;
+                    canvas.Font = Microsoft.Maui.Graphics.Font.Default;
+                    canvas.DrawString(CenterSubtext, cx - radius, cy + radius * 0.2f, radius * 2, radius * 0.5f, HorizontalAlignment.Center, VerticalAlignment.Center);
+                }
+            }        }
     }
 }
