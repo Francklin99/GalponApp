@@ -315,6 +315,21 @@ namespace GalponApp.Presentation.ViewModels
                 else
                 {
                     // --- MODO REAL (Datos de la Base de Datos) ---
+                    var animals = await _storageService.GetAnimalsAsync();
+                    var activeBatchIds = activeBatches.Select(b => b.Id).ToHashSet();
+                    
+                    // Sincronizar y cargar animales para cada lote activo
+                    var activeAnimals = new List<Animal>();
+                    foreach (var batch in activeBatches)
+                    {
+                        var batchAnimals = animals.Where(a => a.BatchId == batch.Id).ToList();
+                        if (batchAnimals.Count == 0 && batch.Quantity > 0)
+                        {
+                            batchAnimals = await _storageService.GetAnimalsForBatchAsync(batch.Id, batch.Quantity, batch.CurrentWeight);
+                        }
+                        activeAnimals.AddRange(batchAnimals);
+                    }
+
                     TotalAnimals = activeBatches.Sum(b => b.Quantity);
                     
                     int totalInitial = activeBatches.Sum(b => b.InitialQuantity);
@@ -323,7 +338,6 @@ namespace GalponApp.Presentation.ViewModels
                     MortalityCount = totalMortality;
 
                     // Control de Vacunas
-                    var activeBatchIds = activeBatches.Select(b => b.Id).ToHashSet();
                     var relevantVaccinations = vaccinations.Where(v => activeBatchIds.Contains(v.BatchId)).ToList();
                     
                     int appliedVacs = relevantVaccinations.Count(v => v.Status == "Aplicada");
@@ -335,7 +349,11 @@ namespace GalponApp.Presentation.ViewModels
 
                     // Control de Salud
                     var activeSanitary = sanitaryRecords.Where(s => activeBatchIds.Contains(s.BatchId) && s.Status == "Bajo Tratamiento").ToList();
-                    SickAnimalsCount = activeSanitary.Sum(s => s.AffectedCount);
+                    
+                    // Sumar cerdos con estado "Enfermo" de los animales cargados, y cerdos de tratamientos activos
+                    int sickCountFromAnimals = activeAnimals.Count(a => a.Status == "Enfermo");
+                    int sickCountFromSanitary = activeSanitary.Sum(s => s.AffectedCount);
+                    SickAnimalsCount = Math.Max(sickCountFromAnimals, sickCountFromSanitary);
                     
                     HealthComplianceProgress = TotalAnimals > 0 ? (double)(TotalAnimals - SickAnimalsCount) / TotalAnimals : 1.0;
 
@@ -350,12 +368,7 @@ namespace GalponApp.Presentation.ViewModels
                         b.Purpose.Contains("Postura")).ToList();
                     MothersCount = mothersList.Sum(b => b.Quantity);
 
-                    int gestantes = 0;
-                    foreach (var mb in mothersList)
-                    {
-                        var mbAnimals = await _storageService.GetAnimalsForBatchAsync(mb.Id, mb.Quantity, mb.CurrentWeight);
-                        gestantes += mbAnimals.Count(a => a.Status == "Inseminada");
-                    }
+                    int gestantes = mothersList.Sum(mb => activeAnimals.Where(a => a.BatchId == mb.Id).Count(a => a.Status == "Inseminada"));
                     int lactantes = MothersCount - gestantes;
                     if (lactantes < 0) lactantes = 0;
                     MothersSubtext = $"G:{gestantes} | L:{lactantes}";
@@ -447,9 +460,33 @@ namespace GalponApp.Presentation.ViewModels
                         });
                     }
 
-                    // Animales enfermos
+                    // 1. Alertas de animales enfermos de forma individual (estado = Enfermo)
+                    var sickAnimalsByBatch = activeAnimals.Where(a => a.Status == "Enfermo").GroupBy(a => a.BatchId).ToList();
+                    foreach (var group in sickAnimalsByBatch)
+                    {
+                        var batch = activeBatches.FirstOrDefault(b => b.Id == group.Key);
+                        if (batch != null)
+                        {
+                            int count = group.Count();
+                            string pigStr = count == 1 ? "1 cerdo enfermo" : $"{count} cerdos enfermos";
+                            CriticalAlerts.Add(new DashboardAlert
+                            {
+                                Title = $"🚨 ¡Alerta Sanitaria en {batch.Name}! Se detectó {pigStr}.",
+                                Description = "Acción recomendada: Aislar a los animales afectados y revisar la guía de tratamiento rápido.",
+                                BadgeText = "➕",
+                                BadgeBg = "#FEE2E2",
+                                BadgeTextColor = "#EF4444"
+                            });
+                        }
+                    }
+
+                    // 2. Alertas de tratamientos sanitarios activos
                     foreach (var s in activeSanitary)
                     {
+                        // Evitamos duplicar si ya agregamos una alerta de animal enfermo para este lote
+                        if (sickAnimalsByBatch.Any(g => g.Key == s.BatchId))
+                            continue;
+
                         string diagnosis = s.Diagnosis;
                         if (diagnosis.Equals("diarrea", StringComparison.OrdinalIgnoreCase)) diagnosis = "Diarrea";
                         CriticalAlerts.Add(new DashboardAlert
