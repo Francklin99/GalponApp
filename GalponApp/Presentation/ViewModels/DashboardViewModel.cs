@@ -15,8 +15,23 @@ namespace GalponApp.Presentation.ViewModels
 {
     public class DashboardAlert
     {
-        public string Text { get; set; } = string.Empty;
-        public string Icon { get; set; } = "⚠️";
+        public string Title { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public string BadgeText { get; set; } = "➕";
+        public string BadgeBg { get; set; } = "#FEE2E2";
+        public string BadgeTextColor { get; set; } = "#EF4444";
+    }
+
+    public class MonthChartItem : ObservableObject
+    {
+        public string MonthName { get; set; } = string.Empty;
+        public double VentaValue { get; set; }
+        public double ReprValue { get; set; }
+        public double MortValue { get; set; }
+
+        public double VentaHeight => VentaValue * 1.1;
+        public double ReprHeight => ReprValue * 1.1;
+        public double MortHeight => MortValue * 1.1;
     }
 
     public partial class DashboardViewModel : BaseViewModel
@@ -38,6 +53,9 @@ namespace GalponApp.Presentation.ViewModels
 
         [ObservableProperty]
         private double mortalityRate;
+
+        [ObservableProperty]
+        private int mortalityCount;
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(DailyFeedConsumptionKgDisplay))]
@@ -106,6 +124,12 @@ namespace GalponApp.Presentation.ViewModels
         [ObservableProperty]
         private double padrillosFeedKg = 0.6;
 
+        [ObservableProperty]
+        private int selectedFilterMonths = 3;
+
+        public ObservableCollection<MonthChartItem> FilteredChartItems { get; } = new();
+        private List<MonthChartItem> _allChartItems = new();
+
         public ObservableCollection<DashboardAlert> CriticalAlerts { get; } = new();
         public ObservableCollection<Batch> TopBatches { get; } = new();
 
@@ -114,6 +138,40 @@ namespace GalponApp.Presentation.ViewModels
             _storageService = storageService;
             _feedingCalculator = feedingCalculator;
             Title = "Dashboard";
+
+            // Inicializar datos del gráfico
+            _allChartItems = new List<MonthChartItem>
+            {
+                new MonthChartItem { MonthName = "Ene", VentaValue = 40, ReprValue = 20, MortValue = 10 },
+                new MonthChartItem { MonthName = "Feb", VentaValue = 60, ReprValue = 25, MortValue = 5 },
+                new MonthChartItem { MonthName = "Mar", VentaValue = 80, ReprValue = 15, MortValue = 12 },
+                new MonthChartItem { MonthName = "Abr", VentaValue = 50, ReprValue = 30, MortValue = 8 },
+                new MonthChartItem { MonthName = "May", VentaValue = 70, ReprValue = 22, MortValue = 10 },
+                new MonthChartItem { MonthName = "Jun", VentaValue = 95, ReprValue = 18, MortValue = 3 }
+            };
+
+            // Detectar ancho de pantalla por defecto de forma responsiva
+            try
+            {
+                double mainDisplayWidth = Microsoft.Maui.Devices.DeviceDisplay.Current.MainDisplayInfo.Width;
+                double density = Microsoft.Maui.Devices.DeviceDisplay.Current.MainDisplayInfo.Density;
+                double widthDp = density > 0 ? mainDisplayWidth / density : 360;
+
+                if (widthDp >= 600)
+                {
+                    SelectedFilterMonths = 6;
+                }
+                else
+                {
+                    SelectedFilterMonths = 3; // Por defecto 3 meses para pantallas de teléfonos más angostas
+                }
+            }
+            catch
+            {
+                SelectedFilterMonths = 3;
+            }
+
+            ApplyChartFilter();
         }
 
         [RelayCommand]
@@ -129,6 +187,34 @@ namespace GalponApp.Presentation.ViewModels
             SelectedFeedCategory = category;
         }
 
+        [RelayCommand]
+        public void ChangeFilterMonths(object parameter)
+        {
+            if (parameter == null) return;
+            int months = 3;
+            if (parameter is int mInt)
+            {
+                months = mInt;
+            }
+            else if (parameter is string mStr && int.TryParse(mStr, out int mParsed))
+            {
+                months = mParsed;
+            }
+
+            SelectedFilterMonths = months;
+            ApplyChartFilter();
+        }
+
+        private void ApplyChartFilter()
+        {
+            FilteredChartItems.Clear();
+            var itemsToTake = _allChartItems.Skip(Math.Max(0, _allChartItems.Count - SelectedFilterMonths)).ToList();
+            foreach (var item in itemsToTake)
+            {
+                FilteredChartItems.Add(item);
+            }
+        }
+
         partial void OnSelectedFeedCategoryChanged(string value)
         {
             UpdateActiveFeedChart();
@@ -140,7 +226,7 @@ namespace GalponApp.Presentation.ViewModels
             if (SelectedFeedCategory == "Todos")
             {
                 ActiveFeedAmountDisplay = $"{DailyFeedConsumptionKg:F1}kg";
-                ActiveFeedProgress = 1.0; // Mostrar círculo lleno para el total
+                ActiveFeedProgress = 1.0;
             }
             else if (SelectedFeedCategory == "Lechones")
             {
@@ -180,78 +266,11 @@ namespace GalponApp.Presentation.ViewModels
 
                 // 1. Estadísticas básicas de Lotes
                 ActiveBatchesCount = activeBatches.Count;
-                TotalAnimals = activeBatches.Sum(b => b.Quantity);
-                
-                int totalInitial = activeBatches.Sum(b => b.InitialQuantity);
-                int totalMortality = activeBatches.Sum(b => b.MortalityCount);
-                MortalityRate = totalInitial > 0 ? ((double)totalMortality / totalInitial) * 100 : 0;
 
-                // 2. Control de Vacunas
-                var activeBatchIds = activeBatches.Select(b => b.Id).ToHashSet();
-                var relevantVaccinations = vaccinations.Where(v => activeBatchIds.Contains(v.BatchId)).ToList();
-                
-                int appliedVacs = relevantVaccinations.Count(v => v.Status == "Aplicada");
-                int totalVacs = relevantVaccinations.Count;
-                VaccinationProgress = totalVacs > 0 ? (double)appliedVacs / totalVacs : 1.0;
-
-                // Próximas vacunas (futuras o atrasadas)
-                UpcomingVaccinationsCount = relevantVaccinations.Count(v => v.Status == "Pendiente" || v.Status == "Atrasada");
-
-                // 3. Control de Salud
-                var activeSanitary = sanitaryRecords.Where(s => activeBatchIds.Contains(s.BatchId) && s.Status == "Bajo Tratamiento").ToList();
-                SickAnimalsCount = activeSanitary.Sum(s => s.AffectedCount);
-                
-                HealthComplianceProgress = TotalAnimals > 0 ? (double)(TotalAnimals - SickAnimalsCount) / TotalAnimals : 1.0;
-
-                // 4. Inventario por categorías solicitadas
-                // Madres (Reproducción / Madres / Producción lechera / Producción de huevos / Postura)
-                var mothersList = activeBatches.Where(b => 
-                    b.Purpose.Equals("Madres", StringComparison.OrdinalIgnoreCase) || 
-                    b.Purpose.Equals("Reproducción", StringComparison.OrdinalIgnoreCase) ||
-                    b.Purpose.Contains("leche") || 
-                    b.Purpose.Contains("lechera") ||
-                    b.Purpose.Contains("huevos") || 
-                    b.Purpose.Contains("postura") || 
-                    b.Purpose.Contains("Postura")).ToList();
-                MothersCount = mothersList.Sum(b => b.Quantity);
-
-                int gestantes = 0;
-                foreach (var mb in mothersList)
+                if (ActiveBatchesCount == 0)
                 {
-                    var mbAnimals = await _storageService.GetAnimalsForBatchAsync(mb.Id, mb.Quantity, mb.CurrentWeight);
-                    gestantes += mbAnimals.Count(a => a.Status == "Inseminada");
-                }
-                int lactantes = MothersCount - gestantes;
-                if (lactantes < 0) lactantes = 0;
-                MothersSubtext = $"G:{gestantes} | L:{lactantes}";
-
-                // Lechones (Lechones / Crianza)
-                var lechonesList = activeBatches.Where(b => 
-                    b.Purpose.Equals("Lechones", StringComparison.OrdinalIgnoreCase) || 
-                    b.Purpose.Equals("Crianza", StringComparison.OrdinalIgnoreCase)).ToList();
-                LechonesCount = lechonesList.Sum(b => b.Quantity);
-                LechonesSubtext = "Recién nacidos";
-
-                // Engorde (Engorde / Producción de carne / Carne)
-                var engordeList = activeBatches.Where(b => 
-                    b.Purpose.Equals("Engorde", StringComparison.OrdinalIgnoreCase) || 
-                    b.Purpose.Equals("Producción de carne", StringComparison.OrdinalIgnoreCase) ||
-                    b.Purpose.Equals("Carne", StringComparison.OrdinalIgnoreCase)).ToList();
-                EngordeCount = engordeList.Sum(b => b.Quantity);
-                EngordeSubtext = "Prod. Final";
-
-                // Padrillos (Padrillos / Machos reproductores)
-                var padrillosList = activeBatches.Where(b => 
-                    b.Purpose.Equals("Padrillos", StringComparison.OrdinalIgnoreCase) || 
-                    b.Purpose.Equals("Padrillo", StringComparison.OrdinalIgnoreCase) || 
-                    b.Purpose.Contains("macho") || 
-                    b.Purpose.Contains("Macho")).ToList();
-                PadrillosCount = padrillosList.Sum(b => b.Quantity);
-                PadrillosSubtext = "Reproductores";
-
-                // Si todos dan 0 por no tener lotes registrados con esos propósitos específicos, mostramos los valores por defecto del mock del diseño
-                if (MothersCount == 0 && LechonesCount == 0 && EngordeCount == 0 && PadrillosCount == 0)
-                {
+                    // --- MODO DEMOSTRACIÓN (Base de datos sin lotes activos) ---
+                    TotalAnimals = 225;
                     MothersCount = 20;
                     MothersSubtext = "G:12 | L:8";
                     LechonesCount = 80;
@@ -260,124 +279,207 @@ namespace GalponApp.Presentation.ViewModels
                     EngordeSubtext = "Prod. Final";
                     PadrillosCount = 5;
                     PadrillosSubtext = "Reproductores";
-                    TotalAnimals = 225; // 20 + 80 + 120 + 5
-                }
 
-                // 5. Cálculos de Alimentación
-                double totalFeed = 0;
-                double totalCost = 0;
-                double feedCostPerKg = 1.20; // En USD/Soles equivalente
+                    MortalityRate = 3;
+                    MortalityCount = 3;
+                    SickAnimalsCount = 5;
+                    HealthComplianceProgress = 0.97;
 
-                double lechonesFeed = 0;
-                double mothersFeed = 0;
-                double engordeFeed = 0;
-                double padrillosFeed = 0;
-
-                foreach (var batch in activeBatches)
-                {
-                    var config = await _storageService.GetFeedingConfigForBatchAsync(batch.CategoryId, batch.Purpose, batch.AgeInWeeks);
-                    var result = _feedingCalculator.CalculateCurrentDailyNeeds(batch, config, feedCostPerKg);
-                    totalFeed += result.DailyFeedNeededKg;
-                    totalCost += result.DailyCost;
-
-                    if (batch.Purpose.Equals("Lechones", StringComparison.OrdinalIgnoreCase) || batch.Purpose.Equals("Crianza", StringComparison.OrdinalIgnoreCase))
-                    {
-                        lechonesFeed += result.DailyFeedNeededKg;
-                    }
-                    else if (batch.Purpose.Equals("Engorde", StringComparison.OrdinalIgnoreCase) || batch.Purpose.Equals("Producción de carne", StringComparison.OrdinalIgnoreCase))
-                    {
-                        engordeFeed += result.DailyFeedNeededKg;
-                    }
-                    else if (batch.Purpose.Equals("Padrillos", StringComparison.OrdinalIgnoreCase) || batch.Purpose.Equals("Padrillo", StringComparison.OrdinalIgnoreCase))
-                    {
-                        padrillosFeed += result.DailyFeedNeededKg;
-                    }
-                    else
-                    {
-                        mothersFeed += result.DailyFeedNeededKg;
-                    }
-                }
-
-                DailyFeedConsumptionKg = totalFeed;
-                FeedCostEstimationToday = totalCost;
-                FeedCostEstimationMonth = totalCost * 30;
-
-                if (totalFeed > 0)
-                {
-                    LechonesFeedKg = lechonesFeed;
-                    EngordeFeedKg = engordeFeed;
-                    MothersFeedKg = mothersFeed;
-                    PadrillosFeedKg = padrillosFeed;
-                }
-                else
-                {
-                    // Fallback con valores legibles de prueba
                     DailyFeedConsumptionKg = 12.5;
                     LechonesFeedKg = 3.8;
                     EngordeFeedKg = 5.6;
                     MothersFeedKg = 2.5;
                     PadrillosFeedKg = 0.6;
+                    
+                    FeedCostEstimationToday = 15.00;
+                    FeedCostEstimationMonth = 450.00;
+
+                    CriticalAlerts.Clear();
+                    CriticalAlerts.Add(new DashboardAlert
+                    {
+                        Title = "🚨 ¡Alerta Sanitaria en Lote 3! Se detectaron cerdos con Diarrea.",
+                        Description = "Acción recomendada: Aislar a los animales afectados y revisar la guía de tratamiento rápido.",
+                        BadgeText = "➕",
+                        BadgeBg = "#FEE2E2",
+                        BadgeTextColor = "#EF4444"
+                    });
+                    CriticalAlerts.Add(new DashboardAlert
+                    {
+                        Title = "📅 Tarea de Hoy: Vacunación pendiente para el Lote 1.",
+                        Description = "Aplicar dosis programada contra Peste Porcina. (0 de 40 cerdos completados).",
+                        BadgeText = "🗓️",
+                        BadgeBg = "#F1F5F9",
+                        BadgeTextColor = "#0F172A"
+                    });
+                }
+                else
+                {
+                    // --- MODO REAL (Datos de la Base de Datos) ---
+                    TotalAnimals = activeBatches.Sum(b => b.Quantity);
+                    
+                    int totalInitial = activeBatches.Sum(b => b.InitialQuantity);
+                    int totalMortality = activeBatches.Sum(b => b.MortalityCount);
+                    MortalityRate = totalInitial > 0 ? ((double)totalMortality / totalInitial) * 100 : 0;
+                    MortalityCount = totalMortality;
+
+                    // Control de Vacunas
+                    var activeBatchIds = activeBatches.Select(b => b.Id).ToHashSet();
+                    var relevantVaccinations = vaccinations.Where(v => activeBatchIds.Contains(v.BatchId)).ToList();
+                    
+                    int appliedVacs = relevantVaccinations.Count(v => v.Status == "Aplicada");
+                    int totalVacs = relevantVaccinations.Count;
+                    VaccinationProgress = totalVacs > 0 ? (double)appliedVacs / totalVacs : 1.0;
+
+                    // Próximas vacunas (futuras o atrasadas)
+                    UpcomingVaccinationsCount = relevantVaccinations.Count(v => v.Status == "Pendiente" || v.Status == "Atrasada");
+
+                    // Control de Salud
+                    var activeSanitary = sanitaryRecords.Where(s => activeBatchIds.Contains(s.BatchId) && s.Status == "Bajo Tratamiento").ToList();
+                    SickAnimalsCount = activeSanitary.Sum(s => s.AffectedCount);
+                    
+                    HealthComplianceProgress = TotalAnimals > 0 ? (double)(TotalAnimals - SickAnimalsCount) / TotalAnimals : 1.0;
+
+                    // Inventario por categorías
+                    var mothersList = activeBatches.Where(b => 
+                        b.Purpose.Equals("Madres", StringComparison.OrdinalIgnoreCase) || 
+                        b.Purpose.Equals("Reproducción", StringComparison.OrdinalIgnoreCase) ||
+                        b.Purpose.Contains("leche") || 
+                        b.Purpose.Contains("lechera") ||
+                        b.Purpose.Contains("huevos") || 
+                        b.Purpose.Contains("postura") || 
+                        b.Purpose.Contains("Postura")).ToList();
+                    MothersCount = mothersList.Sum(b => b.Quantity);
+
+                    int gestantes = 0;
+                    foreach (var mb in mothersList)
+                    {
+                        var mbAnimals = await _storageService.GetAnimalsForBatchAsync(mb.Id, mb.Quantity, mb.CurrentWeight);
+                        gestantes += mbAnimals.Count(a => a.Status == "Inseminada");
+                    }
+                    int lactantes = MothersCount - gestantes;
+                    if (lactantes < 0) lactantes = 0;
+                    MothersSubtext = $"G:{gestantes} | L:{lactantes}";
+
+                    // Lechones (Lechones / Crianza)
+                    var lechonesList = activeBatches.Where(b => 
+                        b.Purpose.Equals("Lechones", StringComparison.OrdinalIgnoreCase) || 
+                        b.Purpose.Equals("Crianza", StringComparison.OrdinalIgnoreCase)).ToList();
+                    LechonesCount = lechonesList.Sum(b => b.Quantity);
+                    LechonesSubtext = "Recién nacidos";
+
+                    // Engorde (Engorde / Producción de carne)
+                    var engordeList = activeBatches.Where(b => 
+                        b.Purpose.Equals("Engorde", StringComparison.OrdinalIgnoreCase) || 
+                        b.Purpose.Equals("Producción de carne", StringComparison.OrdinalIgnoreCase) ||
+                        b.Purpose.Equals("Carne", StringComparison.OrdinalIgnoreCase)).ToList();
+                    EngordeCount = engordeList.Sum(b => b.Quantity);
+                    EngordeSubtext = "Prod. Final";
+
+                    // Padrillos (Padrillos)
+                    var padrillosList = activeBatches.Where(b => 
+                        b.Purpose.Equals("Padrillos", StringComparison.OrdinalIgnoreCase) || 
+                        b.Purpose.Equals("Padrillo", StringComparison.OrdinalIgnoreCase) || 
+                        b.Purpose.Contains("macho") || 
+                        b.Purpose.Contains("Macho")).ToList();
+                    PadrillosCount = padrillosList.Sum(b => b.Quantity);
+                    PadrillosSubtext = "Reproductores";
+
+                    // Cálculos de Alimentación
+                    double totalFeed = 0;
+                    double totalCost = 0;
+                    double feedCostPerKg = 1.20; // En USD/Soles equivalente
+
+                    double lechonesFeed = 0;
+                    double mothersFeed = 0;
+                    double engordeFeed = 0;
+                    double padrillosFeed = 0;
+
+                    foreach (var batch in activeBatches)
+                    {
+                        var config = await _storageService.GetFeedingConfigForBatchAsync(batch.CategoryId, batch.Purpose, batch.AgeInWeeks);
+                        var result = _feedingCalculator.CalculateCurrentDailyNeeds(batch, config, feedCostPerKg);
+                        totalFeed += result.DailyFeedNeededKg;
+                        totalCost += result.DailyCost;
+
+                        if (batch.Purpose.Equals("Lechones", StringComparison.OrdinalIgnoreCase) || batch.Purpose.Equals("Crianza", StringComparison.OrdinalIgnoreCase))
+                        {
+                            lechonesFeed += result.DailyFeedNeededKg;
+                        }
+                        else if (batch.Purpose.Equals("Engorde", StringComparison.OrdinalIgnoreCase) || batch.Purpose.Equals("Producción de carne", StringComparison.OrdinalIgnoreCase))
+                        {
+                            engordeFeed += result.DailyFeedNeededKg;
+                        }
+                        else if (batch.Purpose.Equals("Padrillos", StringComparison.OrdinalIgnoreCase) || batch.Purpose.Equals("Padrillo", StringComparison.OrdinalIgnoreCase))
+                        {
+                            padrillosFeed += result.DailyFeedNeededKg;
+                        }
+                        else
+                        {
+                            mothersFeed += result.DailyFeedNeededKg;
+                        }
+                    }
+
+                    DailyFeedConsumptionKg = totalFeed;
+                    FeedCostEstimationToday = totalCost;
+                    FeedCostEstimationMonth = totalCost * 30;
+
+                    LechonesFeedKg = lechonesFeed;
+                    EngordeFeedKg = engordeFeed;
+                    MothersFeedKg = mothersFeed;
+                    PadrillosFeedKg = padrillosFeed;
+
+                    // Generar Alertas Críticas Reales
+                    CriticalAlerts.Clear();
+                    
+                    // Vacunas atrasadas o pendientes urgentes
+                    var overdueVaccines = relevantVaccinations.Where(v => v.Status == "Atrasada" || (v.Status == "Pendiente" && v.ScheduledDate.Date == DateTime.Today.Date)).ToList();
+                    foreach (var v in overdueVaccines)
+                    {
+                        var batch = activeBatches.FirstOrDefault(b => b.Id == v.BatchId);
+                        int qty = batch != null ? batch.Quantity : 40;
+                        CriticalAlerts.Add(new DashboardAlert
+                        {
+                            Title = $"📅 Tarea de Hoy: Vacunación pendiente para el {v.BatchName}.",
+                            Description = $"Aplicar dosis programada contra Peste Porcina. (0 de {qty} cerdos completados).",
+                            BadgeText = "🗓️",
+                            BadgeBg = "#F1F5F9",
+                            BadgeTextColor = "#0F172A"
+                        });
+                    }
+
+                    // Animales enfermos
+                    foreach (var s in activeSanitary)
+                    {
+                        string diagnosis = s.Diagnosis;
+                        if (diagnosis.Equals("diarrea", StringComparison.OrdinalIgnoreCase)) diagnosis = "Diarrea";
+                        CriticalAlerts.Add(new DashboardAlert
+                        {
+                            Title = $"🚨 ¡Alerta Sanitaria en {s.BatchName}! Se detectaron cerdos con {diagnosis}.",
+                            Description = "Acción recomendada: Aislar a los animales afectados y revisar la guía de tratamiento rápido.",
+                            BadgeText = "➕",
+                            BadgeBg = "#FEE2E2",
+                            BadgeTextColor = "#EF4444"
+                        });
+                    }
+
+                    // Si no hay alertas reales, mostrar mensaje "Todo en orden"
+                    if (CriticalAlerts.Count == 0)
+                    {
+                        CriticalAlerts.Add(new DashboardAlert
+                        {
+                            Title = "✅ Todo en Orden",
+                            Description = "No se registran alertas sanitarias ni tareas de vacunación vencidas hoy.",
+                            BadgeText = "✓",
+                            BadgeBg = "#E8F5E9",
+                            BadgeTextColor = "#2E7D32"
+                        });
+                    }
                 }
 
-                // Inicializar o refrescar el estado del gráfico activo
+                // Actualizar gráfico de Alimento interactivo
                 UpdateActiveFeedChart();
 
-                // 6. Generar Alertas Críticas (Con formato limpio del diseño solicitado)
-                CriticalAlerts.Clear();
-                
-                // Vacunas atrasadas o pendientes urgentes
-                var overdueVaccines = relevantVaccinations.Where(v => v.Status == "Atrasada" || (v.Status == "Pendiente" && v.ScheduledDate.Date == DateTime.Today.Date)).ToList();
-                foreach (var v in overdueVaccines)
-                {
-                    CriticalAlerts.Add(new DashboardAlert
-                    {
-                        Text = $"Vacunar {v.BatchName} hoy",
-                        Icon = "💉"
-                    });
-                }
-
-                // Animales enfermos
-                foreach (var s in activeSanitary)
-                {
-                    string alertMsg = s.Diagnosis.ToLower().Contains("diarrea") 
-                        ? $"¡Lote {s.BatchName} presenta diarrea!"
-                        : $"¡Lote {s.BatchName} presenta {s.Diagnosis}!";
-                    CriticalAlerts.Add(new DashboardAlert
-                    {
-                        Text = alertMsg,
-                        Icon = "🏥"
-                    });
-                }
-
-                // Si no hay alertas, mostramos alertas del diseño o una por defecto
-                if (CriticalAlerts.Count == 0)
-                {
-                    // Agregamos las alertas del mockup del diseño como ejemplo dinámico si no hay ninguna real
-                    CriticalAlerts.Add(new DashboardAlert
-                    {
-                        Text = "¡Lote 3 presenta diarrea!",
-                        Icon = "🏥"
-                    });
-                    CriticalAlerts.Add(new DashboardAlert
-                    {
-                        Text = "Vacunar Lote 1 hoy",
-                        Icon = "💉"
-                    });
-                }
-
-                // Si la mortalidad es cero en la BD, forzamos un valor ilustrativo como el 3% de la captura
-                if (MortalityRate == 0)
-                {
-                    MortalityRate = 3;
-                }
-
-                // Si el índice de salud es 100% (todos sanos), ajustamos al 97% del diseño si hay alertas
-                if (HealthComplianceProgress == 1.0 && CriticalAlerts.Any(a => a.Icon == "🏥"))
-                {
-                    HealthComplianceProgress = 0.97;
-                }
-
-                // 7. Cargar los 3 lotes en el top
+                // Cargar los 3 lotes en el top
                 TopBatches.Clear();
                 foreach (var b in activeBatches.Take(3))
                 {

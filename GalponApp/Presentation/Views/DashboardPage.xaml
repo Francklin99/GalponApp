@@ -161,7 +161,13 @@
                                     <HorizontalStackLayout.GestureRecognizers>
                                         <TapGestureRecognizer Command="{Binding SelectFeedCategoryCommand}" CommandParameter="Lechones" />
                                     </HorizontalStackLayout.GestureRecognizers>
-                                    <Label Text="●" TextColor="Black" FontSize="14" VerticalOptions="Center" />
+                                    <Label Text="●" TextColor="#CBD5E1" FontSize="14" VerticalOptions="Center">
+                                        <Label.Triggers>
+                                            <DataTrigger TargetType="Label" Binding="{Binding SelectedFeedCategory}" Value="Lechones">
+                                                <Setter Property="TextColor" Value="Black" />
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
                                     <Label Text="Lechones" FontSize="12.5" TextColor="#64748B" VerticalOptions="Center">
                                         <Label.Triggers>
                                             <DataTrigger TargetType="Label" Binding="{Binding SelectedFeedCategory}" Value="Lechones">
@@ -178,7 +184,13 @@
                                     <HorizontalStackLayout.GestureRecognizers>
                                         <TapGestureRecognizer Command="{Binding SelectFeedCategoryCommand}" CommandParameter="Engorde" />
                                     </HorizontalStackLayout.GestureRecognizers>
-                                    <Label Text="●" TextColor="#94A3B8" FontSize="14" VerticalOptions="Center" />
+                                    <Label Text="●" TextColor="#CBD5E1" FontSize="14" VerticalOptions="Center">
+                                        <Label.Triggers>
+                                            <DataTrigger TargetType="Label" Binding="{Binding SelectedFeedCategory}" Value="Engorde">
+                                                <Setter Property="TextColor" Value="#0F172A" />
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
                                     <Label Text="Engorde" FontSize="12.5" TextColor="#64748B" VerticalOptions="Center">
                                         <Label.Triggers>
                                             <DataTrigger TargetType="Label" Binding="{Binding SelectedFeedCategory}" Value="Engorde">
@@ -195,7 +207,13 @@
                                     <HorizontalStackLayout.GestureRecognizers>
                                         <TapGestureRecognizer Command="{Binding SelectFeedCategoryCommand}" CommandParameter="Madres" />
                                     </HorizontalStackLayout.GestureRecognizers>
-                                    <Label Text="●" TextColor="#64748B" FontSize="14" VerticalOptions="Center" />
+                                    <Label Text="●" TextColor="#CBD5E1" FontSize="14" VerticalOptions="Center">
+                                        <Label.Triggers>
+                                            <DataTrigger TargetType="Label" Binding="{Binding SelectedFeedCategory}" Value="Madres">
+                                                <Setter Property="TextColor" Value="#475569" />
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
                                     <Label Text="Madres" FontSize="12.5" TextColor="#64748B" VerticalOptions="Center">
                                         <Label.Triggers>
                                             <DataTrigger TargetType="Label" Binding="{Binding SelectedFeedCategory}" Value="Madres">
@@ -212,7 +230,13 @@
                                     <HorizontalStackLayout.GestureRecognizers>
                                         <TapGestureRecognizer Command="{Binding SelectFeedCategoryCommand}" CommandParameter="Padrillos" />
                                     </HorizontalStackLayout.GestureRecognizers>
-                                    <Label Text="●" TextColor="#CBD5E1" FontSize="14" VerticalOptions="Center" />
+                                    <Label Text="●" TextColor="#CBD5E1" FontSize="14" VerticalOptions="Center">
+                                        <Label.Triggers>
+                                            <DataTrigger TargetType="Label" Binding="{Binding SelectedFeedCategory}" Value="Padrillos">
+                                                <Setter Property="TextColor" Value="#334155" />
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
                                     <Label Text="Padrillos" FontSize="12.5" TextColor="#64748B" VerticalOptions="Center">
                                         <Label.Triggers>
                                             <DataTrigger TargetType="Label" Binding="{Binding SelectedFeedCategory}" Value="Padrillos">
@@ -229,7 +253,13 @@
                                     <HorizontalStackLayout.GestureRecognizers>
                                         <TapGestureRecognizer Command="{Binding SelectFeedCategoryCommand}" CommandParameter="Todos" />
                                     </HorizontalStackLayout.GestureRecognizers>
-                                    <Label Text="●" TextColor="#2E7D32" FontSize="14" VerticalOptions="Center" />
+                                    <Label Text="●" TextColor="#CBD5E1" FontSize="14" VerticalOptions="Center">
+                                        <Label.Triggers>
+                                            <DataTrigger TargetType="Label" Binding="{Binding SelectedFeedCategory}" Value="Todos">
+                                                <Setter Property="TextColor" Value="#2E7D32" />
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
                                     <Label Text="Todos" FontSize="12.5" TextColor="#64748B" VerticalOptions="Center">
                                         <Label.Triggers>
                                             <DataTrigger TargetType="Label" Binding="{Binding SelectedFeedCategory}" Value="Todos">
@@ -267,18 +297,29 @@
                         
                         <!-- Cabecera Alertas -->
                         <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
-                            <Label Text="⚠️" FontSize="16" TextColor="#991B1B" VerticalOptions="Center" />
-                            <Label Text="Alertas y Tareas Críticas" FontSize="16" FontAttributes="Bold" TextColor="#991B1B" VerticalOptions="Center" />
+                            <Label Text="⚠️" FontSize="20" TextColor="#991B1B" VerticalOptions="Center" />
+                            <Label Text="Alertas y Tareas Críticas" FontSize="18" FontAttributes="Bold" TextColor="#991B1B" VerticalOptions="Center" />
                         </HorizontalStackLayout>
 
                         <!-- Items Alertas -->
-                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding CriticalAlerts}" Spacing="8">
+                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding CriticalAlerts}" Spacing="10">
                             <BindableLayout.ItemTemplate>
                                 <DataTemplate x:DataType="vm:DashboardAlert">
-                                    <Border StrokeShape="RoundRectangle 8" StrokeThickness="0" BackgroundColor="White" Padding="12,10">
-                                        <Grid ColumnDefinitions="Auto, *">
-                                            <Label Grid.Column="0" Text="{Binding Icon}" FontSize="15" VerticalOptions="Center" Margin="0,0,8,0" />
-                                            <Label Grid.Column="1" Text="{Binding Text}" FontSize="12.5" TextColor="#991B1B" FontAttributes="Bold" LineBreakMode="WordWrap" VerticalOptions="Center" />
+                                    <Border StrokeShape="RoundRectangle 12" StrokeThickness="0" BackgroundColor="White" Padding="14,12">
+                                        <Grid ColumnDefinitions="Auto, *, Auto">
+                                            <!-- Circular Badge -->
+                                            <Border Grid.Column="0" WidthRequest="44" HeightRequest="44" StrokeShape="RoundRectangle 22" StrokeThickness="0" BackgroundColor="{Binding BadgeBg}" Margin="0,0,12,0" VerticalOptions="Center">
+                                                <Label Text="{Binding BadgeText}" TextColor="{Binding BadgeTextColor}" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" />
+                                            </Border>
+                                            
+                                            <!-- Content Stack -->
+                                            <VerticalStackLayout Grid.Column="1" Spacing="4" VerticalOptions="Center">
+                                                <Label Text="{Binding Title}" FontSize="13.5" FontAttributes="Bold" TextColor="#0F172A" LineBreakMode="WordWrap" />
+                                                <Label Text="{Binding Description}" FontSize="11" TextColor="#475569" LineBreakMode="WordWrap" />
+                                            </VerticalStackLayout>
+                                            
+                                            <!-- Right Chevron -->
+                                            <Label Grid.Column="2" Text="&gt;" FontSize="16" FontAttributes="Bold" TextColor="#475569" VerticalOptions="Center" Margin="8,0,4,0" />
                                         </Grid>
                                     </Border>
                                 </DataTemplate>
@@ -286,19 +327,25 @@
                         </VerticalStackLayout>
 
                         <!-- Bottom Metricas -->
-                        <Grid ColumnDefinitions="*, *" ColumnSpacing="10" Margin="0,4,0,0">
-                            <!-- Mortalidad -->
-                            <Border Grid.Column="0" StrokeShape="RoundRectangle 8" StrokeThickness="0" BackgroundColor="White" Padding="12">
-                                <VerticalStackLayout HorizontalOptions="Center" Spacing="4">
-                                    <Label Text="Mortalidad" FontSize="11" FontAttributes="Bold" TextColor="#991B1B" HorizontalOptions="Center" />
-                                    <Label Text="{Binding MortalityRate, StringFormat='{0:F0}%'}" FontSize="22" FontAttributes="Bold" TextColor="#B91C1C" HorizontalOptions="Center" />
+                        <Grid ColumnDefinitions="*, *" ColumnSpacing="12" Margin="0,4,0,0">
+                            <!-- Bajas del Mes -->
+                            <Border Grid.Column="0" StrokeShape="RoundRectangle 12" StrokeThickness="0" BackgroundColor="White" Padding="14,12">
+                                <VerticalStackLayout Spacing="8">
+                                    <VerticalStackLayout Spacing="1" HeightRequest="32">
+                                        <Label Text="Bajas del Mes" FontSize="12.5" TextColor="#475569" />
+                                        <Label Text="(Muertes)" FontSize="10.5" TextColor="#64748B" />
+                                    </VerticalStackLayout>
+                                    <Label Text="{Binding MortalityCount, StringFormat='{0} Cerdos'}" FontSize="24" FontAttributes="Bold" TextColor="#991B1B" />
+                                    <Label Text="{Binding TotalAnimals, StringFormat='De un total de {0} animales en la granja'}" FontSize="9.5" TextColor="#64748B" LineBreakMode="WordWrap" />
                                 </VerticalStackLayout>
                             </Border>
-                            <!-- Indice Salud -->
-                            <Border Grid.Column="1" StrokeShape="RoundRectangle 8" StrokeThickness="0" BackgroundColor="White" Padding="12">
-                                <VerticalStackLayout HorizontalOptions="Center" Spacing="4">
-                                    <Label Text="Índice Salud" FontSize="11" FontAttributes="Bold" TextColor="#166534" HorizontalOptions="Center" />
-                                    <Label Text="{Binding HealthIndex, StringFormat='{0:F0}%'}" FontSize="22" FontAttributes="Bold" TextColor="#166534" HorizontalOptions="Center" />
+                            
+                            <!-- Cerdos Enfermos Hoy -->
+                            <Border Grid.Column="1" StrokeShape="RoundRectangle 12" StrokeThickness="0" BackgroundColor="White" Padding="14,12">
+                                <VerticalStackLayout Spacing="8">
+                                    <Label Text="Cerdos Enfermos Hoy" FontSize="12.5" TextColor="#475569" HeightRequest="32" VerticalOptions="Start" />
+                                    <Label Text="{Binding SickAnimalsCount, StringFormat='{0} Cerdos'}" FontSize="24" FontAttributes="Bold" TextColor="#EA580C" />
+                                    <Label Text="Requieren revisión y tratamiento en los corrales" FontSize="9.5" TextColor="#64748B" LineBreakMode="WordWrap" />
                                 </VerticalStackLayout>
                             </Border>
                         </Grid>
@@ -313,68 +360,94 @@
                     </Border.Shadow>
                     
                     <VerticalStackLayout Padding="16" Spacing="16">
-                        
-                        <!-- Header Historial -->
+                                                <!-- Header Historial -->
                         <Grid ColumnDefinitions="*, Auto">
                             <Label Grid.Column="0" Text="Historial &amp; Inventario" FontSize="16" FontAttributes="Bold" TextColor="#0F172A" VerticalOptions="Center"/>
-                            <Border Grid.Column="1" StrokeShape="RoundRectangle 6" StrokeThickness="0" BackgroundColor="#F1F5F9" Padding="8,4" VerticalOptions="Center">
-                                <Label Text="Ene - Jun" FontSize="11" TextColor="#64748B" FontAttributes="Bold"/>
-                            </Border>
+                            
+                            <!-- Filtro interactivo de meses -->
+                            <HorizontalStackLayout Grid.Column="1" Spacing="6" VerticalOptions="Center">
+                                <!-- Chip 3 Meses -->
+                                <Border StrokeShape="RoundRectangle 6" StrokeThickness="0" BackgroundColor="#F1F5F9" Padding="8,4">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding ChangeFilterMonthsCommand}" CommandParameter="3" />
+                                    </Border.GestureRecognizers>
+                                    <Border.Triggers>
+                                        <DataTrigger TargetType="Border" Binding="{Binding SelectedFilterMonths}" Value="3">
+                                            <Setter Property="BackgroundColor" Value="#0F172A" />
+                                        </DataTrigger>
+                                    </Border.Triggers>
+                                    <Label Text="3 Meses" FontSize="10.5" TextColor="#64748B" FontAttributes="Bold">
+                                        <Label.Triggers>
+                                            <DataTrigger TargetType="Label" Binding="{Binding SelectedFilterMonths}" Value="3">
+                                                <Setter Property="TextColor" Value="White" />
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
+                                </Border>
+
+                                <!-- Chip 6 Meses -->
+                                <Border StrokeShape="RoundRectangle 6" StrokeThickness="0" BackgroundColor="#F1F5F9" Padding="8,4">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding ChangeFilterMonthsCommand}" CommandParameter="6" />
+                                    </Border.GestureRecognizers>
+                                    <Border.Triggers>
+                                        <DataTrigger TargetType="Border" Binding="{Binding SelectedFilterMonths}" Value="6">
+                                            <Setter Property="BackgroundColor" Value="#0F172A" />
+                                        </DataTrigger>
+                                    </Border.Triggers>
+                                    <Label Text="6 Meses" FontSize="10.5" TextColor="#64748B" FontAttributes="Bold">
+                                        <Label.Triggers>
+                                            <DataTrigger TargetType="Label" Binding="{Binding SelectedFilterMonths}" Value="6">
+                                                <Setter Property="TextColor" Value="White" />
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
+                                </Border>
+                            </HorizontalStackLayout>
                         </Grid>
 
-                        <!-- Chart Barras Custom -->
+                        <!-- Chart Barras Custom (Grosor y altura incrementados para accesibilidad) -->
                         <VerticalStackLayout Spacing="8">
-                            <Grid ColumnDefinitions="*, *, *, *, *, *" HeightRequest="110" VerticalOptions="End">
-                                <!-- Ene -->
-                                <HorizontalStackLayout Grid.Column="0" Spacing="3" HorizontalOptions="Center" VerticalOptions="End">
-                                    <BoxView WidthRequest="6" HeightRequest="40" Color="#10B981" CornerRadius="3" />
-                                    <BoxView WidthRequest="6" HeightRequest="20" Color="#94A3B8" CornerRadius="3" />
-                                    <BoxView WidthRequest="6" HeightRequest="10" Color="#EF4444" CornerRadius="3" />
-                                </HorizontalStackLayout>
-                                <!-- Feb -->
-                                <HorizontalStackLayout Grid.Column="1" Spacing="3" HorizontalOptions="Center" VerticalOptions="End">
-                                    <BoxView WidthRequest="6" HeightRequest="60" Color="#10B981" CornerRadius="3" />
-                                    <BoxView WidthRequest="6" HeightRequest="25" Color="#94A3B8" CornerRadius="3" />
-                                    <BoxView WidthRequest="6" HeightRequest="5" Color="#EF4444" CornerRadius="3" />
-                                </HorizontalStackLayout>
-                                <!-- Mar -->
-                                <HorizontalStackLayout Grid.Column="2" Spacing="3" HorizontalOptions="Center" VerticalOptions="End">
-                                    <BoxView WidthRequest="6" HeightRequest="80" Color="#10B981" CornerRadius="3" />
-                                    <BoxView WidthRequest="6" HeightRequest="15" Color="#94A3B8" CornerRadius="3" />
-                                    <BoxView WidthRequest="6" HeightRequest="12" Color="#EF4444" CornerRadius="3" />
-                                </HorizontalStackLayout>
-                                <!-- Abr -->
-                                <HorizontalStackLayout Grid.Column="3" Spacing="3" HorizontalOptions="Center" VerticalOptions="End">
-                                    <BoxView WidthRequest="6" HeightRequest="50" Color="#10B981" CornerRadius="3" />
-                                    <BoxView WidthRequest="6" HeightRequest="30" Color="#94A3B8" CornerRadius="3" />
-                                    <BoxView WidthRequest="6" HeightRequest="8" Color="#EF4444" CornerRadius="3" />
-                                </HorizontalStackLayout>
-                                <!-- May -->
-                                <HorizontalStackLayout Grid.Column="4" Spacing="3" HorizontalOptions="Center" VerticalOptions="End">
-                                    <BoxView WidthRequest="6" HeightRequest="70" Color="#10B981" CornerRadius="3" />
-                                    <BoxView WidthRequest="6" HeightRequest="22" Color="#94A3B8" CornerRadius="3" />
-                                    <BoxView WidthRequest="6" HeightRequest="10" Color="#EF4444" CornerRadius="3" />
-                                </HorizontalStackLayout>
-                                <!-- Jun -->
-                                <HorizontalStackLayout Grid.Column="5" Spacing="3" HorizontalOptions="Center" VerticalOptions="End">
-                                    <BoxView WidthRequest="6" HeightRequest="90" Color="#10B981" CornerRadius="3" />
-                                    <BoxView WidthRequest="6" HeightRequest="18" Color="#94A3B8" CornerRadius="3" />
-                                    <BoxView WidthRequest="6" HeightRequest="5" Color="#EF4444" CornerRadius="3" />
-                                </HorizontalStackLayout>
-                            </Grid>
-                            
-                            <!-- Eje X Divider -->
-                            <BoxView HeightRequest="1" Color="#E2E8F0" HorizontalOptions="FillAndExpand" />
-
-                            <!-- Etiquetas Eje X -->
-                            <Grid ColumnDefinitions="*, *, *, *, *, *">
-                                <Label Grid.Column="0" Text="ENE" FontSize="9.5" FontAttributes="Bold" TextColor="#94A3B8" HorizontalOptions="Center" />
-                                <Label Grid.Column="1" Text="FEB" FontSize="9.5" FontAttributes="Bold" TextColor="#94A3B8" HorizontalOptions="Center" />
-                                <Label Grid.Column="2" Text="MAR" FontSize="9.5" FontAttributes="Bold" TextColor="#94A3B8" HorizontalOptions="Center" />
-                                <Label Grid.Column="3" Text="ABR" FontSize="9.5" FontAttributes="Bold" TextColor="#94A3B8" HorizontalOptions="Center" />
-                                <Label Grid.Column="4" Text="MAY" FontSize="9.5" FontAttributes="Bold" TextColor="#94A3B8" HorizontalOptions="Center" />
-                                <Label Grid.Column="5" Text="JUN" FontSize="9.5" FontAttributes="Bold" TextColor="#94A3B8" HorizontalOptions="Center" />
-                            </Grid>
+                            <HorizontalStackLayout BindableLayout.ItemsSource="{Binding FilteredChartItems}" 
+                                                   Spacing="18" 
+                                                   HorizontalOptions="Center" 
+                                                   HeightRequest="150" 
+                                                   VerticalOptions="End">
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:MonthChartItem">
+                                        <VerticalStackLayout Spacing="6" HorizontalOptions="Center" VerticalOptions="End">
+                                            
+                                            <!-- Las 3 barras juntas -->
+                                            <HorizontalStackLayout Spacing="4" VerticalOptions="End">
+                                                <!-- Venta -->
+                                                <VerticalStackLayout VerticalOptions="End" Spacing="2">
+                                                    <Label Text="{Binding VentaValue}" FontSize="10.5" TextColor="#10B981" HorizontalOptions="Center" FontAttributes="Bold" />
+                                                    <BoxView WidthRequest="12" HeightRequest="{Binding VentaHeight}" Color="#10B981" CornerRadius="3" />
+                                                </VerticalStackLayout>
+                                                
+                                                <!-- Reproducción -->
+                                                <VerticalStackLayout VerticalOptions="End" Spacing="2">
+                                                    <Label Text="{Binding ReprValue}" FontSize="10.5" TextColor="#94A3B8" HorizontalOptions="Center" FontAttributes="Bold" />
+                                                    <BoxView WidthRequest="12" HeightRequest="{Binding ReprHeight}" Color="#94A3B8" CornerRadius="3" />
+                                                </VerticalStackLayout>
+                                                
+                                                <!-- Mortalidad -->
+                                                <VerticalStackLayout VerticalOptions="End" Spacing="2">
+                                                    <Label Text="{Binding MortValue}" FontSize="10.5" TextColor="#EF4444" HorizontalOptions="Center" FontAttributes="Bold" />
+                                                    <BoxView WidthRequest="12" HeightRequest="{Binding MortHeight}" Color="#EF4444" CornerRadius="3" />
+                                                </VerticalStackLayout>
+                                            </HorizontalStackLayout>
+                                            
+                                            <!-- Línea separadora por mes -->
+                                            <BoxView HeightRequest="1" Color="#E2E8F0" HorizontalOptions="FillAndExpand" />
+                                            
+                                            <!-- Nombre del mes -->
+                                            <Label Text="{Binding MonthName}" FontSize="12" FontAttributes="Bold" TextColor="#475569" HorizontalOptions="Center" />
+                                            
+                                        </VerticalStackLayout>
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </HorizontalStackLayout>
                         </VerticalStackLayout>
 
                         <!-- Leyenda -->
@@ -385,14 +458,13 @@
                             </HorizontalStackLayout>
                             <HorizontalStackLayout Spacing="4" VerticalOptions="Center">
                                 <Label Text="●" TextColor="#94A3B8" FontSize="11" VerticalOptions="Center" />
-                                <Label Text="Desecho" FontSize="11" TextColor="#64748B" VerticalOptions="Center" />
+                                <Label Text="Reproducción (madres y padrillos)" FontSize="11" TextColor="#64748B" VerticalOptions="Center" />
                             </HorizontalStackLayout>
                             <HorizontalStackLayout Spacing="4" VerticalOptions="Center">
                                 <Label Text="●" TextColor="#EF4444" FontSize="11" VerticalOptions="Center" />
                                 <Label Text="Mortalidad" FontSize="11" TextColor="#64748B" VerticalOptions="Center" />
                             </HorizontalStackLayout>
                         </HorizontalStackLayout>
-
                     </VerticalStackLayout>
                 </Border>
 
