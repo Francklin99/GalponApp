@@ -33,7 +33,10 @@ namespace GalponApp.Infrastructure.Services
                 if (File.Exists(_feedingConfigPath))
                 {
                     var current = await LoadListAsync<FeedingConfig>(_feedingConfigPath);
-                    if (current.Count < 30 || current.All(c => string.IsNullOrEmpty(c.Alternatives)))
+                    if (current.Count < 30 || current.All(c => string.IsNullOrEmpty(c.Alternatives)) || 
+                        !current.Any(c => c.FeedType == "Calostro Materno") ||
+                        !current.Any(c => c.FeedType.Contains("20 - 50 kg")) ||
+                        !current.Any(c => c.FeedType.Contains("Vacía / Post-destete")))
                     {
                         needsReset = true;
                     }
@@ -430,20 +433,27 @@ namespace GalponApp.Infrastructure.Services
                 // Porcinos Engorde
                 new() { Id = "fc_porc_1", CategoryId = "porcinos", Purpose = "Engorde", MinAgeWeeks = 0, MaxAgeWeeks = 4, FeedType = "Pre-iniciador Porcino", DailyAmountPerAnimal = 0.25, FrequencyPerDay = 4, NutritionalInfo = "Proteína: 21%, Lisina: 1.35%. Concentrado fino para lechones destetados.", RecommendedWaterLiters = 1.5, Alternatives = "Purina Iniciador / Solla Pre-destete" },
                 new() { Id = "fc_porc_2", CategoryId = "porcinos", Purpose = "Engorde", MinAgeWeeks = 5, MaxAgeWeeks = 8, FeedType = "Iniciador Porcino", DailyAmountPerAnimal = 0.8, FrequencyPerDay = 3, NutritionalInfo = "Proteína: 19%, Lisina: 1.15%. Alimento de transición y desarrollo temprano.", RecommendedWaterLiters = 3.0, Alternatives = "Cargill Cerdos 1 / Corina Inicial" },
-                new() { Id = "fc_porc_3", CategoryId = "porcinos", Purpose = "Engorde", MinAgeWeeks = 9, MaxAgeWeeks = 16, FeedType = "Crecimiento Porcino", DailyAmountPerAnimal = 1.8, FrequencyPerDay = 2, NutritionalInfo = "Proteína: 16%, Fibra: 4.5%. Maximiza conversión alimenticia.", RecommendedWaterLiters = 6.0, Alternatives = "Purina Crecimiento / Champion Engorde" },
-                new() { Id = "fc_porc_4", CategoryId = "porcinos", Purpose = "Engorde", MinAgeWeeks = 17, MaxAgeWeeks = 26, FeedType = "Engorde / Acabado Porcino", DailyAmountPerAnimal = 2.8, FrequencyPerDay = 2, NutritionalInfo = "Proteína: 14%, Energía Digestible: 3.3 Mcal. Optimización de magrez.", RecommendedWaterLiters = 9.0, Alternatives = "Solla Acabado / Cargill Finalizador" },
+                new() { Id = "fc_porc_3", CategoryId = "porcinos", Purpose = "Engorde", MinAgeWeeks = 9, MaxAgeWeeks = 16, FeedType = "Crecimiento (20 - 50 kg)", DailyAmountPerAnimal = 1.8, FrequencyPerDay = 2, NutritionalInfo = "18% Proteína Bruta. Maximizar desarrollo óseo y deposición de tejido muscular.", RecommendedWaterLiters = 6.0, Alternatives = "Purina Crecimiento / Champion Engorde" },
+                new() { Id = "fc_porc_4", CategoryId = "porcinos", Purpose = "Engorde", MinAgeWeeks = 17, MaxAgeWeeks = 21, FeedType = "Engorde (50 - 70 kg)", DailyAmountPerAnimal = 2.4, FrequencyPerDay = 2, NutritionalInfo = "16% Proteína Bruta. Optimizar ganancia diaria de peso y conversión alimenticia.", RecommendedWaterLiters = 8.0, Alternatives = "Solla Engorde / Cargill Desarrollo" },
+                new() { Id = "fc_porc_5", CategoryId = "porcinos", Purpose = "Engorde", MinAgeWeeks = 22, MaxAgeWeeks = 1000, FeedType = "Finalizador (70 - 120 kg)", DailyAmountPerAnimal = 3.0, FrequencyPerDay = 2, NutritionalInfo = "14% Proteína Bruta. Acabado óptimo, consistencia de grasa de cobertura y preparación para venta.", RecommendedWaterLiters = 10.0, Alternatives = "Solla Acabado / Cargill Finalizador" },
 
                 // Porcinos Reproducción (Cerdas gestantes / lactantes)
-                new() { Id = "fc_porc_rep1", CategoryId = "porcinos", Purpose = "Reproducción", MinAgeWeeks = 0, MaxAgeWeeks = 24, FeedType = "Desarrollo Hembras", DailyAmountPerAnimal = 2.0, FrequencyPerDay = 2, NutritionalInfo = "Proteína: 15%, Lisina: 0.85%. Alimento de desarrollo para futuras madres.", RecommendedWaterLiters = 8.0, Alternatives = "Purina Desarrollo Madres / Solla Hembras R" },
-                new() { Id = "fc_porc_rep2", CategoryId = "porcinos", Purpose = "Reproducción", MinAgeWeeks = 25, MaxAgeWeeks = 50, FeedType = "Gestación Cerda", DailyAmountPerAnimal = 2.2, FrequencyPerDay = 1, NutritionalInfo = "Proteína: 13%, Fibra: 8.0%. Control del estado graso para evitar partos difíciles.", RecommendedWaterLiters = 12.0, Alternatives = "Cargill Gestación / Corina Marranas" },
-                new() { Id = "fc_porc_rep3", CategoryId = "porcinos", Purpose = "Reproducción", MinAgeWeeks = 51, MaxAgeWeeks = 1000, FeedType = "Lactancia Cerda", DailyAmountPerAnimal = 5.5, FrequencyPerDay = 3, NutritionalInfo = "Proteína: 18%, Grasa: 5.5%. Alta densidad nutricional para lactancia de camadas.", RecommendedWaterLiters = 25.0, Alternatives = "Solla Lactancia / Purina Cerdas Lactantes" },
+                new() { Id = "fc_porc_rep1", CategoryId = "porcinos", Purpose = "Reproducción", MinAgeWeeks = 0, MaxAgeWeeks = 2, FeedType = "Vacía / Post-destete", DailyAmountPerAnimal = 2.2, FrequencyPerDay = 2, NutritionalInfo = "Gestación. Cantidad controlada orientada a la recuperación de condición y estímulo de celo.", RecommendedWaterLiters = 8.0, Alternatives = "Estrategia: Recuperación de condición" },
+                new() { Id = "fc_porc_rep2", CategoryId = "porcinos", Purpose = "Reproducción", MinAgeWeeks = 3, MaxAgeWeeks = 5, FeedType = "Inseminación a Confirmar", DailyAmountPerAnimal = 2.0, FrequencyPerDay = 1, NutritionalInfo = "Gestación. Ración de mantenimiento estricto para evitar mortalidad embrionaria temprana.", RecommendedWaterLiters = 10.0, Alternatives = "Estrategia: Evitar mortalidad embrionaria" },
+                new() { Id = "fc_porc_rep3", CategoryId = "porcinos", Purpose = "Reproducción", MinAgeWeeks = 6, MaxAgeWeeks = 10, FeedType = "Gestación Temprana", DailyAmountPerAnimal = 2.2, FrequencyPerDay = 1, NutritionalInfo = "Gestación. Mantenimiento y recuperación regulada según condición corporal individual.", RecommendedWaterLiters = 12.0, Alternatives = "Estrategia: Condición corporal individual" },
+                new() { Id = "fc_porc_rep4", CategoryId = "porcinos", Purpose = "Reproducción", MinAgeWeeks = 11, MaxAgeWeeks = 15, FeedType = "Gestación Media", DailyAmountPerAnimal = 2.4, FrequencyPerDay = 2, NutritionalInfo = "Gestación. Ajuste lineal estándar para cubrir demandas basales.", RecommendedWaterLiters = 14.0, Alternatives = "Estrategia: Cobertura demandas basales" },
+                new() { Id = "fc_porc_rep5", CategoryId = "porcinos", Purpose = "Reproducción", MinAgeWeeks = 16, MaxAgeWeeks = 20, FeedType = "Gestación Final (Último tercio)", DailyAmountPerAnimal = 3.2, FrequencyPerDay = 2, NutritionalInfo = "Gestación. Incremento calórico para soportar el crecimiento exponencial fetal.", RecommendedWaterLiters = 16.0, Alternatives = "Estrategia: Crecimiento exponencial fetal" },
+                new() { Id = "fc_porc_rep6", CategoryId = "porcinos", Purpose = "Reproducción", MinAgeWeeks = 21, MaxAgeWeeks = 1000, FeedType = "Lactancia Activa", DailyAmountPerAnimal = 5.5, FrequencyPerDay = 3, NutritionalInfo = "Lactancia (Alta Energía). Alimentación a voluntad escalonada según número de lechones lactantes.", RecommendedWaterLiters = 25.0, Alternatives = "Estrategia: A voluntad según lechones" },
 
                 // Porcinos Lechones
-                new() { Id = "fc_porc_lech1", CategoryId = "porcinos", Purpose = "Lechones", MinAgeWeeks = 0, MaxAgeWeeks = 4, FeedType = "Pre-iniciador Fase 1", DailyAmountPerAnimal = 0.15, FrequencyPerDay = 5, NutritionalInfo = "Proteína: 22%. Alimento altamente digerible a base de lácteos.", RecommendedWaterLiters = 1.0, Alternatives = "Purina Fase 1 / Cargill Lechones" },
-                new() { Id = "fc_porc_lech2", CategoryId = "porcinos", Purpose = "Lechones", MinAgeWeeks = 5, MaxAgeWeeks = 8, FeedType = "Pre-iniciador Fase 2", DailyAmountPerAnimal = 0.50, FrequencyPerDay = 4, NutritionalInfo = "Proteína: 20%. Nutrición especializada post-destete.", RecommendedWaterLiters = 2.0, Alternatives = "Solla Pre-inicio / Corina Inicial" },
+                new() { Id = "fc_porc_lech1", CategoryId = "porcinos", Purpose = "Lechones", MinAgeWeeks = 0, MaxAgeWeeks = 0, FeedType = "Calostro Materno", DailyAmountPerAnimal = 0.0, FrequencyPerDay = 6, NutritionalInfo = "Fundamental para inmunidad pasiva dentro de las primeras horas.", RecommendedWaterLiters = 0.0, Alternatives = "Libre acceso / Inmediato" },
+                new() { Id = "fc_porc_lech2", CategoryId = "porcinos", Purpose = "Lechones", MinAgeWeeks = 0, MaxAgeWeeks = 1, FeedType = "Pre-iniciador (Estimulo)", DailyAmountPerAnimal = 0.05, FrequencyPerDay = 4, NutritionalInfo = "Familiarización con texturas sólidas sin sustituir lactancia.", RecommendedWaterLiters = 0.5, Alternatives = "Raciones mínimas (Estímulo)" },
+                new() { Id = "fc_porc_lech3", CategoryId = "porcinos", Purpose = "Lechones", MinAgeWeeks = 1, MaxAgeWeeks = 3, FeedType = "Pre-iniciador (Ad-libitum)", DailyAmountPerAnimal = 0.15, FrequencyPerDay = 5, NutritionalInfo = "Soporte al crecimiento acelerado en co-existencia con lactancia.", RecommendedWaterLiters = 1.0, Alternatives = "A voluntad / Ad-libitum" },
+                new() { Id = "fc_porc_lech4", CategoryId = "porcinos", Purpose = "Lechones", MinAgeWeeks = 3, MaxAgeWeeks = 1000, FeedType = "Iniciador", DailyAmountPerAnimal = 0.60, FrequencyPerDay = 3, NutritionalInfo = "Cambio gradual para mitigar el estrés gastrointestinal post-destete.", RecommendedWaterLiters = 2.0, Alternatives = "Escalonado según peso" },
 
                 // Porcinos Padrillos
-                new() { Id = "fc_porc_pad1", CategoryId = "porcinos", Purpose = "Padrillos", MinAgeWeeks = 25, MaxAgeWeeks = 1000, FeedType = "Concentrado Padrillos", DailyAmountPerAnimal = 2.5, FrequencyPerDay = 2, NutritionalInfo = "Proteína: 14%, Selenio y Vitamina E para óptima fertilidad y libido.", RecommendedWaterLiters = 15.0, Alternatives = "Cargill Verracos / Purina Reproducción" },
+                new() { Id = "fc_porc_pad1", CategoryId = "porcinos", Purpose = "Padrillos", MinAgeWeeks = 26, MaxAgeWeeks = 34, FeedType = "6 - 8 meses (Desarrollo Padrillos)", DailyAmountPerAnimal = 2.2, FrequencyPerDay = 2, NutritionalInfo = "Soporte al crecimiento músculo-esquelético y maduración sexual.", RecommendedWaterLiters = 12.0, Alternatives = "Cargill Verracos / Purina Reproducción" },
+                new() { Id = "fc_porc_pad2", CategoryId = "porcinos", Purpose = "Padrillos", MinAgeWeeks = 35, MaxAgeWeeks = 1000, FeedType = "Adulto Activo (Mantenimiento)", DailyAmountPerAnimal = 2.5, FrequencyPerDay = 2, NutritionalInfo = "Preservar líbido, calidad espermática y una condición corporal magra fija.", RecommendedWaterLiters = 15.0, Alternatives = "Cargill Verracos / Purina Reproducción" },
                 
                 // Avícola Engorde (Pollos)
                 new() { Id = "fc_avi_e1", CategoryId = "avicolas_engorde", Purpose = "Engorde", MinAgeWeeks = 0, MaxAgeWeeks = 2, FeedType = "Pre-inicio Pollito", DailyAmountPerAnimal = 0.03, FrequencyPerDay = 5, NutritionalInfo = "Proteína: 22%, Calcio: 0.9%. Alta asimilación inicial.", RecommendedWaterLiters = 0.08, Alternatives = "Purina Pre-inicio Aves / Solla Pollitos" },
@@ -762,73 +772,170 @@ namespace GalponApp.Infrastructure.Services
 
             if (categoryId == "porcinos")
             {
-                // Auto-generate vaccination scheme for pigs
-                vacs.Add(new Vaccination
+                if (purpose.Equals("Engorde", StringComparison.OrdinalIgnoreCase))
                 {
-                    Id = Guid.NewGuid().ToString(),
-                    BatchId = batch.Id,
-                    BatchName = batch.Name,
-                    Name = "Vacuna contra la Peste Porcina Clásica (Cólera Porcino)",
-                    Type = "Vacuna",
-                    Description = "Inmunización obligatoria oficial contra el Cólera Porcino (Cepa China). Vía Intramuscular (IM).",
-                    Dose = 2.0,
-                    DoseUnit = "ml",
-                    ScheduledDate = birth.AddDays(45),
-                    DayNumber = 45,
-                    Status = "Pendiente",
-                    Alternatives = "Pest-Vac / Cólera Porcino"
-                });
-                vacs.Add(new Vaccination
+                    // Swine Engorde vaccination scheme
+                    vacs.Add(new Vaccination
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        BatchId = batch.Id,
+                        BatchName = batch.Name,
+                        Name = "Desparasitación interna y externa (Ivermectina o Levamisol)",
+                        Type = "Desparasitación",
+                        Description = "Control de parásitos gastrointestinales, pulmonares y sarna porcina. Limpiar el lote al salir de recría para optimizar la conversión alimenticia.",
+                        Dose = 1.0,
+                        DoseUnit = "ml",
+                        ScheduledDate = birth.AddDays(70),
+                        DayNumber = 70,
+                        Status = "Pendiente",
+                        Alternatives = "Ivermectina / Levamisol"
+                    });
+                    vacs.Add(new Vaccination
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        BatchId = batch.Id,
+                        BatchName = batch.Name,
+                        Name = "Vacuna contra la Peste Porcina Clásica (PPC)",
+                        Type = "Vacuna",
+                        Description = "Prevención de la Peste Porcina Clásica (cólera porcino). Vacunación obligatoria según las normas de SENASA y la región correspondiente.",
+                        Dose = 2.0,
+                        DoseUnit = "ml",
+                        ScheduledDate = birth.AddDays(77),
+                        DayNumber = 77,
+                        Status = "Pendiente",
+                        Alternatives = "Pest-Vac / PPC Oficial"
+                    });
+                    vacs.Add(new Vaccination
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        BatchId = batch.Id,
+                        BatchName = batch.Name,
+                        Name = "Vacuna contra el complejo respiratorio (Mycoplasma + Actinobacillus)",
+                        Type = "Vacuna",
+                        Description = "Prevención de la neumonía enzoótica y la pleuropneumonía porcina. Proteger el sistema respiratorio durante la etapa de máximo crecimiento y mayor hacinamiento.",
+                        Dose = 2.0,
+                        DoseUnit = "ml",
+                        ScheduledDate = birth.AddDays(98),
+                        DayNumber = 98,
+                        Status = "Pendiente",
+                        Alternatives = "RespiSure / M+Pac / M.Hyo"
+                    });
+                    vacs.Add(new Vaccination
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        BatchId = batch.Id,
+                        BatchName = batch.Name,
+                        Name = "Monitoreo sanitario global (sin aplicaciones químicas pesadas)",
+                        Type = "Monitoreo",
+                        Description = "Evaluación general del estado sanitario del lote. Respetar el período de retiro de los medicamentos para asegurar que no existan residuos en los tejidos antes del faenado.",
+                        Dose = 1.0,
+                        DoseUnit = "unidad",
+                        ScheduledDate = birth.AddDays(150),
+                        DayNumber = 150,
+                        Status = "Pendiente",
+                        Alternatives = "Examen Clínico General / Monitoreo"
+                    });
+                }
+                else if (purpose.Equals("Lechones", StringComparison.OrdinalIgnoreCase))
                 {
-                    Id = Guid.NewGuid().ToString(),
-                    BatchId = batch.Id,
-                    BatchName = batch.Name,
-                    Name = "Vacuna contra Mycoplasma hyopneumoniae",
-                    Type = "Vacuna",
-                    Description = "Prevención de la neumonía enzoótica (Dosis 1). Vía Intramuscular (IM).",
-                    Dose = 2.0,
-                    DoseUnit = "ml",
-                    ScheduledDate = birth.AddDays(21),
-                    DayNumber = 21,
-                    Status = "Pendiente",
-                    Alternatives = "RespiSure / M+Pac"
-                });
-                vacs.Add(new Vaccination
+                    // Swine Lechones vaccination scheme
+                    vacs.Add(new Vaccination
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        BatchId = batch.Id,
+                        BatchName = batch.Name,
+                        Name = "Hierro Dextrano",
+                        Type = "Aplicación única",
+                        Description = "Inyección de hierro para prevenir la anemia ferropénica neonatal. No requiere refuerzo.",
+                        Dose = 1.0,
+                        DoseUnit = "ml",
+                        ScheduledDate = birth.AddDays(3),
+                        DayNumber = 3,
+                        Status = "Pendiente",
+                        Alternatives = "Gleptoferrón, Hierro Sacarato, Ferran®, Uniferon®"
+                    });
+                    vacs.Add(new Vaccination
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        BatchId = batch.Id,
+                        BatchName = batch.Name,
+                        Name = "Vacuna contra Mycoplasma hyopneumoniae",
+                        Type = "Vacuna",
+                        Description = "Vacuna inyectable para prevenir la neumonía enzoótica porcina. Requiere refuerzo según protocolo.",
+                        Dose = 2.0,
+                        DoseUnit = "ml",
+                        ScheduledDate = birth.AddDays(7),
+                        DayNumber = 7,
+                        Status = "Pendiente",
+                        Alternatives = "Ingelvac® MycoFLEX, Stellamune® Mycoplasma, RespiSure-One®, M+PAC®"
+                    });
+                    vacs.Add(new Vaccination
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        BatchId = batch.Id,
+                        BatchName = batch.Name,
+                        Name = "Vacuna contra Circovirus Porcino (PCV2)",
+                        Type = "Vacuna",
+                        Description = "Vacuna inyectable para prevenir la circovirosis porcina (PCV2). Refuerzo según recomendación.",
+                        Dose = 2.0,
+                        DoseUnit = "ml",
+                        ScheduledDate = birth.AddDays(21),
+                        DayNumber = 21,
+                        Status = "Pendiente",
+                        Alternatives = "Circovac®, Ingelvac® CircoFLEX, Porcilis® PCV, Fostera® PCV"
+                    });
+                    vacs.Add(new Vaccination
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        BatchId = batch.Id,
+                        BatchName = batch.Name,
+                        Name = "Vacuna contra PRRS",
+                        Type = "Vacuna",
+                        Description = "Vacuna inyectable para prevenir el Síndrome Respiratorio y Reproductivo Porcino (PRRS). Refuerzo según programa.",
+                        Dose = 2.0,
+                        DoseUnit = "ml",
+                        ScheduledDate = birth.AddDays(21),
+                        DayNumber = 21,
+                        Status = "Pendiente",
+                        Alternatives = "Ingelvac® PRRS MLV, ReproCyc® PRRS, Porcilis® PRRS, Unistrain® PRRS"
+                    });
+                }
+                else if (purpose.Equals("Reproducción", StringComparison.OrdinalIgnoreCase) || 
+                         purpose.Equals("Madres", StringComparison.OrdinalIgnoreCase) || 
+                         batch.Name.Contains("madres", StringComparison.OrdinalIgnoreCase) || 
+                         batch.Name.Contains("madre", StringComparison.OrdinalIgnoreCase))
                 {
-                    Id = Guid.NewGuid().ToString(),
-                    BatchId = batch.Id,
-                    BatchName = batch.Name,
-                    Name = "Refuerzo contra Mycoplasma hyopneumoniae",
-                    Type = "Refuerzo",
-                    Description = "Segunda dosis para inmunidad protectora pulmonar. Vía Intramuscular (IM).",
-                    Dose = 2.0,
-                    DoseUnit = "ml",
-                    ScheduledDate = birth.AddDays(42),
-                    DayNumber = 42,
-                    Status = "Pendiente",
-                    Alternatives = "RespiSure / M+Pac"
-                });
-                vacs.Add(new Vaccination
-                {
-                    Id = Guid.NewGuid().ToString(),
-                    BatchId = batch.Id,
-                    BatchName = batch.Name,
-                    Name = "Desparasitante (Ivermectina 1%)",
-                    Type = "Desparasitación",
-                    Description = "Control de parásitos gastrointestinales, pulmonares, sarna y piojos. Vía Subcutánea (SC).",
-                    Dose = 1.0,
-                    DoseUnit = "ml/33kg",
-                    ScheduledDate = birth.AddDays(60),
-                    DayNumber = 60,
-                    Status = "Pendiente",
-                    Alternatives = "Dectomax / Ivomec"
-                });
-
-                // Tareas reproductivas especiales para lotes de Madres / Reproducción
-                if (batch.Purpose.Equals("Reproducción", StringComparison.OrdinalIgnoreCase) || 
-                    batch.Name.Contains("madres", StringComparison.OrdinalIgnoreCase) || 
-                    batch.Name.Contains("madre", StringComparison.OrdinalIgnoreCase))
-                {
+                    // Swine Madres / Reproducción vaccination scheme
+                    vacs.Add(new Vaccination
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        BatchId = batch.Id,
+                        BatchName = batch.Name,
+                        Name = "Vacuna contra Parvovirus Porcino",
+                        Type = "Vacuna",
+                        Description = "Vacuna viral inyectable para prevenir la parvovirosis porcina. Programado antes del servicio o durante la gestación.",
+                        Dose = 2.0,
+                        DoseUnit = "ml",
+                        ScheduledDate = birth.AddDays(10),
+                        DayNumber = 10,
+                        Status = "Pendiente",
+                        Alternatives = "Porcilis® Parvo, Eryseng® Parvo, FarrowSure® Gold, ReproCyc® Parvo"
+                    });
+                    vacs.Add(new Vaccination
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        BatchId = batch.Id,
+                        BatchName = batch.Name,
+                        Name = "Vacuna Leptospira + Erisipela",
+                        Type = "Vacuna",
+                        Description = "Vacuna bacteriana combinada para prevenir la Leptospirosis y Erisipela porcina. Programado antes del servicio o durante la gestación.",
+                        Dose = 2.0,
+                        DoseUnit = "ml",
+                        ScheduledDate = birth.AddDays(10),
+                        DayNumber = 10,
+                        Status = "Pendiente",
+                        Alternatives = "FarrowSure® Gold B, Porcilis® Ery+Parvo+Lepto, Eryseng® Lepto, Suiseng® Lepto"
+                    });
                     vacs.Add(new Vaccination
                     {
                         Id = Guid.NewGuid().ToString(),
@@ -843,6 +950,136 @@ namespace GalponApp.Infrastructure.Services
                         DayNumber = 210,
                         Status = "Pendiente",
                         Alternatives = "Semen de semental Landrace/Duroc / Monta natural"
+                    });
+                    vacs.Add(new Vaccination
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        BatchId = batch.Id,
+                        BatchName = batch.Name,
+                        Name = "Vacuna contra Colibacilosis (E. coli)",
+                        Type = "Vacuna",
+                        Description = "Vacuna bacteriana inyectable 2-4 semanas antes del parto. Previene la diarrea neonatal en lechones mediante inmunidad del calostro.",
+                        Dose = 2.0,
+                        DoseUnit = "ml",
+                        ScheduledDate = birth.AddDays(95),
+                        DayNumber = 95,
+                        Status = "Pendiente",
+                        Alternatives = "Porcilis® ColiClos, Suiseng® Coli, Coliprotec®, Enteroporc®"
+                    });
+                }
+                else if (purpose.Equals("Padrillos", StringComparison.OrdinalIgnoreCase) || 
+                         batch.Name.Contains("padrillos", StringComparison.OrdinalIgnoreCase) || 
+                         batch.Name.Contains("padrillo", StringComparison.OrdinalIgnoreCase))
+                {
+                    // Swine Padrillos vaccination scheme
+                    vacs.Add(new Vaccination
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        BatchId = batch.Id,
+                        BatchName = batch.Name,
+                        Name = "Vacuna contra Leptospirosis Porcina",
+                        Type = "Vacuna",
+                        Description = "Vacuna bacteriana semestral para prevenir la Leptospirosis porcina. Aplicar cada 6 meses.",
+                        Dose = 2.0,
+                        DoseUnit = "ml",
+                        ScheduledDate = birth.AddDays(180),
+                        DayNumber = 180,
+                        Status = "Pendiente",
+                        Alternatives = "FarrowSure® Gold B, Leptoferm®, Suiseng® Lepto"
+                    });
+                    vacs.Add(new Vaccination
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        BatchId = batch.Id,
+                        BatchName = batch.Name,
+                        Name = "Vacuna contra Parvovirus Porcino",
+                        Type = "Vacuna",
+                        Description = "Vacuna viral semestral para prevenir la parvovirosis porcina. Aplicar cada 6 meses.",
+                        Dose = 2.0,
+                        DoseUnit = "ml",
+                        ScheduledDate = birth.AddDays(180),
+                        DayNumber = 180,
+                        Status = "Pendiente",
+                        Alternatives = "Porcilis® Parvo, Eryseng® Parvo, ReproCyc® Parvo"
+                    });
+                    vacs.Add(new Vaccination
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        BatchId = batch.Id,
+                        BatchName = batch.Name,
+                        Name = "Vacuna contra Erisipela Porcina",
+                        Type = "Vacuna",
+                        Description = "Vacuna bacteriana anual para prevenir la erisipela porcina. Aplicar una vez al año.",
+                        Dose = 2.0,
+                        DoseUnit = "ml",
+                        ScheduledDate = birth.AddDays(365),
+                        DayNumber = 365,
+                        Status = "Pendiente",
+                        Alternatives = "Porcilis® Ery, Eryseng®, ERYVAC®, Suiseng® Ery"
+                    });
+                }
+                else
+                {
+                    // Generic swine scheme
+                    vacs.Add(new Vaccination
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        BatchId = batch.Id,
+                        BatchName = batch.Name,
+                        Name = "Vacuna contra la Peste Porcina Clásica (Cólera Porcino)",
+                        Type = "Vacuna",
+                        Description = "Inmunización obligatoria oficial contra el Cólera Porcino (Cepa China). Vía Intramuscular (IM).",
+                        Dose = 2.0,
+                        DoseUnit = "ml",
+                        ScheduledDate = birth.AddDays(45),
+                        DayNumber = 45,
+                        Status = "Pendiente",
+                        Alternatives = "Pest-Vac / Cólera Porcino"
+                    });
+                    vacs.Add(new Vaccination
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        BatchId = batch.Id,
+                        BatchName = batch.Name,
+                        Name = "Vacuna contra Mycoplasma hyopneumoniae",
+                        Type = "Vacuna",
+                        Description = "Prevención de la neumonía enzoótica (Dosis 1). Vía Intramuscular (IM).",
+                        Dose = 2.0,
+                        DoseUnit = "ml",
+                        ScheduledDate = birth.AddDays(21),
+                        DayNumber = 21,
+                        Status = "Pendiente",
+                        Alternatives = "RespiSure / M+Pac"
+                    });
+                    vacs.Add(new Vaccination
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        BatchId = batch.Id,
+                        BatchName = batch.Name,
+                        Name = "Refuerzo contra Mycoplasma hyopneumoniae",
+                        Type = "Refuerzo",
+                        Description = "Segunda dosis para inmunidad protectora pulmonar. Vía Intramuscular (IM).",
+                        Dose = 2.0,
+                        DoseUnit = "ml",
+                        ScheduledDate = birth.AddDays(42),
+                        DayNumber = 42,
+                        Status = "Pendiente",
+                        Alternatives = "RespiSure / M+Pac"
+                    });
+                    vacs.Add(new Vaccination
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        BatchId = batch.Id,
+                        BatchName = batch.Name,
+                        Name = "Desparasitante (Ivermectina 1%)",
+                        Type = "Desparasitación",
+                        Description = "Control de parásitos gastrointestinales, pulmonares, sarna y piojos. Vía Subcutánea (SC).",
+                        Dose = 1.0,
+                        DoseUnit = "ml/33kg",
+                        ScheduledDate = birth.AddDays(60),
+                        DayNumber = 60,
+                        Status = "Pendiente",
+                        Alternatives = "Dectomax / Ivomec"
                     });
                 }
             }

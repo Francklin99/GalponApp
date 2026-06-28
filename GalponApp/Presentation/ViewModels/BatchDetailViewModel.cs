@@ -185,7 +185,7 @@ namespace GalponApp.Presentation.ViewModels
 
                 DailyFeedPerAnimal = Batch.Quantity > 0 ? feedResult.DailyFeedNeededKg / Batch.Quantity : 0;
                 DailyWaterPerAnimal = Batch.Quantity > 0 ? feedResult.DailyWaterNeededLiters / Batch.Quantity : 0;
-                CurrentStageName = DetermineStageName(Batch.CategoryId, Batch.AgeInWeeks);
+                CurrentStageName = DetermineStageName(Batch.CategoryId, Batch.AgeInWeeks, Batch.Purpose);
 
                 // Cargar histórico y cronograma de etapas de la guía de alimentación
                 var allConfigs = await _storageService.GetFeedingConfigsAsync();
@@ -203,7 +203,7 @@ namespace GalponApp.Presentation.ViewModels
                     var item = new FeedingStageItem
                     {
                         Config = config,
-                        StageName = DetermineStageName(Batch.CategoryId, config.MinAgeWeeks),
+                        StageName = DetermineStageName(Batch.CategoryId, config.MinAgeWeeks, Batch.Purpose, config.FeedType),
                         DurationText = config.MaxAgeWeeks >= 999 
                             ? "Duración: Indefinida (Etapa Final)" 
                             : $"Duración: {config.MaxAgeWeeks - config.MinAgeWeeks + 1} semanas"
@@ -583,10 +583,17 @@ namespace GalponApp.Presentation.ViewModels
             }
         }
 
-        private string DetermineStageName(string categoryId, int ageInWeeks)
+        private string DetermineStageName(string categoryId, int ageInWeeks, string purpose = "", string feedType = "")
         {
+            if (!string.IsNullOrEmpty(feedType)) return feedType;
             if (categoryId == "porcinos")
             {
+                if (purpose.Equals("Lechones", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (ageInWeeks == 0) return "Calostro Materno";
+                    if (ageInWeeks <= 3) return "Pre-iniciador";
+                    return "Iniciador";
+                }
                 if (ageInWeeks <= 4) return "Pre-inicio";
                 if (ageInWeeks <= 8) return "Inicio";
                 if (ageInWeeks <= 16) return "Crecimiento";
